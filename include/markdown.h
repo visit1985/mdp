@@ -73,4 +73,8 @@ document_t *new_document() {
     return x;
 }
 
+int is_utf8(char ch);
+int next_nonblank(cstring_t *text, int i);
+document_t * markdown_load(FILE *input);
+
 #endif // !defined( MARKDOWN_H )
