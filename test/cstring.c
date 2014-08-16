@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "../include/cstring.h"
+#include "../cstring.c"
 
 int main(int argc, char *argv[]) {
 

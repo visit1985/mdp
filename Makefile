@@ -1,25 +1,23 @@
-# set some compiler flags
-CFLAGS=-lncurses
+tmp: tmp.c cstring.o markdown.o markdown_io.o
+	cc -g -o tmp tmp.c cstring.o markdown.o markdown_io.o
 
-# find *.c in the current directory
-SOURCES=$(wildcard *.c)
-TESTS=$(wildcard test/*.c)
+markdown_io.o: markdown_io.c cstring.o markdown.o
+	cc -g -c markdown_io.c -o markdown_io.o -lmarkdown
 
-# define the output objects by replacing .c with .o
-TARGETS=$(SOURCES:.c=)
-TEST_TARGETS=$(TESTS:.c=)
+markdown.o: markdown.c cstring.o
+	cc -g -c markdown.c -o markdown.o -lcstring
 
-# this will make all objects
-all: $(TEST_TARGETS) $(TARGETS) 
-test: $(TEST_TARGETS)
+cstring.o: cstring.c
+	cc -g -c cstring.c -o cstring.o
 
-# each objects will be build by a *.c file
-#%.o: %.c
-%: %.c
-	cc $(CFLAGS) -o $@ $^
+all: tmp
 
-# this will delete all objects
-# if not all objects are there, they will be compiled first
-clean: $(TARGETS) $(TEST_TARGETS)
-	rm -f $^
+.PHONY: test
+
+test:
+	$(MAKE) -C test
+
+clean:
+	rm -f tmp *.o
+	$(MAKE) -C test clean
 
