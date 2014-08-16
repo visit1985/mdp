@@ -19,10 +19,7 @@ int main(int argc, char *argv[]) {
     (p->expand)(p, 'X'); printf("text: %s, size: %i, alloc: %i\n", p->text, p->size, p->alloc);
     (p->expand)(p, 'X'); printf("text: %s, size: %i, alloc: %i\n", p->text, p->size, p->alloc);
 
-    (p->delete)(p);
-
-    // testing with char array
-    p = cstring_init();
+    (p->reset)(p);
     printf("text: %s, size: %i, alloc: %i\n", p->text, p->size, p->alloc);
 
     char x[2] = {'X', '\0'};

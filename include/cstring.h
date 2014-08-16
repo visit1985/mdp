@@ -30,11 +30,13 @@ typedef struct _cstring_t {
     size_t alloc;
     void (*expand)(struct _cstring_t *self, char x);
     void (*expand_arr)(struct _cstring_t *self, char *x);
+    void (*reset)(struct _cstring_t *self);
     void (*delete)(struct _cstring_t *self);
 } cstring_t;
 
 void cstring_expand(cstring_t *self, char x);
 void cstring_expand_arr(cstring_t *self, char *x);
+void cstring_reset(cstring_t *self);
 void cstring_delete(cstring_t *self);
 
 cstring_t *cstring_init() {
@@ -43,6 +45,7 @@ cstring_t *cstring_init() {
     x->size = x->alloc = 0;
     x->expand = cstring_expand;
     x->expand_arr = cstring_expand_arr;
+    x->reset = cstring_reset;
     x->delete = cstring_delete;
     return x;
 }
@@ -66,6 +69,11 @@ void cstring_expand_arr(cstring_t *self, char *x) {
     self->size = strlen(self->text);
 }
 
+void cstring_reset(cstring_t *self) {
+    free(self->text);
+    self->text = (void*)0;
+    self->size = self->alloc = 0;
+}
 
 void cstring_delete(cstring_t *self) {
     free(self->text);
