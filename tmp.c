@@ -10,6 +10,7 @@ void usage() {
     fprintf(stderr, "Usage: tmp [OPTION]... [FILE]\n");
     fprintf(stderr, "A command-line based markdown presentation tool.\n\n");
     fprintf(stderr, "  -d, --debug   enable debug messages on STDERR\n");
+    fprintf(stderr, "                add it multiple times to increases debug level\n\n");
     fprintf(stderr, "  -h, --help    display this help and exit\n");
     fprintf(stderr, "\nWith no FILE, or when FILE is -, read standard input.\n\n");
     exit(EXIT_FAILURE);
@@ -28,7 +29,7 @@ int main(int argc, char *argv[]) {
     int opt, debug = 0;
     while ((opt = getopt_long(argc, argv, ":dh", longopts, NULL)) != -1) {
         switch(opt) {
-            case 'd': debug = 1; break;
+            case 'd': debug += 1; break;
             case 'h': usage(); break;
             case ':': fprintf(stderr, "%s: '%c' requires an argument\n", argv[0], optopt); usage(); break;
             case '?':
@@ -61,7 +62,7 @@ int main(int argc, char *argv[]) {
     document_t *doc;
     doc = markdown_load(input);
 
-    if(debug) {
+    if(debug > 0) {
         // print header to STDERR
         int offset;
         line_t *header;
@@ -72,7 +73,7 @@ int main(int argc, char *argv[]) {
                 header->text->text[0] == '%') {
 
                 offset = next_blank(header->text, 0) + 1;
-                printf("header: %s\n", &header->text->text[offset]);
+                fprintf(stderr, "header: %s\n", &header->text->text[offset]);
                 header = header->next;
             }
         }
@@ -83,13 +84,21 @@ int main(int argc, char *argv[]) {
         line_t *line;
         while(page) {
             cp++;
+            if(debug > 1) {
+                fprintf(stderr, "page %i:\n", cp);
+            }
             line = page->line;
             cl = 0;
             while(line) {
                 cl++;
+                if(debug > 1) {
+                    fprintf(stderr, "  line %i: bits = %i, length = %i\n", cl, line->bits, line->text->size);
+                }
                 line = line->next;
             }
-            printf("page %i: %i lines\n", cp, cl);
+            if(debug == 1) {
+                fprintf(stderr, "page %i: %i lines\n", cp, cl);
+            }
             page = page->next;
         }
     }
