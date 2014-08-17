@@ -24,3 +24,11 @@ Now with different indentation.
 
 	function expand_tab {
         }
+
+***
+
+Another Title
+-------------
+
+And some Text.
+

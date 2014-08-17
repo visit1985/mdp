@@ -25,7 +25,8 @@ document_t *markdown_load(FILE *input) {
             bits = markdown_analyse(text);
 
             // if text is markdown hr
-            if(CHECK_BIT(bits, IS_HR)) {
+            if(CHECK_BIT(bits, IS_HR) &&
+               CHECK_BIT(line->bits, IS_EMPTY)) {
 
                 // clear text
                 (text->reset)(text);
@@ -94,23 +95,49 @@ document_t *markdown_load(FILE *input) {
         doc->page->line = line;
     }
 
+    // combine underlined H1/H2 in single line
+    page = doc->page;
+    while(page) {
+        line = page->line;
+        while(line) {
+            if((CHECK_BIT(line->bits, IS_H1) ||
+                CHECK_BIT(line->bits, IS_H2)) &&
+               CHECK_BIT(line->bits, IS_EMPTY) &&
+               line->prev &&
+               !CHECK_BIT(line->prev->bits, IS_EMPTY)) {
+
+                // remove line from linked list
+                line->prev->next = line->next;
+                line->next->prev = line->prev;
+
+                // set bits on revious line
+                if(CHECK_BIT(line->bits, IS_H1)) {
+                    SET_BIT(line->prev->bits, IS_H1);
+                } else {
+                    SET_BIT(line->prev->bits, IS_H2);
+                }
+
+                // delete line
+                (line->text->delete)(line->text);
+                free(line);
+            }
+            line = line->next;
+        }
+        page = page->next;
+    }
+
     return doc;
 }
 
 int markdown_analyse(cstring_t *text) {
     int i = 0, bits = 0,
-        offset = 0, eol = 0,
-        equals = 0, hashes = 0, stars = 0, minus = 0, plus = 0,
-        spaces = 0, other = 0;
+        offset = 0, eol    = 0,
+        equals = 0, hashes = 0,
+        stars  = 0, minus  = 0,
+        spaces = 0, other  = 0;
 
     // count leading spaces
     offset = next_nonblank(text, 0);
-
-    // IS_CODE
-    if(offset >= 4) {
-        SET_BIT(bits, IS_CODE);
-        return bits;
-    }
 
     // strip trailing spaces
     for(eol = text->size; eol > offset && isspace(text->text[eol - 1]); eol--);
@@ -118,25 +145,61 @@ int markdown_analyse(cstring_t *text) {
     for(i = offset; i < eol; i++) {
 
         switch(text->text[i]) {
-            case '=': equals++; break;
-            case '#': hashes++; break;
-            case '*': stars++; break;
-            case '-': minus++; break;
-            case '+': plus++; break;
-            case ' ': spaces++; break;
-            default: other++; break;
+            case '=': equals++;  break;
+            case '#': hashes++;  break;
+            case '*': stars++;   break;
+            case '-': minus++;   break;
+            case ' ': spaces++;  break;
+            default:  other++;   break;
         }
     }
 
-    // IS_HR
-    if((minus >= 3 && equals + hashes + stars + plus == 0) ||
-       (stars >= 3 && equals + hashes + minus + plus == 0)) {
+    // IS_H1
+    if((equals > 0 &&
+        hashes + stars + minus + spaces + other == 0) ||
+       (text &&
+        text->text &&
+        text->text[offset] == '#' &&
+        text->text[offset+1] != '#')) {
 
-        SET_BIT(bits, IS_HR);
-        return bits;
+        SET_BIT(bits, IS_H1);
     }
 
-    //TODO all the other markdown tags
+    // IS_H2
+    if((minus > 0 &&
+        equals + hashes + stars + spaces + other == 0) ||
+       (text &&
+        text->text &&
+        text->text[offset] == '#' &&
+        text->text[offset+1] == '#')) {
+
+        SET_BIT(bits, IS_H2);
+    }
+
+    // IS_QUOTE
+    if(text &&
+       text->text &&
+       text->text[offset] == '>') {
+
+        SET_BIT(bits, IS_QUOTE);
+    }
+
+    // IS_CODE
+    if(offset >= 4) {
+        SET_BIT(bits, IS_CODE);
+    }
+
+    // IS_HR
+    if((minus >= 3 && equals + hashes + stars + other == 0) ||
+       (stars >= 3 && equals + hashes + minus + other == 0)) {
+
+        SET_BIT(bits, IS_HR);
+    }
+
+    // IS_EMPTY
+    if(other == 0) {
+        SET_BIT(bits, IS_EMPTY);
+    }
 
     return bits;
 }
