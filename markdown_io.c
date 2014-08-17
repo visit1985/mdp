@@ -6,7 +6,7 @@
 
 document_t *markdown_load(FILE *input) {
 
-    int c, i, bits;
+    int c = 0, i = 0, bits = 0;
 
     document_t *doc;
     page_t *page;
@@ -56,9 +56,12 @@ document_t *markdown_load(FILE *input) {
 
                 // calc offset
                 line->offset = next_nonblank(text, 0);
+
+                // new text
+                text = cstring_init();
             }
 
-        } else if('\t') {
+        } else if(c == '\t') {
 
             // expand tab to spaces
             for (i = 0;  i <= 4;  i++)
@@ -77,10 +80,10 @@ document_t *markdown_load(FILE *input) {
 }
 
 int markdown_analyse(cstring_t *text) {
-    int c, i, bits,
-        offset, eol,
-        equals, hashes, stars, minus, plus,
-        spaces, other;
+    int i = 0, bits = 0,
+        offset = 0, eol = 0,
+        equals = 0, hashes = 0, stars = 0, minus = 0, plus = 0,
+        spaces = 0, other = 0;
 
     // count leading spaces
     offset = next_nonblank(text, 0);
