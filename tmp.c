@@ -27,6 +27,19 @@ int main(int argc, char *argv[]) {
     doc = markdown_load(input);
 
     // test line/page load
+    int offset;
+    line_t *header;
+    if(doc->header) {
+        header = doc->header;
+        while(header &&
+              header->text->size > 0 &&
+              header->text->text[0] == '%') {
+
+            offset = next_blank(header->text, 0) + 1;
+            printf("header: %s\n", &header->text->text[offset]);
+            header = header->next;
+        }
+    }
     int cp = 0, cl = 0;
     page_t *page = doc->page;
     line_t *line;

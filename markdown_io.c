@@ -74,7 +74,25 @@ document_t *markdown_load(FILE *input) {
         }
     }
 
-    //TODO detect header
+    // detect header
+    line = doc->page->line;
+    if(line && line->text->size > 0 && line->text->text[0] == '%') {
+
+        // assign header to document
+        doc->header = line;
+
+        // find first non-header line
+        while(line->text->size > 0 && line->text->text[0] == '%') {
+            line = line->next;
+        }
+
+        // split linked list
+        line->prev->next = (void*)0;
+        line->prev = (void*)0;
+
+        // remove header lines from page
+        doc->page->line = line;
+    }
 
     return doc;
 }
@@ -129,6 +147,12 @@ int is_utf8(char ch) {
 
 int next_nonblank(cstring_t *text, int i) {
     while ((i < text->size) && isspace((text->text)[i]))
+        ++i;
+    return i;
+};
+
+int next_blank(cstring_t *text, int i) {
+    while ((i < text->size) && !isspace((text->text)[i]))
         ++i;
     return i;
 };

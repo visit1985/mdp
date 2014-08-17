@@ -1,6 +1,6 @@
-@title: Sample Presentation
-@author: Michael Göhler
-@date: 2014-08-07
+%title: Sample Presentation
+%author: Michael Göhler
+%date: 2014-08-07
 
 Title
 =====

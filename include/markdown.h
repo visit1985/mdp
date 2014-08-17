@@ -49,6 +49,7 @@ page_t *next_page(page_t *prev);
 document_t *new_document();
 int is_utf8(char ch);
 int next_nonblank(cstring_t *text, int i);
+int next_blank(cstring_t *text, int i);
 document_t *markdown_load(FILE *input);
 
 #endif // !defined( MARKDOWN_H )
