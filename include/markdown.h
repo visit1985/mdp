@@ -14,13 +14,12 @@
 #define CHECK_BIT(var, pos)  ((var) &  (1<<(pos)))
 
 enum line_bitmask {
-    IS_HEADER,
-    IS_HEADER2,
+    IS_H1,
+    IS_H2,
     IS_QUOTE,
     IS_CODE,
-    IS_LIST,
-    IS_NUMLIST,
-    IS_HR
+    IS_HR,
+    IS_EMPTY
 };
 
 typedef struct _line_t {

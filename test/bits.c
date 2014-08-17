@@ -7,23 +7,23 @@ int main(int argc, char *argv[]) {
     int i;
     printf("INIT: %i\n", i);
 
-    SET_BIT(i, IS_HEADER);
-    printf("SET_BIT(%i): %i\n", IS_HEADER, i);
+    SET_BIT(i, IS_H1);
+    printf("SET_BIT(%i): %i\n", IS_H1, i);
 
-    printf("CHECK_BIT(%i): %i\n", IS_HEADER, CHECK_BIT(i, IS_HEADER));
+    printf("CHECK_BIT(%i): %i\n", IS_H1, CHECK_BIT(i, IS_H1));
 
-    TOGGLE_BIT(i, IS_HEADER2);
-    printf("TOGGLE_BIT(%i): %i\n", IS_HEADER2, i);
+    TOGGLE_BIT(i, IS_H2);
+    printf("TOGGLE_BIT(%i): %i\n", IS_H2, i);
 
-    printf("CHECK_BIT(%i): %i\n", IS_HEADER2, CHECK_BIT(i, IS_HEADER2));
+    printf("CHECK_BIT(%i): %i\n", IS_H2, CHECK_BIT(i, IS_H2));
 
-    TOGGLE_BIT(i, IS_HEADER2);
-    printf("TOGGLE_BIT(%i): %i\n", IS_HEADER2, i);
+    TOGGLE_BIT(i, IS_H2);
+    printf("TOGGLE_BIT(%i): %i\n", IS_H2, i);
 
-    CLEAR_BIT(i, IS_HEADER);
-    printf("CLEAR_BIT(%i): %i\n", IS_HEADER, i);
+    CLEAR_BIT(i, IS_H1);
+    printf("CLEAR_BIT(%i): %i\n", IS_H1, i);
 
-    printf("CHECK_BIT(%i): %i\n", IS_HEADER, CHECK_BIT(i, IS_HEADER));
-    printf("CHECK_BIT(%i): %i\n", IS_HEADER2, CHECK_BIT(i, IS_HEADER2));
+    printf("CHECK_BIT(%i): %i\n", IS_H1, CHECK_BIT(i, IS_H1));
+    printf("CHECK_BIT(%i): %i\n", IS_H2, CHECK_BIT(i, IS_H2));
 }
 
