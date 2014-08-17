@@ -25,5 +25,21 @@ int main(int argc, char *argv[]) {
     }
 
     doc = markdown_load(input);
+
+    // test line/page load
+    int cp = 0, cl = 0;
+    page_t *page = doc->page;
+    line_t *line;
+    while(page) {
+        cp++;
+        line = page->line;
+        cl = 0;
+        while(line) {
+            cl++;
+            line = line->next;
+        }
+        printf("page %i: %i lines\n", cp, cl);
+        page = page->next;
+    }
 }
 
