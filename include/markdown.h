@@ -38,9 +38,7 @@ typedef struct _page_t {
 } page_t;
 
 typedef struct _document_t {
-    line_t *title;
-    line_t *author;
-    line_t *date;
+    line_t *header;
     page_t *page;
 } document_t;
 

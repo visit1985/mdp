@@ -35,7 +35,7 @@ page_t *next_page(page_t *prev) {
 
 document_t *new_document() {
     document_t *x = malloc(sizeof(document_t));
-    x->title = x->author = x->date = (void*)0;
+    x->header = (void*)0;
     x->page = (void*)0;
     return x;
 }
