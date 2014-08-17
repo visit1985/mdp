@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "include/markdown.h"
+#include "include/parser.h"
 
 void usage() {
     fprintf(stderr, "Usage: tmp [OPTION]... [FILE]\n");

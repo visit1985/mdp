@@ -7,11 +7,7 @@
  */
 
 #include "cstring.h"
-
-#define SET_BIT(var, pos)    ((var) |= (1<<(pos)))
-#define CLEAR_BIT(var, pos)  ((var) &= (~(1<<(pos))))
-#define TOGGLE_BIT(var, pos) ((var) ^= (1<<(pos)))
-#define CHECK_BIT(var, pos)  ((var) &  (1<<(pos)))
+#include "bitops.h"
 
 enum line_bitmask {
     IS_H1,
@@ -46,9 +42,5 @@ line_t *next_line(line_t *prev);
 page_t *new_page();
 page_t *next_page(page_t *prev);
 document_t *new_document();
-int is_utf8(char ch);
-int next_nonblank(cstring_t *text, int i);
-int next_blank(cstring_t *text, int i);
-document_t *markdown_load(FILE *input);
 
 #endif // !defined( MARKDOWN_H )

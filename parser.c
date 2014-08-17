@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "include/cstring.h"
-#include "include/markdown.h"
+#include "include/parser.h"
 
 document_t *markdown_load(FILE *input) {
 
