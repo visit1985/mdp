@@ -1,1 +1,1 @@
-set args sample.md
+set args -d sample.md
