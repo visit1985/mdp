@@ -8,7 +8,7 @@ line_t *new_line() {
     line_t *x = malloc(sizeof(line_t));
     x->text = (void*)0;
     x->prev = x->next = (void*)0;
-    x->bits = x->offset = 0;
+    x->bits = x->length = x->offset = 0;
     return x;
 }
 

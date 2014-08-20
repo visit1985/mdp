@@ -5,7 +5,7 @@
 
 document_t *markdown_load(FILE *input) {
 
-    int c = 0, i = 0, bits = 0;
+    int c = 0, i = 0, l = 0, bits = 0;
 
     document_t *doc;
     page_t *page;
@@ -29,6 +29,10 @@ document_t *markdown_load(FILE *input) {
 
                 // clear text
                 (text->reset)(text);
+
+                // reset line length
+                l = 0;
+
                 // create next page
                 page = next_page(page);
 
@@ -54,23 +58,48 @@ document_t *markdown_load(FILE *input) {
                 // add bits to line
                 line->bits = bits;
 
+                // add length to line
+                line->length = l;
+
                 // calc offset
                 line->offset = next_nonblank(text, 0);
 
                 // new text
                 text = cstring_init();
+
+                // reset line length
+                l = 0;
             }
 
         } else if(c == '\t') {
 
             // expand tab to spaces
-            for (i = 0;  i <= 4;  i++)
+            for (i = 0;  i <= 4;  i++) {
                 (text->expand)(text, ' ');
+                l++;
+            }
 
-        } else if(isprint(c) || isspace(c) || is_utf8(c)) {
+        } else if(isprint(c) || isspace(c)) {
 
             // add char to line
             (text->expand)(text, c);
+
+            // increase line lenght
+            l++;
+
+        } else if(is_utf8(c)) {
+
+            // add char to line
+            (text->expand)(text, c);
+
+            // if utf-8 char > 1 byte add remaing to line
+            for(i = 0; i < length_utf8(c) - 1; i++) {
+                c = fgetc(input);
+                (text->expand)(text, c);
+            }
+
+            // increase line length
+            l++;
         }
     }
 
@@ -205,6 +234,15 @@ int markdown_analyse(cstring_t *text) {
 
 int is_utf8(char ch) {
     return (ch & 0x80);
+}
+
+int length_utf8(char ch) {
+    int i = 0;
+    while(ch & 0x80) {
+        i++;
+        ch <<= 1;
+    }
+    return i;
 }
 
 int next_nonblank(cstring_t *text, int i) {

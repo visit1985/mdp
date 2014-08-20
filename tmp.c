@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
         if(doc->header) {
             header = doc->header;
             while(header &&
-                header->text->size > 0 &&
+                header->length > 0 &&
                 header->text->text[0] == '%') {
 
                 offset = next_blank(header->text, 0) + 1;
@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
             while(line) {
                 cl++;
                 if(debug > 1) {
-                    fprintf(stderr, "  line %i: bits = %i, length = %i\n", cl, line->bits, line->text->size);
+                    fprintf(stderr, "  line %i: bits = %i, length = %i\n", cl, line->bits, line->length);
                 }
                 line = line->next;
             }

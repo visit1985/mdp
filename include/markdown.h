@@ -23,6 +23,7 @@ typedef struct _line_t {
     struct _line_t *prev;
     struct _line_t *next;
     int bits;
+    int length;
     int offset;
 } line_t;
 
