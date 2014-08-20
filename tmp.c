@@ -63,44 +63,7 @@ int main(int argc, char *argv[]) {
     doc = markdown_load(input);
 
     if(debug > 0) {
-        // print header to STDERR
-        int offset;
-        line_t *header;
-        if(doc->header) {
-            header = doc->header;
-            while(header &&
-                header->length > 0 &&
-                header->text->text[0] == '%') {
-
-                offset = next_blank(header->text, 0) + 1;
-                fprintf(stderr, "header: %s\n", &header->text->text[offset]);
-                header = header->next;
-            }
-        }
-
-        // print page/line count to STDERR
-        int cp = 0, cl = 0;
-        page_t *page = doc->page;
-        line_t *line;
-        while(page) {
-            cp++;
-            if(debug > 1) {
-                fprintf(stderr, "page %i:\n", cp);
-            }
-            line = page->line;
-            cl = 0;
-            while(line) {
-                cl++;
-                if(debug > 1) {
-                    fprintf(stderr, "  line %i: bits = %i, length = %i\n", cl, line->bits, line->length);
-                }
-                line = line->next;
-            }
-            if(debug == 1) {
-                fprintf(stderr, "page %i: %i lines\n", cp, cl);
-            }
-            page = page->next;
-        }
+        markdown_debug(doc, debug);
     }
 }
 
