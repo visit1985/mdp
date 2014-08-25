@@ -80,9 +80,33 @@ deck_t *markdown_load(FILE *input) {
         } else if(c == '\t') {
 
             // expand tab to spaces
-            for (i = 0;  i <= 4;  i++) {
+            for (i = 0;  i <= EXPAND_TABS;  i++) {
                 (text->expand)(text, ' ');
                 l++;
+            }
+
+        } else if(c == '\\') {
+
+            // add char to line
+            (text->expand)(text, c);
+            l++;
+
+            // if !IS_CODE add next char to line
+            // and do not increase line count
+            if(next_nonblank(text, 0) < CODE_INDENT) {
+
+                c = fgetc(input);
+                (text->expand)(text, c);
+
+                if(is_utf8(c)) {
+
+                    // if utf-8 char > 1 byte add remaing to line
+                    for(i = 0; i < length_utf8(c) - 1; i++) {
+                        c = fgetc(input);
+                        (text->expand)(text, c);
+                    }
+                }
+
             }
 
         } else if(isprint(c) || isspace(c)) {
@@ -101,6 +125,7 @@ deck_t *markdown_load(FILE *input) {
                 c = fgetc(input);
                 (text->expand)(text, c);
             }
+
             l++;
         }
     }
@@ -187,15 +212,28 @@ int markdown_analyse(cstring_t *text) {
     // strip trailing spaces
     for(eol = text->size; eol > offset && isspace(text->text[eol - 1]); eol--);
 
+    // IS_CODE
+    if(offset >= CODE_INDENT) {
+        SET_BIT(bits, IS_CODE);
+    }
+
     for(i = offset; i < eol; i++) {
 
-        switch(text->text[i]) {
-            case '=': equals++;  break;
-            case '#': hashes++;  break;
-            case '*': stars++;   break;
-            case '-': minus++;   break;
-            case ' ': spaces++;  break;
-            default:  other++;   break;
+        if(text->text[i] == ' ') {
+            spaces++;
+
+        } else if(CHECK_BIT(bits, IS_CODE)) {
+            other++;
+
+        } else {
+            switch(text->text[i]) {
+                case '=': equals++;  break;
+                case '#': hashes++;  break;
+                case '*': stars++;   break;
+                case '-': minus++;   break;
+                case '\\': other++; i++; break;
+                default:  other++;   break;
+            }
         }
     }
 
@@ -227,11 +265,6 @@ int markdown_analyse(cstring_t *text) {
        text->text[offset] == '>') {
 
         SET_BIT(bits, IS_QUOTE);
-    }
-
-    // IS_CODE
-    if(offset >= 4) {
-        SET_BIT(bits, IS_CODE);
     }
 
     // IS_HR

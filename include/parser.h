@@ -3,6 +3,9 @@
 
 #include "markdown.h"
 
+#define EXPAND_TABS 4
+#define CODE_INDENT 4
+
 deck_t *markdown_load(FILE *input);
 int markdown_analyse(cstring_t *text);
 void markdown_debug(deck_t *deck, int debug);
