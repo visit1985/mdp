@@ -15,7 +15,7 @@ int main()
         start_color();
         use_default_colors();
         init_pair(COLOR_PAIR1,123,-1);
-        init_pair(COLOR_PAIR2,255,-1);
+        init_pair(COLOR_PAIR2,213,-1);
         wbkgd(stdscr,COLOR_PAIR(COLOR_PAIR1));
         wmove(stdscr,10,5);
         printw("q = quit");
@@ -34,6 +34,10 @@ int main()
                               238, 239, 240, 241, 242, 243,
                               244, 245, 246, 247, 248, 249,
                               250, 251, 252, 253, 254, 255};
+        short red_ramp[]   = { 16,  52,  52,  53,  53,  89,
+                               89,  90,  90, 126, 127, 127,
+                              163, 163, 164, 164, 200, 200,
+                              201, 201, 207, 207, 213, 213};
 
         short i = 23;
         for (;;)
@@ -52,7 +56,7 @@ int main()
             }
 
             init_pair(COLOR_PAIR1,blue_ramp[i],-1);
-            init_pair(COLOR_PAIR2,white_ramp[i],-1);
+            init_pair(COLOR_PAIR2,red_ramp[i],-1);
             wrefresh(stdscr);
             wrefresh(test);
         }

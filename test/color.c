@@ -11,12 +11,12 @@ void set_colors(void)
 
     for(i=1 ;i<256;i++)
     {
-            init_pair(i, i, -1);
-            attron(COLOR_PAIR(i));
-            printw(" %3.hd", i);
-            if(i % 15 == 0) printw("\n");
-            refresh();
-        }
+        init_pair(i, i, -1);
+        attron(COLOR_PAIR(i));
+        printw(" %3.hd", i);
+        if((i + 3) % 36 == 0) printw("\n");
+        refresh();
+    }
     standend();
     getch();
     endwin();
