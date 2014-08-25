@@ -58,9 +58,11 @@ int main(int argc, char *argv[]) {
         input = stdin;
     }
 
-    // load document object from input
-    document_t *doc;
+    // load deck object from input
+    deck_t *doc;
     doc = markdown_load(input);
+
+    //TODO close file
 
     if(debug > 0) {
         markdown_debug(doc, debug);

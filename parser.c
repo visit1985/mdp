@@ -3,18 +3,18 @@
 
 #include "include/parser.h"
 
-document_t *markdown_load(FILE *input) {
+deck_t *markdown_load(FILE *input) {
 
     int c = 0, i = 0, l = 0, bits = 0;
 
-    document_t *doc;
-    page_t *page;
+    deck_t *deck;
+    slide_t *slide;
     line_t *line;
     cstring_t *text;
 
-    doc = new_document();
-    page = new_page();
-    doc->page = page;
+    deck = new_deck();
+    slide = new_slide();
+    deck->slide = slide;
     text = cstring_init();
 
     while ((c = fgetc(input)) != EOF) {
@@ -33,17 +33,17 @@ document_t *markdown_load(FILE *input) {
                 // reset line length
                 l = 0;
 
-                // create next page
-                page = next_page(page);
+                // create next slide
+                slide = next_slide(slide);
 
             } else {
 
-                // if page ! has line
-                if(!page->line) {
+                // if slide ! has line
+                if(!slide->line) {
 
                     // create new line
                     line = new_line();
-                    page->line = line;
+                    slide->line = line;
 
                 } else {
 
@@ -104,11 +104,11 @@ document_t *markdown_load(FILE *input) {
     }
 
     // detect header
-    line = doc->page->line;
+    line = deck->slide->line;
     if(line && line->text->size > 0 && line->text->text[0] == '%') {
 
-        // assign header to document
-        doc->header = line;
+        // assign header to deck
+        deck->header = line;
 
         // find first non-header line
         while(line->text->size > 0 && line->text->text[0] == '%') {
@@ -119,14 +119,14 @@ document_t *markdown_load(FILE *input) {
         line->prev->next = (void*)0;
         line->prev = (void*)0;
 
-        // remove header lines from page
-        doc->page->line = line;
+        // remove header lines from slide
+        deck->slide->line = line;
     }
 
     // combine underlined H1/H2 in single line
-    page = doc->page;
-    while(page) {
-        line = page->line;
+    slide = deck->slide;
+    while(slide) {
+        line = slide->line;
         while(line) {
             if((CHECK_BIT(line->bits, IS_H1) ||
                 CHECK_BIT(line->bits, IS_H2)) &&
@@ -151,10 +151,10 @@ document_t *markdown_load(FILE *input) {
             }
             line = line->next;
         }
-        page = page->next;
+        slide = slide->next;
     }
 
-    return doc;
+    return deck;
 }
 
 int markdown_analyse(cstring_t *text) {
@@ -232,13 +232,13 @@ int markdown_analyse(cstring_t *text) {
     return bits;
 }
 
-void markdown_debug(document_t *doc, int debug) {
+void markdown_debug(deck_t *deck, int debug) {
 
     // print header to STDERR
     int offset;
     line_t *header;
-    if(doc->header) {
-        header = doc->header;
+    if(deck->header) {
+        header = deck->header;
         while(header &&
             header->length > 0 &&
             header->text->text[0] == '%') {
@@ -249,16 +249,16 @@ void markdown_debug(document_t *doc, int debug) {
         }
     }
 
-    // print page/line count to STDERR
-    int cp = 0, cl = 0;
-    page_t *page = doc->page;
+    // print slide/line count to STDERR
+    int cs = 0, cl = 0;
+    slide_t *slide = deck->slide;
     line_t *line;
-    while(page) {
-        cp++;
+    while(slide) {
+        cs++;
         if(debug > 1) {
-            fprintf(stderr, "page %i:\n", cp);
+            fprintf(stderr, "slide %i:\n", cs);
         }
-        line = page->line;
+        line = slide->line;
         cl = 0;
         while(line) {
             cl++;
@@ -268,9 +268,9 @@ void markdown_debug(document_t *doc, int debug) {
             line = line->next;
         }
         if(debug == 1) {
-            fprintf(stderr, "page %i: %i lines\n", cp, cl);
+            fprintf(stderr, "slide %i: %i lines\n", cs, cl);
         }
-        page = page->next;
+        slide = slide->next;
     }
 }
 

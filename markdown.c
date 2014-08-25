@@ -19,24 +19,24 @@ line_t *next_line(line_t *prev) {
     return x;
 }
 
-page_t *new_page() {
-    page_t *x = malloc(sizeof(page_t));
+slide_t *new_slide() {
+    slide_t *x = malloc(sizeof(slide_t));
     x->line = (void*)0;
     x->prev = x->next = (void*)0;
     return x;
 }
 
-page_t *next_page(page_t *prev) {
-    page_t *x = new_page();
+slide_t *next_slide(slide_t *prev) {
+    slide_t *x = new_slide();
     x->prev = prev;
     prev->next = x;
     return x;
 }
 
-document_t *new_document() {
-    document_t *x = malloc(sizeof(document_t));
+deck_t *new_deck() {
+    deck_t *x = malloc(sizeof(deck_t));
     x->header = (void*)0;
-    x->page = (void*)0;
+    x->slide = (void*)0;
     return x;
 }
 

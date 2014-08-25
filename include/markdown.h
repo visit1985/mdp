@@ -27,21 +27,21 @@ typedef struct _line_t {
     int offset;
 } line_t;
 
-typedef struct _page_t {
+typedef struct _slide_t {
     line_t *line;
-    struct _page_t *prev;
-    struct _page_t *next;
-} page_t;
+    struct _slide_t *prev;
+    struct _slide_t *next;
+} slide_t;
 
-typedef struct _document_t {
+typedef struct _deck_t {
     line_t *header;
-    page_t *page;
-} document_t;
+    slide_t *slide;
+} deck_t;
 
 line_t *new_line();
 line_t *next_line(line_t *prev);
-page_t *new_page();
-page_t *next_page(page_t *prev);
-document_t *new_document();
+slide_t *new_slide();
+slide_t *next_slide(slide_t *prev);
+deck_t *new_deck();
 
 #endif // !defined( MARKDOWN_H )
