@@ -31,11 +31,14 @@ typedef struct _slide_t {
     line_t *line;
     struct _slide_t *prev;
     struct _slide_t *next;
+    int lines;
 } slide_t;
 
 typedef struct _deck_t {
     line_t *header;
     slide_t *slide;
+    int slides;
+    int headers;
 } deck_t;
 
 line_t *new_line();

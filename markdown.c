@@ -23,6 +23,7 @@ slide_t *new_slide() {
     slide_t *x = malloc(sizeof(slide_t));
     x->line = (void*)0;
     x->prev = x->next = (void*)0;
+    x->lines = 0;
     return x;
 }
 
@@ -37,6 +38,7 @@ deck_t *new_deck() {
     deck_t *x = malloc(sizeof(deck_t));
     x->header = (void*)0;
     x->slide = (void*)0;
+    x->slides = x->headers = 0;
     return x;
 }
 

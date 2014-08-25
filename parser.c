@@ -5,17 +5,22 @@
 
 deck_t *markdown_load(FILE *input) {
 
-    int c = 0, i = 0, l = 0, bits = 0;
+    int c = 0;    // char
+    int i = 0;    // increment
+    int l = 0;    // line length
+    int hc = 0;   // header count
+    int lc = 0;   // line count
+    int sc = 0;   // slide count
+    int bits = 0; // markdown bits
 
-    deck_t *deck;
-    slide_t *slide;
+    deck_t *deck = new_deck();
+    slide_t *slide = new_slide();
     line_t *line;
-    cstring_t *text;
+    cstring_t *text = cstring_init();
 
-    deck = new_deck();
-    slide = new_slide();
+    // assign first slide to deck
     deck->slide = slide;
-    text = cstring_init();
+    sc++;
 
     while ((c = fgetc(input)) != EOF) {
         if(c == '\n') {
@@ -27,14 +32,15 @@ deck_t *markdown_load(FILE *input) {
             if(CHECK_BIT(bits, IS_HR) &&
                CHECK_BIT(line->bits, IS_EMPTY)) {
 
+                slide->lines = lc;
+
                 // clear text
                 (text->reset)(text);
-
-                // reset line length
                 l = 0;
 
                 // create next slide
                 slide = next_slide(slide);
+                sc++;
 
             } else {
 
@@ -44,11 +50,13 @@ deck_t *markdown_load(FILE *input) {
                     // create new line
                     line = new_line();
                     slide->line = line;
+                    lc = 1;
 
                 } else {
 
                     // create next line
                     line = next_line(line);
+                    lc++;
 
                 }
 
@@ -66,8 +74,6 @@ deck_t *markdown_load(FILE *input) {
 
                 // new text
                 text = cstring_init();
-
-                // reset line length
                 l = 0;
             }
 
@@ -83,8 +89,6 @@ deck_t *markdown_load(FILE *input) {
 
             // add char to line
             (text->expand)(text, c);
-
-            // increase line lenght
             l++;
 
         } else if(is_utf8(c)) {
@@ -97,11 +101,12 @@ deck_t *markdown_load(FILE *input) {
                 c = fgetc(input);
                 (text->expand)(text, c);
             }
-
-            // increase line length
             l++;
         }
     }
+
+    slide->lines = lc;
+    deck->slides = sc;
 
     // detect header
     line = deck->slide->line;
@@ -112,6 +117,7 @@ deck_t *markdown_load(FILE *input) {
 
         // find first non-header line
         while(line->text->size > 0 && line->text->text[0] == '%') {
+            hc++;
             line = line->next;
         }
 
@@ -121,6 +127,10 @@ deck_t *markdown_load(FILE *input) {
 
         // remove header lines from slide
         deck->slide->line = line;
+
+        // adjust counts
+        deck->headers += hc;
+        deck->slide->lines -= hc;
     }
 
     // combine underlined H1/H2 in single line
@@ -145,6 +155,9 @@ deck_t *markdown_load(FILE *input) {
                     SET_BIT(line->prev->bits, IS_H2);
                 }
 
+                // adjust line count
+                slide->lines -= 1;
+
                 // delete line
                 (line->text->delete)(line->text);
                 free(line);
@@ -158,11 +171,15 @@ deck_t *markdown_load(FILE *input) {
 }
 
 int markdown_analyse(cstring_t *text) {
-    int i = 0, bits = 0,
-        offset = 0, eol    = 0,
-        equals = 0, hashes = 0,
+
+    int i = 0;      // increment
+    int bits = 0;   // markdown bits
+    int offset = 0; // text offset
+    int eol    = 0; // end of line
+
+    int equals = 0, hashes = 0,
         stars  = 0, minus  = 0,
-        spaces = 0, other  = 0;
+        spaces = 0, other  = 0; // special character counts
 
     // count leading spaces
     offset = next_nonblank(text, 0);
@@ -234,69 +251,87 @@ int markdown_analyse(cstring_t *text) {
 
 void markdown_debug(deck_t *deck, int debug) {
 
-    // print header to STDERR
+    int sc = 0; // slide count
+    int lc = 0; // line count
+
     int offset;
     line_t *header;
-    if(deck->header) {
-        header = deck->header;
-        while(header &&
-            header->length > 0 &&
-            header->text->text[0] == '%') {
 
-            offset = next_blank(header->text, 0) + 1;
-            fprintf(stderr, "header: %s\n", &header->text->text[offset]);
-            header = header->next;
+    if(debug == 1) {
+        fprintf(stderr, "headers: %i\nslides: %i\n", deck->headers, deck->slides);
+
+    } else if(debug > 1) {
+
+        // print header to STDERR
+        if(deck->header) {
+            header = deck->header;
+            while(header &&
+                header->length > 0 &&
+                header->text->text[0] == '%') {
+
+                // skip descriptor word (e.g. %title:)
+                offset = next_blank(header->text, 0) + 1;
+
+                fprintf(stderr, "header: %s\n", &header->text->text[offset]);
+                header = header->next;
+            }
         }
     }
 
-    // print slide/line count to STDERR
-    int cs = 0, cl = 0;
     slide_t *slide = deck->slide;
     line_t *line;
+
+    // print slide/line count to STDERR
     while(slide) {
-        cs++;
-        if(debug > 1) {
-            fprintf(stderr, "slide %i:\n", cs);
-        }
-        line = slide->line;
-        cl = 0;
-        while(line) {
-            cl++;
-            if(debug > 1) {
-                fprintf(stderr, "  line %i: bits = %i, length = %i\n", cl, line->bits, line->length);
-            }
-            line = line->next;
-        }
+        sc++;
+
         if(debug == 1) {
-            fprintf(stderr, "slide %i: %i lines\n", cs, cl);
+            fprintf(stderr, "  slide %i: %i lines\n", sc, slide->lines);
+
+        } else if(debug > 1) {
+
+            // also print bits and line length
+            fprintf(stderr, "  slide %i:\n", sc);
+            line = slide->line;
+            lc = 0;
+            while(line) {
+                lc++;
+                fprintf(stderr, "    line %i: bits = %i, length = %i\n", lc, line->bits, line->length);
+                line = line->next;
+            }
         }
+
         slide = slide->next;
     }
 }
-
 
 int is_utf8(char ch) {
     return (ch & 0x80);
 }
 
 int length_utf8(char ch) {
-    int i = 0;
+
+    int i = 0; // increment
+
     while(ch & 0x80) {
         i++;
         ch <<= 1;
     }
+
     return i;
 }
 
 int next_nonblank(cstring_t *text, int i) {
     while ((i < text->size) && isspace((text->text)[i]))
         ++i;
+
     return i;
 };
 
 int next_blank(cstring_t *text, int i) {
     while ((i < text->size) && !isspace((text->text)[i]))
         ++i;
+
     return i;
 };
 
