@@ -1,5 +1,5 @@
 # set some compiler flags
-CFLAGS=-g -lncurses
+CFLAGS=-g -Wall -lncurses
 
 # find *.c in the current directory
 SOURCES=$(wildcard *.c)

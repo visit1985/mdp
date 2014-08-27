@@ -9,12 +9,12 @@ void set_colors(void)
     start_color();
     use_default_colors();
 
-    for(i=1 ;i<256;i++)
+    for(i=0; i < COLORS; i++)
     {
         init_pair(i, i, -1);
         attron(COLOR_PAIR(i));
         printw(" %3.hd", i);
-        if((i + 3) % 36 == 0) printw("\n");
+        if((i + 1) % 36 == 0) printw("\n");
         refresh();
     }
     standend();

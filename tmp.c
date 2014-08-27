@@ -67,5 +67,7 @@ int main(int argc, char *argv[]) {
     if(debug > 0) {
         markdown_debug(doc, debug);
     }
+
+    return(EXIT_SUCCESS);
 }
 

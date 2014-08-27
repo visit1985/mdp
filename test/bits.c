@@ -4,7 +4,7 @@
 
 int main(int argc, char *argv[]) {
 
-    int i;
+    int i = 0;
     printf("INIT: %i\n", i);
 
     SET_BIT(i, IS_H1);
@@ -25,5 +25,7 @@ int main(int argc, char *argv[]) {
 
     printf("CHECK_BIT(%i): %i\n", IS_H1, CHECK_BIT(i, IS_H1));
     printf("CHECK_BIT(%i): %i\n", IS_H2, CHECK_BIT(i, IS_H2));
+
+    return(0);
 }
 

@@ -1,14 +1,16 @@
+CFLAGS=-g -Wall
+
 tmp: tmp.c cstring.o markdown.o parser.o
-	cc -g -o tmp tmp.c cstring.o markdown.o parser.o
+	cc $(CFLAGS) -o tmp tmp.c cstring.o markdown.o parser.o
 
-parser.o: parser.c cstring.o markdown.o
-	cc -g -c parser.c -o parser.o -lmarkdown
+parser.o: parser.c
+	cc $(CFLAGS) -c parser.c
 
-markdown.o: markdown.c cstring.o
-	cc -g -c markdown.c -o markdown.o -lcstring
+markdown.o: markdown.c
+	cc $(CFLAGS) -c markdown.c
 
 cstring.o: cstring.c
-	cc -g -c cstring.c -o cstring.o
+	cc $(CFLAGS) -c cstring.c
 
 all: tmp
 
@@ -19,5 +21,4 @@ test:
 
 clean:
 	rm -f tmp *.o
-	$(MAKE) -C test clean
 
