@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "include/parser.h"
+#include "include/viewer.h"
 
 void usage() {
     fprintf(stderr, "Usage: tmp [OPTION]... [FILE]\n");
@@ -59,14 +60,16 @@ int main(int argc, char *argv[]) {
     }
 
     // load deck object from input
-    deck_t *doc;
-    doc = markdown_load(input);
+    deck_t *deck;
+    deck = markdown_load(input);
 
     //TODO close file
 
     if(debug > 0) {
-        markdown_debug(doc, debug);
+        markdown_debug(deck, debug);
     }
+
+    ncurses_display(deck, 0, 0);
 
     return(EXIT_SUCCESS);
 }

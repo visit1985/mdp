@@ -1,8 +1,24 @@
 #include <ncurses.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "include/parser.h"
 #include "include/viewer.h"
+
+static short white_ramp[24] = { 16, 232, 233, 234, 235, 236,
+                               237, 238, 239, 240, 241, 242,
+                               244, 245, 246, 247, 248, 249,
+                               250, 251, 252, 253, 254, 255 };
+
+static short blue_ramp[24]  = { 16,  17,  17,  18,  18,  19,
+                                19,  20,  20,  21,  27,  32,
+                                33,  38,  39,  44,  45,  45,
+                                81,  81,  51,  51, 123, 123 };
+
+static short red_ramp[24]   = { 16,  52,  52,  53,  53,  89,
+                                89,  90,  90, 126, 127, 127,
+                               163, 163, 164, 164, 200, 200,
+                               201, 201, 207, 207, 213, 213 };
 
 int ncurses_display(deck_t *deck, int notrans, int nofade) {
 
@@ -33,19 +49,23 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
         slide = slide->next;
     }
 
-    if((max_cols > COLS) ||
-       (max_lines + bar_top + bar_bottom + 2 > LINES)) {
-
-        fprintf(stderr, "Error: Terminal size %ix%i to small. Need at least %ix%i.\n",
-            COLS, LINES, max_cols, max_lines + bar_top + bar_bottom + 2);
-        return(1);
-    }
-
     // replace stdin with current tty if markdown input was piped
     freopen("/dev/tty", "rw", stdin);
 
     // init ncurses
     initscr();
+
+    if((max_cols > COLS) ||
+       (max_lines + bar_top + bar_bottom + 2 > LINES)) {
+
+        fprintf(stderr, "Error: Terminal size %ix%i to small. Need at least %ix%i.\n",
+            COLS, LINES, max_cols, max_lines + bar_top + bar_bottom + 2);
+        endwin();
+        return(1);
+    }
+
+    // replace stdin with current tty if markdown input was piped
+    freopen("/dev/tty", "rw", stdin);
 
     // disable cursor
     curs_set(0);
@@ -64,7 +84,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
         start_color();
         use_default_colors();
 
-        if(!notrans) trans = 0; // 0 is black
+        if(notrans) trans = 0; // 0 is black
 
         if(COLORS == 256) {
             // 256 color mode
@@ -107,17 +127,28 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
         wprintw(stdscr, "footer");
     }
 
+    // make header + fooder visible
+    wrefresh(stdscr);
+
     // setup main window
-    WINDOW *content = newwin(LINES - bar_top - bar_bottom, COLS, 0, 0 + bar_top);
+    WINDOW *content = newwin(LINES - bar_top - bar_bottom, COLS, 0 + bar_top, 0);
     if(colors)
         wbkgd(content, COLOR_PAIR(CP_WHITE));
 
     slide = deck->slide;
     while(slide) {
-        // fade out
-        // print header / footer
-        // print lines
+        // clear main window
+        werase(content);
+
+        //TODO print lines
+        wprintw(content, "content");
+
+        // make content visible
+        wrefresh(content);
+
         // fade in
+        if(fade)
+            fade_in(content, trans, colors);
 
         // wait for user input
         c = getch();
@@ -147,13 +178,51 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
 
             // quit
             case 'q':
+                // do not fade out on exit
+                fade = 0;
                 slide = (void*)0;
                 break;
         }
+
+        // fade out
+        if(fade)
+            fade_out(content, trans, colors);
     }
 
     endwin();
 
     return(0);
+}
+
+void fade_out(WINDOW *window, int trans, int colors) {
+    int i; // increment
+    if(colors) {
+        for(i = 22; i >= 0; i--) {
+            // darken color pairs
+            init_pair(CP_WHITE, white_ramp[i], trans);
+            init_pair(CP_BLUE, blue_ramp[i], trans);
+            init_pair(CP_RED, red_ramp[i], trans);
+            // refresh window with new color
+            wrefresh(window);
+            // delay for our eyes to recognize the change
+            usleep(FADE_DELAY);
+        }
+    }
+}
+
+void fade_in(WINDOW *window, int trans, int colors) {
+    int i; // increment
+    if(colors) {
+        for(i = 0; i <= 23; i++) {
+            // lighten color pairs
+            init_pair(CP_WHITE, white_ramp[i], trans);
+            init_pair(CP_BLUE, blue_ramp[i], trans);
+            init_pair(CP_RED, red_ramp[i], trans);
+            // refresh window with new color
+            wrefresh(window);
+            // delay for our eyes to recognize the change
+            usleep(FADE_DELAY);
+        }
+    }
 }
 
