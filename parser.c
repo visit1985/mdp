@@ -360,12 +360,12 @@ int next_nonblank(cstring_t *text, int i) {
         ++i;
 
     return i;
-};
+}
 
 int next_blank(cstring_t *text, int i) {
     while ((i < text->size) && !isspace((text->text)[i]))
         ++i;
 
     return i;
-};
+}
 

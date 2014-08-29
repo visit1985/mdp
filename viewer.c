@@ -28,6 +28,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
     int trans = -1;     // enable transparency if term supports it
     int max_lines = 0;  // max lines per slide
     int max_cols = 0;   // max columns per line
+    int offset;         // text offset
 
     // header line 1 is displayed at the top
     int bar_top = (deck->headers > 0) ? 1 : 0;
@@ -113,18 +114,31 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
 
     // setup header
     if(bar_top) {
-        //TODO move cursor to calculated indentation
-        wmove(stdscr, 0, 1);
-        //TODO add text to header
-        wprintw(stdscr, "header");
+        line = deck->header;
+        offset = next_blank(line->text, 0) + 1;
+        // add text to header
+        mvwprintw(stdscr,
+                  0, (COLS - line->length + offset) / 2,
+                  "%s", &line->text->text[offset]);
     }
 
     // setup footer
     if(bar_bottom) {
-        //TODO move cursor to calculated indentation
-        wmove(stdscr, LINES - 1, 1);
-        //TODO add text to footer
-        wprintw(stdscr, "footer");
+        line = deck->header->next;
+        offset = next_blank(line->text, 0) + 1;
+        // add text to left footer
+        mvwprintw(stdscr,
+                  LINES - 1, 0,
+                  "%s", &line->text->text[offset]);
+
+        if(deck->headers > 2) {
+            line = deck->header->next->next;
+            offset = next_blank(line->text, 0) + 1;
+            // add text to right footer
+            mvwprintw(stdscr,
+                      LINES - 1, COLS - line->length + offset,
+                      "%s", &line->text->text[offset]);
+        }
     }
 
     // make header + fooder visible
@@ -141,7 +155,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
         werase(content);
 
         //TODO print lines
-        wprintw(content, "content");
+        wprintw(content, "%s", "content");
 
         // make content visible
         wrefresh(content);
