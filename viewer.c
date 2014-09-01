@@ -172,6 +172,9 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
         if(fade)
             fade_in(content, trans, colors);
 
+        // re-enable fading after any undefined key press
+        if(COLORS == 256 && !nofade) fade = 1;
+
         // wait for user input
         c = getch();
 
@@ -206,6 +209,11 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
                 // do not fade out on exit
                 fade = 0;
                 slide = (void*)0;
+                break;
+
+            default:
+                // disable fading on undefined key press
+                fade = 0;
                 break;
         }
 
