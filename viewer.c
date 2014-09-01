@@ -23,6 +23,7 @@ static short red_ramp[24]   = { 16,  52,  52,  53,  53,  89,
 int ncurses_display(deck_t *deck, int notrans, int nofade) {
 
     int c = 0;          // char
+    int l = 0;          // line number
     int colors = 0;     // amount of colors supported
     int fade = 0;       // disable color fading by default
     int trans = -1;     // enable transparency if term supports it
@@ -128,7 +129,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
         offset = next_blank(line->text, 0) + 1;
         // add text to left footer
         mvwprintw(stdscr,
-                  LINES - 1, 0,
+                  LINES - 1, 3,
                   "%s", &line->text->text[offset]);
 
         if(deck->headers > 2) {
@@ -136,7 +137,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
             offset = next_blank(line->text, 0) + 1;
             // add text to right footer
             mvwprintw(stdscr,
-                      LINES - 1, COLS - line->length + offset,
+                      LINES - 1, COLS - line->length + offset - 3,
                       "%s", &line->text->text[offset]);
         }
     }
@@ -154,8 +155,15 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
         // clear main window
         werase(content);
 
-        //TODO print lines
-        wprintw(content, "%s", "content");
+        line = slide->line;
+        l = 0;
+
+        // print lines
+        while(line) {
+            add_line(content, l, (COLS - max_cols) / 2, line);
+            line = line->next;
+            l++;
+        }
 
         // make content visible
         wrefresh(content);
@@ -173,7 +181,9 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
             // show previous slide
             case KEY_UP:
             case KEY_LEFT:
-            case KEY_BACKSPACE:
+            case 8:   // BACKSPACE (ascii)
+            case 127: // BACKSPACE (xterm)
+            case 263: // BACKSPACE (getty)
             case 'h':
             case 'k':
                 if(slide->prev)
@@ -183,7 +193,8 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
             // show next slide
             case KEY_DOWN:
             case KEY_RIGHT:
-            case KEY_ENTER:
+            case '\n': // ENTER
+            case ' ':  // SPACE
             case 'j':
             case 'l':
                 if(slide->next)
@@ -206,6 +217,17 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
     endwin();
 
     return(0);
+}
+
+void add_line(WINDOW *window, int y, int x, line_t *line) {
+    if(line->text->text) {
+        int offset = 0; // text offset
+        offset = next_nonblank(line->text, 0);
+        // print line to window
+        mvwprintw(window,
+                  y, x,
+                  "%s", &line->text->text[offset]);
+    }
 }
 
 void fade_out(WINDOW *window, int trans, int colors) {

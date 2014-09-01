@@ -11,6 +11,7 @@
 #define FADE_DELAY 15000 // micro seconds
 
 int ncurses_display(deck_t *deck, int notrans, int nofade);
+void add_line(WINDOW *window, int y, int x, line_t *line);
 void fade_out(WINDOW *window, int trans, int colors);
 void fade_in(WINDOW *window, int trans, int colors);
 

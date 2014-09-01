@@ -1,7 +1,7 @@
-CFLAGS=-g -Wall -lncurses
+CFLAGS=-g -Wall
 
 tmp: tmp.c cstring.o markdown.o parser.o viewer.o
-	cc $(CFLAGS) -o tmp tmp.c cstring.o markdown.o parser.o viewer.o
+	cc $(CFLAGS) -o tmp tmp.c cstring.o markdown.o parser.o viewer.o -lncurses
 
 viewer.o: viewer.c
 	cc $(CFLAGS) -c viewer.c
