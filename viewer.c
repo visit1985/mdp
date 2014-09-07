@@ -160,7 +160,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
 
         // print lines
         while(line) {
-            add_line(content, l, (COLS - max_cols) / 2, line);
+            add_line(content, l, (COLS - max_cols) / 2, line, max_cols);
             line = line->next;
             l++;
         }
@@ -227,14 +227,76 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
     return(0);
 }
 
-void add_line(WINDOW *window, int y, int x, line_t *line) {
+void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols) {
+    int i = 0; // increment
+
     if(line->text->text) {
         int offset = 0; // text offset
         offset = next_nonblank(line->text, 0);
-        // print line to window
-        mvwprintw(window,
-                  y, x,
-                  "%s", &line->text->text[offset]);
+
+        // IS_CODE
+        if(CHECK_BIT(line->bits, IS_CODE)) {
+
+            // set static offset for code
+            offset = CODE_INDENT;
+
+            // reverse color for code blocks
+            wattron(window, A_REVERSE);
+
+            // print whole lines
+            mvwprintw(window,
+                      y, x,
+                      "%s", &line->text->text[offset]);
+
+        // IS_QUOTE
+        } else if(CHECK_BIT(line->bits, IS_QUOTE)) {
+            //TODO replace greater sign with color block
+
+            //FIXME remove dummy print code
+            mvwprintw(window,
+                      y, x,
+                      "%s", &line->text->text[offset]);
+
+        } else {
+
+            // IF_H1 || IF_H2
+            if(CHECK_BIT(line->bits, IS_H1) || CHECK_BIT(line->bits, IS_H2)) {
+
+                // set headline color
+                wattron(window, COLOR_PAIR(CP_BLUE));
+
+                // enable underline for H1
+                if(CHECK_BIT(line->bits, IS_H1))
+                    wattron(window, A_UNDERLINE);
+
+                // skip hashes
+                while(line->text->text[offset] == '#')
+                    offset = next_word(line->text, offset);
+
+                // print whole lines
+                mvwprintw(window,
+                      y, x,
+                      "%s", &line->text->text[offset]);
+
+                wattroff(window, A_UNDERLINE);
+
+            } else {
+                //TODO for each char in line
+                    //TODO if *|_ highlight (maybe use a stack here?)
+                mvwprintw(window,
+                      y, x,
+                      "%s", &line->text->text[offset]);
+            }
+        }
+
+        // fill rest off line with spaces
+        for(i = getcurx(window) - x; i < max_cols; i++)
+            wprintw(window, "%s", " ");
+
+        // reset to default color
+        wattron(window, COLOR_PAIR(CP_WHITE));
+        wattroff(window, A_UNDERLINE);
+        wattroff(window, A_REVERSE);
     }
 }
 

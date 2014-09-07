@@ -81,7 +81,7 @@ deck_t *markdown_load(FILE *input) {
         } else if(c == '\t') {
 
             // expand tab to spaces
-            for (i = 0;  i <= EXPAND_TABS;  i++) {
+            for (i = 0;  i < EXPAND_TABS;  i++) {
                 (text->expand)(text, ' ');
                 l++;
             }
@@ -172,7 +172,8 @@ deck_t *markdown_load(FILE *input) {
 
                 // remove line from linked list
                 line->prev->next = line->next;
-                line->next->prev = line->prev;
+                if(line->next)
+                    line->next->prev = line->prev;
 
                 // set bits on revious line
                 if(CHECK_BIT(line->bits, IS_H1)) {
@@ -367,5 +368,9 @@ int next_blank(cstring_t *text, int i) {
         ++i;
 
     return i;
+}
+
+int next_word(cstring_t *text, int i) {
+    return next_nonblank(text, next_blank(text, i));
 }
 

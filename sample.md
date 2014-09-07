@@ -22,13 +22,16 @@ This is another test page.
 
 ## Code example
 
-	public static void main() {
+    public static void main() {
+    
+        printf("%s\n", "hello");
     }
 
 Now with different indentation.
 
 	function expand_tab {
-        }
+        printf("%s\n", "hello");
+    }
 
 ***
 
