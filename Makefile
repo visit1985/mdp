@@ -1,7 +1,7 @@
 CFLAGS=-g -Wall
 
-tmp: tmp.c cstring.o cstack.o markdown.o parser.o viewer.o
-	cc $(CFLAGS) -o tmp tmp.c cstring.o cstack.o markdown.o parser.o viewer.o -lncurses
+mdp: mdp.c cstring.o cstack.o markdown.o parser.o viewer.o
+	cc $(CFLAGS) -o mdp mdp.c cstring.o cstack.o markdown.o parser.o viewer.o -lncurses
 
 viewer.o: viewer.c
 	cc $(CFLAGS) -c viewer.c
@@ -18,10 +18,10 @@ cstack.o: cstack.c
 cstring.o: cstring.c
 	cc $(CFLAGS) -c cstring.c
 
-all: tmp
+all: mdp
 
 clean:
-	rm -f tmp *.o
+	rm -f mdp *.o
 
 .PHONY: test
 

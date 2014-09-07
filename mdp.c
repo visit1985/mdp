@@ -8,7 +8,7 @@
 #include "include/viewer.h"
 
 void usage() {
-    fprintf(stderr, "Usage: tmp [OPTION]... [FILE]\n");
+    fprintf(stderr, "Usage: mdp [OPTION]... [FILE]\n");
     fprintf(stderr, "A command-line based markdown presentation tool.\n\n");
     fprintf(stderr, "  -d, --debug   enable debug messages on STDERR\n");
     fprintf(stderr, "                add it multiple times to increases debug level\n\n");
