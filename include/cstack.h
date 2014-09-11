@@ -13,6 +13,7 @@ typedef struct _cstack_t {
     void (*delete)(struct _cstack_t *self);
 } cstack_t;
 
+cstack_t *cstack_init();
 void cstack_push(cstack_t *self, char c);
 char cstack_pop(cstack_t *self);
 char cstack_top(cstack_t *self);
