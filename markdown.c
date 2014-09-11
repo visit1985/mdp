@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "include/cstring.h"
 #include "include/markdown.h"
 
 line_t *new_line() {

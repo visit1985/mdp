@@ -3,7 +3,6 @@
 #include <string.h> // strchr
 #include <unistd.h>
 
-#include "include/parser.h"
 #include "include/viewer.h"
 
 static short white_ramp[24] = { 16, 232, 233, 234, 235, 236,

@@ -3,6 +3,7 @@
 
 #include <ncurses.h>
 
+#include "parser.h"
 #include "cstack.h"
 
 #define CP_WHITE  1 // 255
