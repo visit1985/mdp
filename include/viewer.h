@@ -3,6 +3,8 @@
 
 #include <ncurses.h>
 
+#include "cstack.h"
+
 #define CP_WHITE  1 // 255
 #define CP_BLUE   2 // 123
 #define CP_RED    3 // 213
@@ -12,6 +14,7 @@
 
 int ncurses_display(deck_t *deck, int notrans, int nofade);
 void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols);
+int is_attron(cstack_t *stack, char c);
 void fade_out(WINDOW *window, int trans, int colors);
 void fade_in(WINDOW *window, int trans, int colors);
 

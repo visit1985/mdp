@@ -16,7 +16,7 @@ And two backslashes: \\\\
 
 # Page 2
 
-This is another test page.
+This is _another_ test page.
 
 * * *
 
@@ -27,7 +27,7 @@ This is another test page.
         printf("%s\n", "hello");
     }
 
-Now with different indentation.
+Now with *different* indentation.
 
 	function expand_tab {
         printf("%s\n", "hello");

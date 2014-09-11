@@ -1,5 +1,6 @@
 #include <ncurses.h>
 #include <stdlib.h>
+#include <string.h> // strchr
 #include <unistd.h>
 
 #include "include/parser.h"
@@ -229,6 +230,9 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
 
 void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols) {
     int i = 0; // increment
+    char *c; // char pointer for iteration
+    char *special = "\\*_"; // list of interpreted chars
+    cstack_t *stack = cstack_init();
 
     if(line->text->text) {
         int offset = 0; // text offset
@@ -281,11 +285,71 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols) {
                 wattroff(window, A_UNDERLINE);
 
             } else {
-                //TODO for each char in line
-                    //TODO if *|_ highlight (maybe use a stack here?)
-                mvwprintw(window,
-                      y, x,
-                      "%s", &line->text->text[offset]);
+                // move the cursor in position
+                wmove(window, y, x);
+
+                // for each char in line
+                c = line->text->text;
+                while(*c) {
+
+                    // if char is in special char list
+                    if(strchr(special, *c)) {
+
+                        // closing special char (or second backslash)
+                        if(is_attron(stack, *c)) {
+
+                            switch(*c) {
+                                // print escaped backslash
+                                case '\\':
+                                    wprintw(window, "%c", *c);
+                                    break;
+                                // disable highlight
+                                case '*':
+                                    wattron(window, COLOR_PAIR(CP_WHITE));
+                                    break;
+                                // disable underline
+                                case '_':
+                                    wattroff(window, A_UNDERLINE);
+                                    break;
+                            }
+
+                            // remove top special char from stack
+                            (stack->pop)(stack);
+
+                        // treat special as regular char
+                        } else if(is_attron(stack, '\\')) {
+                            wprintw(window, "%c", *c);
+
+                            // remove backslash from stack
+                            (stack->pop)(stack);
+
+                        // opening special char
+                        } else {
+                            switch(*c) {
+                                // enable highlight
+                                case '*':
+                                    wattron(window, COLOR_PAIR(CP_RED));
+                                    break;
+                                // enable underline
+                                case '_':
+                                    wattron(window, A_UNDERLINE);
+                                    break;
+                                // do nothing for backslashes
+                            }
+
+                            // push special char to stack
+                            (stack->push)(stack, *c);
+                        }
+
+                    } else {
+                        // print regular char
+                        wprintw(window, "%c", *c);
+                    }
+
+                    c++;
+                }
+
+                //TODO pop stack until empty
             }
         }
 
@@ -298,6 +362,18 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols) {
         wattroff(window, A_UNDERLINE);
         wattroff(window, A_REVERSE);
     }
+
+    (stack->delete)(stack);
+}
+
+int is_attron(cstack_t *stack, char c) {
+    // test if char is on top of stack
+    if(stack->head >= 0) {
+        if((stack->top)(stack) == c) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 void fade_out(WINDOW *window, int trans, int colors) {
