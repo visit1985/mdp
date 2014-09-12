@@ -4,6 +4,18 @@
 /*
  * A implementation of markdown objects.
  *
+ * enum: line_bitmask which enumerates markdown formating bits
+ *
+ * struct: deck_t the root object representing a deck of slides
+ * struct: slide_t a linked list element of type slide contained in a deck
+ * struct: line_t a linked list element of type line contained in a slide
+ *
+ * function: new_deck to initialize a new deck
+ * function: new_slide to initialize a new linked list of type slide
+ * function: next_slide to extend a linked list of type slide by one element
+ * function: new_line to initialize a new linked list of type line
+ * function: next_line to extend a linked list of type line by one element
+ *
  */
 
 #include "cstring.h"

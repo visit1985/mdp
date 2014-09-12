@@ -29,8 +29,10 @@ char cstack_pop(cstack_t *self) {
     return self->content[self->head--];
 }
 
-char cstack_top(cstack_t *self) {
-    return self->content[self->head];
+int cstack_top(cstack_t *self, char c) {
+    if(self->head >= 0 && self->content[self->head] == c)
+        return 1;
+    return 0;
 }
 
 int cstack_empty(cstack_t *self)  {

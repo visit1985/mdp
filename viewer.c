@@ -295,7 +295,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols) {
                     if(strchr(special, *c)) {
 
                         // closing special char (or second backslash)
-                        if(is_attron(stack, *c)) {
+                        if((stack->top)(stack, *c)) {
 
                             switch(*c) {
                                 // print escaped backslash
@@ -316,7 +316,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols) {
                             (stack->pop)(stack);
 
                         // treat special as regular char
-                        } else if(is_attron(stack, '\\')) {
+                        } else if((stack->top)(stack, '\\')) {
                             wprintw(window, "%c", *c);
 
                             // remove backslash from stack
@@ -363,16 +363,6 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols) {
     }
 
     (stack->delete)(stack);
-}
-
-int is_attron(cstack_t *stack, char c) {
-    // test if char is on top of stack
-    if(stack->head >= 0) {
-        if((stack->top)(stack) == c) {
-            return 1;
-        }
-    }
-    return 0;
 }
 
 void fade_out(WINDOW *window, int trans, int colors) {
