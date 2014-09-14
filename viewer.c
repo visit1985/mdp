@@ -151,6 +151,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
     }
 
     // setup footer
+    //TODO display slide number in footer
     if(bar_bottom) {
         line = deck->header->next;
         offset = next_blank(line->text, 0) + 1;
@@ -278,18 +279,9 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols) {
                       y, x,
                       "%s", &line->text->text[offset]);
 
-        // IS_QUOTE
-        } else if(CHECK_BIT(line->bits, IS_QUOTE)) {
-            //TODO replace greater sign with color block
-
-            //FIXME remove dummy print code
-            mvwprintw(window,
-                      y, x,
-                      "%s", &line->text->text[offset]);
-
         } else {
 
-            // IF_H1 || IF_H2
+            // IS_H1 || IS_H2
             if(CHECK_BIT(line->bits, IS_H1) || CHECK_BIT(line->bits, IS_H2)) {
 
                 // set headline color
@@ -314,8 +306,18 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols) {
                 // move the cursor in position
                 wmove(window, y, x);
 
+                // IS_QUOTE
+                if(CHECK_BIT(line->bits, IS_QUOTE)) {
+                    // print a reverse color block
+                    wattron(window, A_REVERSE);
+                    wprintw(window, "%s", " ");
+                    wattroff(window, A_REVERSE);
+                    wprintw(window, "%s", " ");
+                    offset += 2;
+                }
+
                 // for each char in line
-                c = line->text->text;
+                c = &line->text->text[offset];
                 while(*c) {
 
                     // if char is in special char list
@@ -375,7 +377,22 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols) {
                     c++;
                 }
 
-                //TODO pop stack until empty
+                // pop stack until empty to prevent formated trailing spaces
+                while(!(stack->empty)(stack)) {
+                    switch((stack->pop)(stack)) {
+                        case '\\':
+                            wprintw(window, "%c", '\\');
+                            break;
+                        // disable highlight
+                        case '*':
+                            wattron(window, COLOR_PAIR(CP_WHITE));
+                            break;
+                        // disable underline
+                        case '_':
+                            wattroff(window, A_UNDERLINE);
+                            break;
+                    }
+                }
             }
         }
 

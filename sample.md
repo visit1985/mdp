@@ -16,6 +16,8 @@ And two backslashes: \\\\
 
 This text is _underlined_ and *highlighted*.
 
+These are some _incomplete *tags.
+
 ********************************************
 
 # UTF-8 support
@@ -44,8 +46,10 @@ Now with *different* indentation.
 
 ***
 
-The END
--------
+This is the end.
+----------------
 
-My only friend, the end.
+>
+> My only friend, the end.
+>
 
