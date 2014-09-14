@@ -2,7 +2,7 @@
  * An implementation of expandable c strings in heap memory.
  * Copyright (C) 2014 Michael Goehler
  *
- * This file is part of mpd.
+ * This file is part of mdp.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

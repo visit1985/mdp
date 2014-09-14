@@ -2,7 +2,7 @@
 %author: Michael Göhler
 %date: 2014-09-14
 
-mpd
+mdp
 ===
 
 A command-line based presentation tool.

@@ -2,7 +2,7 @@
 #define MDP_H
 
 /*
- * mpd -- A command-line based markdown presentation tool.
+ * mdp -- A command-line based markdown presentation tool.
  * Copyright (C) 2014 Michael Goehler
  *
  * This program is free software: you can redistribute it and/or modify
