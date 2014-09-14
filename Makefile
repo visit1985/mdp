@@ -1,30 +1,44 @@
-CFLAGS=-g -Wall
+#
+# Makefile
+# Copyright (C) 2014 Michael Goehler
+#
+# This file is part of mpd.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
 
-mdp: mdp.c cstring.o cstack.o markdown.o parser.o viewer.o
-	cc $(CFLAGS) -o mdp mdp.c cstring.o cstack.o markdown.o parser.o viewer.o -lncurses
+CC       = /usr/bin/gcc
+CFLAGS   = -Wall -g
+LDFLAGS  = -lncurses
+OBJECTS  = cstring.o cstack.o markdown.o parser.o viewer.o mdp.o
+DESTDIR ?= /usr/bin
 
-viewer.o: viewer.c
-	cc $(CFLAGS) -c viewer.c
+%.o: %.c
+	$(CC) $(CFLAGS) -c $<
 
-parser.o: parser.c
-	cc $(CFLAGS) -c parser.c
-
-markdown.o: markdown.c
-	cc $(CFLAGS) -c markdown.c
-
-cstack.o: cstack.c
-	cc $(CFLAGS) -c cstack.c
-
-cstring.o: cstring.c
-	cc $(CFLAGS) -c cstring.c
+mdp: $(OBJECTS)
+	$(CC) $(CFLAGS) -o mdp $(OBJECTS) $(LDFLAGS)
 
 all: mdp
 
 clean:
-	rm -f mdp *.o
+	rm -f $(OBJECTS) mdp
 
-.PHONY: test
+install: mdp
+	if which strip 1>/dev/null 2>&1; then strip mdp; fi
+	install -d $(PREFIX)$(DESTDIR)
+	install -m 755 mdp $(PREFIX)$(DESTDIR)/mdp
 
-test:
-	$(MAKE) -C test
+.PHONY: clean install
 

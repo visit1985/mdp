@@ -1,3 +1,22 @@
+/*
+ * mpd -- A command-line based markdown presentation tool.
+ * Copyright (C) 2014 Michael Goehler
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 #include <errno.h>
 #include <getopt.h>
 #include <stdio.h>
@@ -18,7 +37,11 @@ void usage() {
 
 void version() {
     printf("mdp %d.%d\n", MAJOR_VERSION, MINOR_VERSION);
-    //TODO add copyright, license, written by
+    printf("Copyright (C) 2014 Michael Goehler\n");
+    printf("License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.\n");
+    printf("This is free software: you are free to change and redistribute it.\n");
+    printf("There is NO WARRANTY, to the extent permitted by law.\n");
+    printf("\nWritten by Michael Goehler and others, see <https://github.com/visit1985/mdp/blob/master/AUTHORS>.\n");
     exit(EXIT_SUCCESS);
 }
 
@@ -70,7 +93,8 @@ int main(int argc, char *argv[]) {
     deck_t *deck;
     deck = markdown_load(input);
 
-    //TODO close file
+    // close file
+    fclose(input);
 
     if(debug > 0) {
         markdown_debug(deck, debug);
