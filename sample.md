@@ -1,26 +1,35 @@
 %title: Sample Presentation
 %author: Michael Göhler
-%date: 2014-08-07
+%date: 2014-09-14
 
-Title
-=====
+mpd
+===
 
-This is the first page.
+A command-line based presentation tool.
 
-------------------------------------
+--------------------------------------------
+
+Here are some formating tests:
 
 These are 3 stars: \*\*\*
 And two backslashes: \\\\
 
----
+This text is _underlined_ and *highlighted*.
 
-# Page 2
+********************************************
 
-This is _another_ test page.
+# UTF-8 support
+
+ae = ä, oe = ö, ue = ü, ss = ß
+upsilon = Ʊ, phi = ɸ
+
+▛▀▀▀▀▀▀▀▀▀▜
+▌rectangle▐
+▙▄▄▄▄▄▄▄▄▄▟
 
 * * *
 
-## Code example
+## Code examples
 
     public static void main() {
     
@@ -35,8 +44,8 @@ Now with *different* indentation.
 
 ***
 
-Another Title
--------------
+The END
+-------
 
-And some Text.
+My only friend, the end.
 
