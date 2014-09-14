@@ -154,6 +154,9 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
         werase(content);
         werase(stdscr);
 
+        // always resize window in case terminal geometry has changed
+        wresize(content, LINES - bar_top - bar_bottom, COLS);
+
         // setup header
         if(bar_top) {
             line = deck->header;
@@ -165,12 +168,14 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
         }
 
         // setup footer
-        line = deck->header->next;
-        offset = next_blank(line->text, 0) + 1;
-        // add text to left footer
-        mvwprintw(stdscr,
-                  LINES - 1, 3,
-                  "%s", &line->text->text[offset]);
+        if(deck->headers > 1) {
+            line = deck->header->next;
+            offset = next_blank(line->text, 0) + 1;
+            // add text to left footer
+            mvwprintw(stdscr,
+                      LINES - 1, 3,
+                      "%s", &line->text->text[offset]);
+        }
         // add slide number to right footer
         mvwprintw(stdscr,
                   LINES - 1, COLS - int_length(deck->slides) - int_length(sc) - 6,
