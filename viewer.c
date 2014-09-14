@@ -308,12 +308,17 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols) {
 
                 // IS_QUOTE
                 if(CHECK_BIT(line->bits, IS_QUOTE)) {
-                    // print a reverse color block
-                    wattron(window, A_REVERSE);
-                    wprintw(window, "%s", " ");
-                    wattroff(window, A_REVERSE);
-                    wprintw(window, "%s", " ");
-                    offset += 2;
+                    while(line->text->text[offset] == '>') {
+                        // print a reverse color block
+                        wattron(window, A_REVERSE);
+                        wprintw(window, "%s", " ");
+                        wattroff(window, A_REVERSE);
+                        wprintw(window, "%s", " ");
+                        // find next quote or break
+                        offset++;
+                        if(line->text->text[offset] == ' ')
+                            offset = next_word(line->text, offset);
+                    }
                 }
 
                 // for each char in line
