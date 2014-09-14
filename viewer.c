@@ -47,7 +47,9 @@ static short red_ramp[24]   = { 16,  52,  52,  53,  53,  89,
 int ncurses_display(deck_t *deck, int notrans, int nofade) {
 
     int c = 0;          // char
+    int i = 0;          // iterate
     int l = 0;          // line number
+    int sc = 1;         // slide count
     int colors = 0;     // amount of colors supported
     int fade = 0;       // disable color fading by default
     int trans = -1;     // enable transparency if term supports it
@@ -57,8 +59,9 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
 
     // header line 1 is displayed at the top
     int bar_top = (deck->headers > 0) ? 1 : 0;
-    // header line 2 and 3 are displayed at the bottom
-    int bar_bottom = (deck->headers > 1) ? 1 : 0;
+    // header line 2 is displayed at the bottom
+    // anyway we display the slide number at the bottom
+    int bar_bottom = 1;
 
     slide_t *slide = deck->slide;
     line_t *line;
@@ -140,39 +143,6 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
     if(colors)
         wbkgd(stdscr, COLOR_PAIR(CP_YELLOW));
 
-    // setup header
-    if(bar_top) {
-        line = deck->header;
-        offset = next_blank(line->text, 0) + 1;
-        // add text to header
-        mvwprintw(stdscr,
-                  0, (COLS - line->length + offset) / 2,
-                  "%s", &line->text->text[offset]);
-    }
-
-    // setup footer
-    //TODO display slide number in footer
-    if(bar_bottom) {
-        line = deck->header->next;
-        offset = next_blank(line->text, 0) + 1;
-        // add text to left footer
-        mvwprintw(stdscr,
-                  LINES - 1, 3,
-                  "%s", &line->text->text[offset]);
-
-        if(deck->headers > 2) {
-            line = deck->header->next->next;
-            offset = next_blank(line->text, 0) + 1;
-            // add text to right footer
-            mvwprintw(stdscr,
-                      LINES - 1, COLS - line->length + offset - 3,
-                      "%s", &line->text->text[offset]);
-        }
-    }
-
-    // make header + fooder visible
-    wrefresh(stdscr);
-
     // setup main window
     WINDOW *content = newwin(LINES - bar_top - bar_bottom, COLS, 0 + bar_top, 0);
     if(colors)
@@ -180,8 +150,34 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
 
     slide = deck->slide;
     while(slide) {
-        // clear main window
+        // clear windows
         werase(content);
+        werase(stdscr);
+
+        // setup header
+        if(bar_top) {
+            line = deck->header;
+            offset = next_blank(line->text, 0) + 1;
+            // add text to header
+            mvwprintw(stdscr,
+                      0, (COLS - line->length + offset) / 2,
+                      "%s", &line->text->text[offset]);
+        }
+
+        // setup footer
+        line = deck->header->next;
+        offset = next_blank(line->text, 0) + 1;
+        // add text to left footer
+        mvwprintw(stdscr,
+                  LINES - 1, 3,
+                  "%s", &line->text->text[offset]);
+        // add slide number to right footer
+        mvwprintw(stdscr,
+                  LINES - 1, COLS - int_length(deck->slides) - int_length(sc) - 6,
+                  "%d / %d", sc, deck->slides);
+
+        // make header + fooder visible
+        wrefresh(stdscr);
 
         line = slide->line;
         l = 0;
@@ -207,6 +203,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
         c = getch();
 
         // evaluate user input
+        i = 0;
         switch(c) {
 
             // show previous slide
@@ -217,8 +214,10 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
             case 263: // BACKSPACE (getty)
             case 'h':
             case 'k':
-                if(slide->prev)
+                if(slide->prev) {
                     slide = slide->prev;
+                    sc--;
+                }
                 break;
 
             // show next slide
@@ -228,8 +227,58 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
             case ' ':  // SPACE
             case 'j':
             case 'l':
-                if(slide->next)
+                if(slide->next) {
                     slide = slide->next;
+                    sc++;
+                }
+                break;
+
+            // show slide n
+            case '9': i++;
+            case '8': i++;
+            case '7': i++;
+            case '6': i++;
+            case '5': i++;
+            case '4': i++;
+            case '3': i++;
+            case '2': i++;
+            case '1': i++;
+                if(i <= deck->slides) {
+                    while(sc != i) {
+                        // search forward
+                        if(sc < i) {
+                            if(slide->next) {
+                                slide = slide->next;
+                                sc++;
+                            }
+                        // search backward
+                        } else {
+                            if(slide->prev) {
+                                slide = slide->prev;
+                                sc--;
+                            }
+                        }
+                    }
+                } else {
+                    // disable fading if slide n doesn't exist
+                    fade = 0;
+                }
+                break;
+
+            // show first slide
+            case KEY_HOME:
+                slide = deck->slide;
+                sc = 1;
+                break;
+
+            // show last slide
+            case KEY_END:
+                for(i = sc; i <= deck->slides; i++) {
+                    if(slide->next) {
+                            slide = slide->next;
+                            sc++;
+                    }
+                }
                 break;
 
             // quit
@@ -446,3 +495,11 @@ void fade_in(WINDOW *window, int trans, int colors) {
     }
 }
 
+int int_length (int val) {
+    int l = 1;
+    while(val > 9) {
+        l++;
+        val /= 10;
+    }
+    return l;
+}

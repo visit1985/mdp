@@ -28,6 +28,7 @@
  * function: add_line detects inline markdown formating and prints line char
  *           by char
  * function: fade_in, fade_out implementing color fading in 256 color mode
+ * function: int_length to calculate decimal length of slide count
  *
  */
 
@@ -47,5 +48,6 @@ int ncurses_display(deck_t *deck, int notrans, int nofade);
 void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols);
 void fade_out(WINDOW *window, int trans, int colors);
 void fade_in(WINDOW *window, int trans, int colors);
+int int_length (int val);
 
 #endif // !defined( VIEWER_H )
