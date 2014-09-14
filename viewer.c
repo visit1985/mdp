@@ -21,6 +21,7 @@
  *
  */
 
+#include <locale.h> // setlocale
 #include <ncurses.h>
 #include <stdlib.h>
 #include <string.h> // strchr
@@ -73,6 +74,9 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
         }
         slide = slide->next;
     }
+
+    // set locale to display UTF-8 correctly in ncurses
+    setlocale(LC_CTYPE, "");
 
     // replace stdin with current tty if markdown input was piped
     freopen("/dev/tty", "rw", stdin);
