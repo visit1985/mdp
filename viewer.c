@@ -116,9 +116,11 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
         start_color();
         use_default_colors();
 
-        if(notrans) trans = 0; // 0 is black
+        if(notrans) trans = 0; // black in 8 color mode
 
         if(COLORS == 256) {
+            if(notrans) trans = 16; // black in 256 color mode
+
             // 256 color mode
             init_pair(CP_WHITE, 255, trans);
             init_pair(CP_BLUE, 123, trans);
@@ -317,7 +319,6 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols) {
 
     if(line->text->text) {
         int offset = 0; // text offset
-        offset = next_nonblank(line->text, 0);
 
         // IS_CODE
         if(CHECK_BIT(line->bits, IS_CODE)) {

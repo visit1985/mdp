@@ -28,9 +28,11 @@
 void usage() {
     fprintf(stderr, "%s", "Usage: mdp [OPTION]... [FILE]\n");
     fprintf(stderr, "%s", "A command-line based markdown presentation tool.\n\n");
-    fprintf(stderr, "%s", "  -d, --debug   enable debug messages on STDERR\n");
-    fprintf(stderr, "%s", "                add it multiple times to increases debug level\n\n");
-    fprintf(stderr, "%s", "  -h, --help    display this help and exit\n");
+    fprintf(stderr, "%s", "  -d, --debug     enable debug messages on STDERR\n");
+    fprintf(stderr, "%s", "                  add it multiple times to increases debug level\n");
+    fprintf(stderr, "%s", "  -f, --nofade    disable color fading in 256 color mode\n");
+    fprintf(stderr, "%s", "  -h, --help      display this help and exit\n");
+    fprintf(stderr, "%s", "  -t, --notrans   disable transparency in transparent terminal\n");
     fprintf(stderr, "%s", "\nWith no FILE, or when FILE is -, read standard input.\n\n");
     exit(EXIT_FAILURE);
 }
@@ -46,21 +48,27 @@ void version() {
 }
 
 int main(int argc, char *argv[]) {
+    int notrans = 0;
+    int nofade = 0;
 
     // define command-line options
     struct option longopts[] = {
         { "debug",   no_argument, 0, 'd' },
+        { "nofade",  no_argument, 0, 'f' },
         { "help",    no_argument, 0, 'h' },
+        { "notrans", no_argument, 0, 't' },
         { "version", no_argument, 0, 'v' },
         { 0, 0, 0, 0 }
     };
 
     // parse command-line options
     int opt, debug = 0;
-    while ((opt = getopt_long(argc, argv, ":dhv", longopts, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, ":dfhtv", longopts, NULL)) != -1) {
         switch(opt) {
             case 'd': debug += 1; break;
+            case 'f': nofade = 1; break;
             case 'h': usage(); break;
+            case 't': notrans = 1; break;
             case 'v': version(); break;
             case ':': fprintf(stderr, "%s: '%c' requires an argument\n", argv[0], optopt); usage(); break;
             case '?':
@@ -100,7 +108,7 @@ int main(int argc, char *argv[]) {
         markdown_debug(deck, debug);
     }
 
-    ncurses_display(deck, 0, 0);
+    ncurses_display(deck, notrans, nofade);
 
     return(EXIT_SUCCESS);
 }
