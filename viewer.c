@@ -191,7 +191,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
 
         // print lines
         while(line) {
-            add_line(content, l, (COLS - max_cols) / 2, line, max_cols);
+            add_line(content, l, (COLS - max_cols) / 2, line, max_cols, colors);
             line = line->next;
             l++;
         }
@@ -311,7 +311,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
     return(0);
 }
 
-void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols) {
+void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colors) {
     int i = 0; // increment
     char *c; // char pointer for iteration
     char *special = "\\*_"; // list of interpreted chars
@@ -340,7 +340,8 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols) {
             if(CHECK_BIT(line->bits, IS_H1) || CHECK_BIT(line->bits, IS_H2)) {
 
                 // set headline color
-                wattron(window, COLOR_PAIR(CP_BLUE));
+                if(colors)
+                    wattron(window, COLOR_PAIR(CP_BLUE));
 
                 // enable underline for H1
                 if(CHECK_BIT(line->bits, IS_H1))
@@ -393,7 +394,8 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols) {
                                     break;
                                 // disable highlight
                                 case '*':
-                                    wattron(window, COLOR_PAIR(CP_WHITE));
+                                    if(colors)
+                                        wattron(window, COLOR_PAIR(CP_WHITE));
                                     break;
                                 // disable underline
                                 case '_':
@@ -416,7 +418,8 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols) {
                             switch(*c) {
                                 // enable highlight
                                 case '*':
-                                    wattron(window, COLOR_PAIR(CP_RED));
+                                    if(colors)
+                                        wattron(window, COLOR_PAIR(CP_RED));
                                     break;
                                 // enable underline
                                 case '_':
@@ -442,7 +445,8 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols) {
                     switch((stack->pop)(stack)) {
                         // disable highlight
                         case '*':
-                            wattron(window, COLOR_PAIR(CP_WHITE));
+                            if(colors)
+                                wattron(window, COLOR_PAIR(CP_WHITE));
                             break;
                         // disable underline
                         case '_':
@@ -459,7 +463,8 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols) {
             wprintw(window, "%s", " ");
 
         // reset to default color
-        wattron(window, COLOR_PAIR(CP_WHITE));
+        if(colors)
+            wattron(window, COLOR_PAIR(CP_WHITE));
         wattroff(window, A_UNDERLINE);
         wattroff(window, A_REVERSE);
     }
