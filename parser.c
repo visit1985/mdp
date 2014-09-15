@@ -133,7 +133,7 @@ deck_t *markdown_load(FILE *input) {
 
             }
 
-        } else if(isprint(c) || isspace(c)) {
+        } else if(isprint(c) || isspace((unsigned char) c)) {
 
             // add char to line
             (text->expand)(text, c);
@@ -235,7 +235,7 @@ int markdown_analyse(cstring_t *text) {
     offset = next_nonblank(text, 0);
 
     // strip trailing spaces
-    for(eol = text->size; eol > offset && isspace(text->text[eol - 1]); eol--);
+    for(eol = text->size; eol > offset && isspace((unsigned char) text->text[eol - 1]); eol--);
 
     // IS_CODE
     if(offset >= CODE_INDENT) {
@@ -380,14 +380,14 @@ int length_utf8(char ch) {
 }
 
 int next_nonblank(cstring_t *text, int i) {
-    while ((i < text->size) && isspace((text->text)[i]))
+    while ((i < text->size) && isspace((unsigned char) (text->text)[i]))
         ++i;
 
     return i;
 }
 
 int next_blank(cstring_t *text, int i) {
-    while ((i < text->size) && !isspace((text->text)[i]))
+    while ((i < text->size) && !isspace((unsigned char) (text->text)[i]))
         ++i;
 
     return i;
