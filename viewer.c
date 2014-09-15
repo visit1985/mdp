@@ -440,9 +440,6 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols) {
                 // pop stack until empty to prevent formated trailing spaces
                 while(!(stack->empty)(stack)) {
                     switch((stack->pop)(stack)) {
-                        case '\\':
-                            wprintw(window, "%c", '\\');
-                            break;
                         // disable highlight
                         case '*':
                             wattron(window, COLOR_PAIR(CP_WHITE));
@@ -451,6 +448,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols) {
                         case '_':
                             wattroff(window, A_UNDERLINE);
                             break;
+                        // do nothing for backslashes
                     }
                 }
             }
