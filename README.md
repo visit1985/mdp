@@ -7,11 +7,19 @@
 
 *How to get started:*
 
+mpd needs the ncurses headers to compile.
+So make sure you have them installed:
+- On Ubuntu you need ```libncurses5``` and ```libncurses5-dev``` to be installed.
+
+Now download and install mpd:
+
     $ git clone https://github.com/visit1985/mdp.git
     $ cd mdp
     $ make
     $ make install
     $ mdp sample.md
+
+- On Arch you can use the existing [AUR package](https://aur.archlinux.org/packages/mdp-git/).
 
 ---
 
