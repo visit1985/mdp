@@ -90,7 +90,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
     if((max_cols > COLS) ||
        (max_lines + bar_top + bar_bottom + 2 > LINES)) {
 
-        fprintf(stderr, "Error: Terminal size %ix%i to small. Need at least %ix%i.\n",
+        fprintf(stderr, "Error: Terminal size %ix%i too small. Need at least %ix%i.\n",
             COLS, LINES, max_cols, max_lines + bar_top + bar_bottom + 2);
         endwin();
         return(1);
