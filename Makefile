@@ -19,12 +19,14 @@
 #
 
 CFLAGS   = -O3
+LDFLAGS  = -s
 LDLIBS   = -lncurses
 OBJECTS  = cstring.o cstack.o markdown.o parser.o viewer.o mdp.o
 DESTDIR ?= /usr/bin
 
 ifeq ($(DEBUG),1)
-	CFLAGS := -Wall -g -O0
+CFLAGS  := -Wall -g -O0
+LDFLAGS :=
 endif
 
 all: mdp
@@ -35,7 +37,6 @@ clean:
 	$(RM) $(OBJECTS) mdp
 
 install: mdp
-	if which strip 1>/dev/null 2>&1; then strip mdp; fi
 	install -d $(PREFIX)$(DESTDIR)
 	install -m 755 mdp $(PREFIX)$(DESTDIR)/mdp
 
