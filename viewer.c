@@ -93,9 +93,6 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
         return(1);
     }
 
-    // replace stdin with current tty if markdown input was piped
-    freopen("/dev/tty", "rw", stdin);
-
     // disable cursor
     curs_set(0);
 
