@@ -56,3 +56,11 @@ _Review sample.md for more details._
 - 1-9 - go to slide n
 - q - exit
 
+
+---
+
+*How to debug it:*
+
+To make a debug version of `mdp`, just type:
+
+    $ make DEBUG=1
