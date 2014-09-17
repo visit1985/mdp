@@ -104,6 +104,10 @@ int main(int argc, char *argv[]) {
     // close file
     fclose(input);
 
+    // replace stdin with current tty if input was a pipe
+    if(input == stdin)
+        freopen("/dev/tty", "rw", stdin);
+
     if(debug > 0) {
         markdown_debug(deck, debug);
     }
