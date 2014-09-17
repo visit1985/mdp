@@ -259,6 +259,8 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
                 if(slide->prev) {
                     slide = slide->prev;
                     sc--;
+                } else {
+                    fade = 0;
                 }
                 break;
 
@@ -272,6 +274,8 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
                 if(slide->next) {
                     slide = slide->next;
                     sc++;
+                } else {
+                    fade = 0;
                 }
                 break;
 
