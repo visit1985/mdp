@@ -40,5 +40,5 @@ install: mdp
 	install -d $(PREFIX)$(DESTDIR)
 	install -m 755 mdp $(PREFIX)$(DESTDIR)/mdp
 
-.PHONY: clean install
+.PHONY: all clean install
 
