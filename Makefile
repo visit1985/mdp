@@ -18,10 +18,14 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-CFLAGS   = -Wall -g
+CFLAGS   = -O3
 LDLIBS   = -lncurses
 OBJECTS  = cstring.o cstack.o markdown.o parser.o viewer.o mdp.o
 DESTDIR ?= /usr/bin
+
+ifeq ($(DEBUG),1)
+	CFLAGS := -Wall -g -O0
+endif
 
 all: mdp
 
