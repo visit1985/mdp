@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-CFLAGS   = -O3
+CFLAGS   = -O3 -Wall
 LDFLAGS  = -s
 LDLIBS   = -lncurses
 OBJECTS  = cstring.o cstack.o markdown.o parser.o viewer.o mdp.o
@@ -37,8 +37,10 @@ clean:
 	$(RM) $(OBJECTS) mdp
 
 install: mdp
-	install -d $(PREFIX)$(DESTDIR)
-	install -m 755 mdp $(PREFIX)$(DESTDIR)/mdp
+	install -Dm755 mdp $(PREFIX)$(DESTDIR)/mdp
 
-.PHONY: all clean install
+uninstall:
+	rm -f $(PREFIX)$(DESTDIR)/mdp
+
+.PHONY: all clean install uninstall
 
