@@ -18,22 +18,17 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-CC       = /usr/bin/gcc
 CFLAGS   = -Wall -g
-LDFLAGS  = -lncurses
+LDLIBS   = -lncurses
 OBJECTS  = cstring.o cstack.o markdown.o parser.o viewer.o mdp.o
 DESTDIR ?= /usr/bin
-
-%.o: %.c
-	$(CC) $(CFLAGS) -c $<
 
 all: mdp
 
 mdp: $(OBJECTS)
-	$(CC) $(CFLAGS) -o mdp $(OBJECTS) $(LDFLAGS)
 
 clean:
-	rm -f $(OBJECTS) mdp
+	$(RM) $(OBJECTS) mdp
 
 install: mdp
 	if which strip 1>/dev/null 2>&1; then strip mdp; fi
