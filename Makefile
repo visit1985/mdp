@@ -27,10 +27,10 @@ DESTDIR ?= /usr/bin
 %.o: %.c
 	$(CC) $(CFLAGS) -c $<
 
+all: mdp
+
 mdp: $(OBJECTS)
 	$(CC) $(CFLAGS) -o mdp $(OBJECTS) $(LDFLAGS)
-
-all: mdp
 
 clean:
 	rm -f $(OBJECTS) mdp
