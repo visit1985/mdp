@@ -29,14 +29,15 @@
 
 #include "include/viewer.h"
 
+// color ramp for fading from black to color
 static short white_ramp[24] = { 16, 232, 233, 234, 235, 236,
                                237, 238, 239, 240, 241, 242,
                                244, 245, 246, 247, 248, 249,
                                250, 251, 252, 253, 254, 255 };
 
 static short blue_ramp[24]  = { 16,  17,  17,  18,  18,  19,
-                                19,  20,  20,  21,  27,  32,
-                                33,  38,  39,  44,  45,  45,
+                                19,  20,  20,  21,  27,  33,
+                                32,  39,  38,  45,  44,  44,
                                 81,  81,  51,  51, 123, 123 };
 
 static short red_ramp[24]   = { 16,  52,  52,  53,  53,  89,
@@ -44,7 +45,23 @@ static short red_ramp[24]   = { 16,  52,  52,  53,  53,  89,
                                163, 163, 164, 164, 200, 200,
                                201, 201, 207, 207, 213, 213 };
 
-int ncurses_display(deck_t *deck, int notrans, int nofade) {
+// color ramp for fading from white to color
+static short white_ramp_invert[24] = { 15, 255, 254, 254, 252, 251,
+                                      250, 249, 248, 247, 246, 245,
+                                      243, 242, 241, 240, 239, 238,
+                                      237, 236, 235, 234, 233, 232};
+
+static short blue_ramp_invert[24]  = { 15, 231, 231, 195, 195, 159,
+                                      159, 123, 123,  87,  51,  44,
+                                       45,  38,  39,  32,  33,  33,
+                                       26,  26,  27,  27,  21,  21};
+
+static short red_ramp_invert[24]   = { 15, 231, 231, 224, 224, 225,
+                                      225, 218, 218, 219, 212, 213,
+                                      206, 207, 201, 200, 199, 199,
+                                      198, 198, 197, 197, 196, 196};
+
+int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
 
     int c = 0;          // char
     int i = 0;          // iterate
@@ -110,23 +127,47 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
         start_color();
         use_default_colors();
 
-        if(notrans) trans = 0; // black in 8 color mode
-
+        // 256 color mode
         if(COLORS == 256) {
-            if(notrans) trans = 16; // black in 256 color mode
 
-            // 256 color mode
-            init_pair(CP_WHITE, 255, trans);
-            init_pair(CP_BLUE, 123, trans);
-            init_pair(CP_RED, 213, trans);
+            if(notrans) {
+                if(invert) {
+                    trans = 15; // white in 256 color mode
+                } else {
+                    trans = 16; // black in 256 color mode
+                }
+            }
+
+            if(invert) {
+                init_pair(CP_WHITE, 232, trans);
+                init_pair(CP_BLUE, 21, trans);
+                init_pair(CP_RED, 196, trans);
+            } else {
+                init_pair(CP_WHITE, 255, trans);
+                init_pair(CP_BLUE, 123, trans);
+                init_pair(CP_RED, 213, trans);
+            }
             init_pair(CP_YELLOW, 208, trans);
 
             // enable color fading
             if(!nofade) fade = 1;
+
+        // 8 color mode
         } else {
 
-            // 8 color mode
-            init_pair(CP_WHITE, 7, trans);
+            if(notrans) {
+                if(invert) {
+                    trans = 7; // white in 8 color mode
+                } else {
+                    trans = 0; // black in 8 color mode
+                }
+            }
+
+            if(invert) {
+                init_pair(CP_WHITE, 0, trans);
+            } else {
+                init_pair(CP_WHITE, 7, trans);
+            }
             init_pair(CP_BLUE, 4, trans);
             init_pair(CP_RED, 1, trans);
             init_pair(CP_YELLOW, 3, trans);
@@ -195,7 +236,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
 
         // fade in
         if(fade)
-            fade_in(content, trans, colors);
+            fade_in(content, trans, colors, invert);
 
         // re-enable fading after any undefined key press
         if(COLORS == 256 && !nofade) fade = 1;
@@ -297,7 +338,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade) {
 
         // fade out
         if(fade)
-            fade_out(content, trans, colors);
+            fade_out(content, trans, colors, invert);
     }
 
     endwin();
@@ -466,32 +507,50 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
     (stack->delete)(stack);
 }
 
-void fade_out(WINDOW *window, int trans, int colors) {
+void fade_out(WINDOW *window, int trans, int colors, int invert) {
     int i; // increment
     if(colors) {
         for(i = 22; i >= 0; i--) {
-            // darken color pairs
-            init_pair(CP_WHITE, white_ramp[i], trans);
-            init_pair(CP_BLUE, blue_ramp[i], trans);
-            init_pair(CP_RED, red_ramp[i], trans);
+
+            // dim color pairs
+            if(invert) {
+                init_pair(CP_WHITE, white_ramp_invert[i], trans);
+                init_pair(CP_BLUE, blue_ramp_invert[i], trans);
+                init_pair(CP_RED, red_ramp_invert[i], trans);
+            } else {
+                init_pair(CP_WHITE, white_ramp[i], trans);
+                init_pair(CP_BLUE, blue_ramp[i], trans);
+                init_pair(CP_RED, red_ramp[i], trans);
+            }
+
             // refresh window with new color
             wrefresh(window);
+
             // delay for our eyes to recognize the change
             usleep(FADE_DELAY);
         }
     }
 }
 
-void fade_in(WINDOW *window, int trans, int colors) {
+void fade_in(WINDOW *window, int trans, int colors, int invert) {
     int i; // increment
     if(colors) {
         for(i = 0; i <= 23; i++) {
-            // lighten color pairs
-            init_pair(CP_WHITE, white_ramp[i], trans);
-            init_pair(CP_BLUE, blue_ramp[i], trans);
-            init_pair(CP_RED, red_ramp[i], trans);
+
+            // brighten color pairs
+            if(invert) {
+                init_pair(CP_WHITE, white_ramp_invert[i], trans);
+                init_pair(CP_BLUE, blue_ramp_invert[i], trans);
+                init_pair(CP_RED, red_ramp_invert[i], trans);
+            } else {
+                init_pair(CP_WHITE, white_ramp[i], trans);
+                init_pair(CP_BLUE, blue_ramp[i], trans);
+                init_pair(CP_RED, red_ramp[i], trans);
+            }
+
             // refresh window with new color
             wrefresh(window);
+
             // delay for our eyes to recognize the change
             usleep(FADE_DELAY);
         }
