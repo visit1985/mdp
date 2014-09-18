@@ -472,6 +472,10 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
                         }
 
                     } else {
+                        // remove backslash from stack
+                        if((stack->top)(stack, '\\'))
+                            (stack->pop)(stack);
+
                         // print regular char
                         wprintw(window, "%c", *c);
                     }
