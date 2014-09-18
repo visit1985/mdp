@@ -37,7 +37,8 @@ clean:
 	$(RM) $(OBJECTS) mdp
 
 install: mdp
-	install -Dm755 mdp $(PREFIX)$(DESTDIR)/mdp
+	install -d $(PREFIX)$(DESTDIR)
+	install -m 755 mdp $(PREFIX)$(DESTDIR)/mdp
 
 uninstall:
 	rm -f $(PREFIX)$(DESTDIR)/mdp
