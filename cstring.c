@@ -50,7 +50,7 @@ void cstring_expand_arr(cstring_t *self, char *x) {
         self->alloc += (REALLOC_ADD * sizeof(char));
         self->text = realloc(self->text, self->alloc);
     }
-    self->text = strcat(self->text, x);
+    self->text = strncat(self->text, x, self->alloc - strlen(self->text) - 1);
     self->size = strlen(self->text);
 }
 
