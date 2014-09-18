@@ -40,6 +40,7 @@ deck_t *markdown_load(FILE *input) {
     deck_t *deck = new_deck();
     slide_t *slide = new_slide();
     line_t *line = NULL;
+    line_t *tmp = NULL;
     cstring_t *text = cstring_init();
 
     // assign first slide to deck
@@ -198,7 +199,7 @@ deck_t *markdown_load(FILE *input) {
                 if(line->next)
                     line->next->prev = line->prev;
 
-                // set bits on revious line
+                // set bits on previous line
                 if(CHECK_BIT(line->bits, IS_H1)) {
                     SET_BIT(line->prev->bits, IS_H1);
                 } else {
@@ -208,9 +209,13 @@ deck_t *markdown_load(FILE *input) {
                 // adjust line count
                 slide->lines -= 1;
 
+                // maintain loop condition
+                tmp = line;
+                line = line->prev;
+
                 // delete line
-                (line->text->delete)(line->text);
-                free(line);
+                (tmp->text->delete)(tmp->text);
+                free(tmp);
             }
             line = line->next;
         }
