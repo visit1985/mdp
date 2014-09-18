@@ -29,6 +29,13 @@ CFLAGS  := -Wall -g -O0
 LDFLAGS :=
 endif
 
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+	INSTALL_FLAGS = m755
+else
+	INSTALL_FLAGS = Dm755
+endif
+
 all: mdp
 
 mdp: $(OBJECTS)
@@ -37,7 +44,7 @@ clean:
 	$(RM) $(OBJECTS) mdp
 
 install: mdp
-	install -Dm755 mdp $(PREFIX)$(DESTDIR)/mdp
+	install -$(INSTALL_FLAGS) mdp $(PREFIX)$(DESTDIR)/mdp
 
 uninstall:
 	rm -f $(PREFIX)$(DESTDIR)/mdp
