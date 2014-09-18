@@ -39,7 +39,7 @@ deck_t *markdown_load(FILE *input) {
 
     deck_t *deck = new_deck();
     slide_t *slide = new_slide();
-    line_t *line;
+    line_t *line = NULL;
     cstring_t *text = cstring_init();
 
     // assign first slide to deck
