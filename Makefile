@@ -18,11 +18,21 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+
+CC = gcc
 CFLAGS   = -O3 -Wall
 LDFLAGS  = -s
 LDLIBS   = -lncurses
-OBJECTS  = cstring.o cstack.o markdown.o parser.o viewer.o mdp.o
 DESTDIR ?= /usr/bin
+
+TARGET = mdp
+SRCFOLDER = src
+INCFOLDER = include
+OBJFOLDER = obj
+BINFOLDER = bin
+
+SOURCES = $(wildcard $(SRCFOLDER)/*.c)
+OBJECTS = $(patsubst %.c, $(OBJFOLDER)/%.o, $(notdir $(wildcard $(SRCFOLDER)/*.c)))
 
 ifeq ($(DEBUG),1)
 CFLAGS  := -Wall -g -O0
@@ -32,7 +42,13 @@ endif
 all: mdp
 
 mdp: $(OBJECTS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJECTS) $(LDLIBS) -o $(BINFOLDER)/$(TARGET)
 
+$(OBJFOLDER)/%.o: $(SRCFOLDER)/%.c
+	$(CC) $(CFLAGS) -c -o $@ $< -I$(INCFOLDER)
+
+dirs:
+	@mkdir -p bin obj
 clean:
 	$(RM) $(OBJECTS) mdp
 
