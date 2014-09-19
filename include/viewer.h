@@ -32,7 +32,11 @@
  *
  */
 
-#include <ncurses.h>
+#if HAVE_NCURSES == 1
+# include <ncurses.h>
+#else
+# include <curses.h>
+#endif
 
 #include "parser.h"
 #include "cstack.h"

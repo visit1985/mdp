@@ -18,9 +18,17 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-CFLAGS   = -O3 -Wall
+ifeq (Windows_NT, $(OS))
+CURSES = pdcurses
+HAVE_NCURSES = 0
+else
+CURSES = ncurses
+HAVE_NCURSES = 1
+endif
+
+CFLAGS   = -O3 -Wall -DHAVE_NCURSES=$(HAVE_NCURSES)
 LDFLAGS  = -s
-LDLIBS   = -lncurses
+LDLIBS   = -l$(CURSES)
 OBJECTS  = cstring.o cstack.o markdown.o parser.o viewer.o mdp.o
 DESTDIR ?= /usr/bin
 
