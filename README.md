@@ -7,11 +7,11 @@
 
 *How to get started:*
 
-mpd needs the ncurses headers to compile.
+mdp needs the ncurses headers to compile.
 So make sure you have them installed:
 - On Ubuntu you need ```libncurses5``` and ```libncurses5-dev``` to be installed.
 
-Now download and install mpd:
+Now download and install mdp:
 
     $ git clone https://github.com/visit1985/mdp.git
     $ cd mdp
