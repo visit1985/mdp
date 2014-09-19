@@ -53,9 +53,15 @@ deck_t *markdown_load(FILE *input) {
             // markdown analyse
             bits = markdown_analyse(text);
 
+            // if first line in file is markdown hr
+            if(!line && CHECK_BIT(bits, IS_HR)) {
+
+                // clear text
+                (text->reset)(text);
+
             // if text is markdown hr
-            if(CHECK_BIT(bits, IS_HR) &&
-               CHECK_BIT(line->bits, IS_EMPTY)) {
+            } else if(CHECK_BIT(bits, IS_HR) &&
+                      CHECK_BIT(line->bits, IS_EMPTY)) {
 
                 slide->lines = lc;
 
