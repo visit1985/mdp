@@ -1,0 +1,13 @@
+# temporary compile results
+*.o
+
+# Binary excutions
+mdp
+
+# Other temporary files
+.DS_Store
+*~
+*.swp
+*.sublime-workspace
+*.out
+tags
