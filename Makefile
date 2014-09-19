@@ -20,7 +20,7 @@
 
 CFLAGS   = -O3 -Wall
 LDFLAGS  = -s
-LDLIBS   = -lncurses
+LDLIBS   = -lncursesw
 OBJECTS  = cstring.o cstack.o markdown.o parser.o viewer.o mdp.o
 DESTDIR ?= /usr/bin
 
