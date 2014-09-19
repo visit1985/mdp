@@ -19,15 +19,23 @@
 #
 
 CFLAGS   = -O3 -Wall
-LDFLAGS  = -s
-LDLIBS   = -lncursesw
-OBJECTS  = cstring.o cstack.o markdown.o parser.o viewer.o mdp.o
-DESTDIR ?= /usr/bin
 
 ifeq ($(DEBUG),1)
-CFLAGS  := -Wall -g -O0
+CFLAGS  := -O0 -Wall -g
 LDFLAGS :=
 endif
+
+ifeq (Windows_NT, $(OS))
+CURSES   = pdcurses
+CFLAGS  += -DWIN32=1
+else
+CURSES   = ncursesw
+endif
+
+LDFLAGS  = -s
+LDLIBS   = -l$(CURSES)
+OBJECTS  = cstring.o cstack.o markdown.o parser.o viewer.o mdp.o
+DESTDIR  = /usr/bin
 
 all: mdp
 

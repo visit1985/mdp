@@ -22,7 +22,6 @@
  */
 
 #include <locale.h> // setlocale
-#include <ncurses.h>
 #include <stdlib.h>
 #include <string.h> // strchr
 #include <unistd.h>
