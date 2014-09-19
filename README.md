@@ -15,6 +15,7 @@ Now download and install mdp:
 
     $ git clone https://github.com/visit1985/mdp.git
     $ cd mdp
+    $ make dirs
     $ make
     $ make install
     $ mdp sample.md
