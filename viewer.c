@@ -104,9 +104,19 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
     if((max_cols > COLS) ||
        (max_lines + bar_top + bar_bottom + 2 > LINES)) {
 
+        // disable ncurses
+        endwin();
+
+        // print error
         fprintf(stderr, "Error: Terminal size %ix%i too small. Need at least %ix%i.\n",
             COLS, LINES, max_cols, max_lines + bar_top + bar_bottom + 2);
-        endwin();
+
+        // print hint to solve it
+        if(max_lines + bar_top + bar_bottom + 2 > LINES)
+            fprintf(stderr, "You may need to add additional horizontal rules ('***') to split your file in shorter slides.\n");
+        if(max_cols > COLS)
+            fprintf(stderr, "Automatic line wrapping is not supported jet. You may need to shorten some lines by inserting line breaks.\n");
+
         return(1);
     }
 
