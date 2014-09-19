@@ -11,6 +11,22 @@ A command-line based markdown presentation tool.
 
 # Supported markdown formatting's
 
+The input file is split into multiple slides by
+horizontal rules (hr). A hr consisting of at
+least 3 *\** or *-*. It can also contain spaces but
+no other characters.
+
+Each of these represents the start of a new slide
+
+\* \* \*
+\---
+\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*
+\- - -
+
+-------------------------------------------------
+
+# Supported markdown formatting's
+
 First-level headers can be prefixed by single *#*
 or underlined by *===*.
 
