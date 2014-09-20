@@ -58,11 +58,11 @@ second-level
 
 Inline codes are surrounded with backticks.
 
-C program begins excuting at the beginning of \`main()\`.
+C program starts with \`main()\`.
 
 becomes
 
-C program begins excuting at the beginning of `main()`.
+C program starts with `main()`.
 
 -------------------------------------------------
 
