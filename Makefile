@@ -18,23 +18,16 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-CFLAGS   = -O3 -Wall
-LDFLAGS  = -s
-LDLIBS   = -lncurses
-OBJECTS  = cstring.o cstack.o markdown.o parser.o viewer.o mdp.o
 DESTDIR ?= /usr/bin
-
-ifeq ($(DEBUG),1)
-CFLAGS  := -Wall -g -O0
-LDFLAGS :=
-endif
 
 all: mdp
 
-mdp: $(OBJECTS)
+mdp: 
+	$(MAKE) -C src $(MFLAGS)
 
 clean:
-	$(RM) $(OBJECTS) mdp
+	$(MAKE) -C src clean
+	$(RM) mdp
 
 install: mdp
 	install -Dm755 mdp $(PREFIX)$(DESTDIR)/mdp
