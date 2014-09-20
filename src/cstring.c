@@ -22,7 +22,7 @@
 #include <string.h> // strlen
 #include <stdlib.h> // malloc, realloc
 
-#include "include/cstring.h"
+#include "cstring.h"
 
 cstring_t *cstring_init() {
     cstring_t *x = malloc(sizeof(cstring_t));

@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "include/parser.h"
+#include "parser.h"
 
 deck_t *markdown_load(FILE *input) {
 
