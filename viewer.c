@@ -363,7 +363,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
 void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colors) {
     int i = 0; // increment
     char *c; // char pointer for iteration
-    char *special = "\\*_"; // list of interpreted chars
+    char *special = "\\*_`"; // list of interpreted chars
     cstack_t *stack = cstack_init();
 
     if(line->text->text) {
@@ -450,6 +450,10 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
                                 case '_':
                                     wattroff(window, A_UNDERLINE);
                                     break;
+				// disable inline code
+                                case '`':
+                                    wattroff(window, A_REVERSE);
+				    break;
                             }
 
                             // remove top special char from stack
@@ -473,6 +477,10 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
                                 // enable underline
                                 case '_':
                                     wattron(window, A_UNDERLINE);
+                                    break;
+                                // enable inline code
+                                case '`':
+                                    wattron(window, A_REVERSE);
                                     break;
                                 // do nothing for backslashes
                             }
@@ -504,6 +512,10 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
                         // disable underline
                         case '_':
                             wattroff(window, A_UNDERLINE);
+                            break;
+                        // disable inline code
+                        case '`':
+			    wattroff(window, A_REVERSE);
                             break;
                         // do nothing for backslashes
                     }
