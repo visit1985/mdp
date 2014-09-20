@@ -1,5 +1,5 @@
-#
-# Makefile
+#                                                                                                                           
+#                                                                                                                             1 # Makefile
 # Copyright (C) 2014 Michael Goehler
 #
 # This file is part of mdp.
@@ -18,43 +18,23 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+SOURCES = $(wildcard *.c)
+OBJECTS = $(SOURCES:.c=.o)
+
+CFLAGS   = -O3 -Wall -I../include
+ifeq ($(DEBUG),1)
+CFLAGS  := -O0 -Wall -g -I../include
+endif
+
 OSTYPE  := $(shell uname -o)
-CURSES   = ncursesw
 ifeq (Windows_NT, $(OS))
 ifneq (Cygwin, $(OSTYPE))
-CURSES  := pdcurses
+CFLAGS  += -DWIN32=1
 endif
 endif
 
-LDFLAGS  = -s
-LDLIBS   = -l$(CURSES)
-SOURCES  = $(wildcard src/*.c)
-OBJECTS  = $(SOURCES:.c=.o)
-TARGET   = mdp
-DESTDIR  = /usr/bin
-
-ifeq ($(DEBUG),1)
-LDFLAGS :=
-endif
-
-all: $(TARGET)
-
-$(TARGET): src
-	$(CC) $(OBJECTS) $(LDLIBS) $(LDFLAGS) -o $(TARGET)
-
-src:
-	$(MAKE) $(MFLAGS) -C src
+all: $(OBJECTS)
 
 clean:
-	$(MAKE) -C src clean
-	$(RM) $(TARGET)
-
-install:
-	install -d $(PREFIX)$(DESTDIR)
-	install -m 755 mdp $(PREFIX)$(DESTDIR)/$(TARGET)
-
-uninstall:
-	$(RM) $(PREFIX)$(DESTDIR)/$(TARGET)
-
-.PHONY: all clean install src uninstall
+	$(RM) $(OBJECTS)
 

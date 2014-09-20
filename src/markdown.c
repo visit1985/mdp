@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "include/markdown.h"
+#include "markdown.h"
 
 line_t *new_line() {
     line_t *x = malloc(sizeof(line_t));

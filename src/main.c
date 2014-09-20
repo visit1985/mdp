@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "include/mdp.h"
+#include "main.h"
 
 void usage() {
     fprintf(stderr, "%s", "Usage: mdp [OPTION]... [FILE]\n");

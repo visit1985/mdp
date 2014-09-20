@@ -1,5 +1,5 @@
-#if !defined( MDP_H )
-#define MDP_H
+#if !defined( MAIN_H )
+#define MAIN_H
 
 /*
  * mdp -- A command-line based markdown presentation tool.
@@ -27,4 +27,4 @@
 #define MDP_VER_MINOR 91
 #define MDP_VER_REVISION 1
 
-#endif // !defined( MDP_H )
+#endif // !defined( MAIN_H )

@@ -21,7 +21,7 @@
 
 #include <stdlib.h> // malloc, realloc
 
-#include "include/cstack.h"
+#include "cstack.h"
 
 cstack_t *cstack_init() {
     cstack_t *stack = malloc(sizeof(cstack_t));

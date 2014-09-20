@@ -26,7 +26,7 @@
 #include <string.h> // strchr
 #include <unistd.h>
 
-#include "include/viewer.h"
+#include "viewer.h"
 
 // color ramp for fading from black to color
 static short white_ramp[24] = { 16, 232, 233, 234, 235, 236,
