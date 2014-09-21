@@ -56,6 +56,18 @@ second-level
 
 # Supported markdown formatting's
 
+Inline codes are surrounded with backticks.
+
+C program starts with \`main()\`.
+
+becomes
+
+C program starts with `main()`.
+
+-------------------------------------------------
+
+# Supported markdown formatting's
+
 Code blocks are automatically detected by 4
 spaces at the beginning of a line.
 
@@ -160,4 +172,5 @@ If you observe strange behavior, feel free to
 open an issue on GitHub:
 
 _https://github.com/visit1985/mdp_
+
 
