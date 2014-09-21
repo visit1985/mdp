@@ -39,7 +39,7 @@ void usage() {
 }
 
 void version() {
-    printf("mdp %d.%d\n", MAJOR_VERSION, MINOR_VERSION);
+    printf("mdp %d.%d.%d\n", MDP_VER_MAJOR, MDP_VER_MINOR, MDP_VER_REVISION);
     printf("Copyright (C) 2014 Michael Goehler\n");
     printf("License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.\n");
     printf("This is free software: you are free to change and redistribute it.\n");

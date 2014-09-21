@@ -23,7 +23,8 @@
 #include "parser.h"
 #include "viewer.h"
 
-#define MAJOR_VERSION 0
-#define MINOR_VERSION 90
+#define MDP_VER_MAJOR 0
+#define MDP_VER_MINOR 91
+#define MDP_VER_REVISION 1
 
 #endif // !defined( MDP_H )
