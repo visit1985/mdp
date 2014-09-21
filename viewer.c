@@ -152,10 +152,12 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
                 init_pair(CP_WHITE, 232, trans);
                 init_pair(CP_BLUE, 21, trans);
                 init_pair(CP_RED, 196, trans);
+                init_pair(CP_BLACK, 15, 232);
             } else {
                 init_pair(CP_WHITE, 255, trans);
                 init_pair(CP_BLUE, 123, trans);
                 init_pair(CP_RED, 213, trans);
+                init_pair(CP_BLACK, 16, 255);
             }
             init_pair(CP_YELLOW, 208, trans);
 
@@ -175,8 +177,10 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
 
             if(invert) {
                 init_pair(CP_WHITE, 0, trans);
+                init_pair(CP_BLACK, 7, 0);
             } else {
                 init_pair(CP_WHITE, 7, trans);
+                init_pair(CP_BLACK, 0, 7);
             }
             init_pair(CP_BLUE, 4, trans);
             init_pair(CP_RED, 1, trans);
@@ -376,7 +380,8 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
             offset = CODE_INDENT;
 
             // reverse color for code blocks
-            wattron(window, A_REVERSE);
+            if(colors)
+                wattron(window, COLOR_PAIR(CP_BLACK));
 
             // print whole lines
             mvwprintw(window,
@@ -415,10 +420,15 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
                 if(CHECK_BIT(line->bits, IS_QUOTE)) {
                     while(line->text->text[offset] == '>') {
                         // print a reverse color block
-                        wattron(window, A_REVERSE);
-                        wprintw(window, "%s", " ");
-                        wattroff(window, A_REVERSE);
-                        wprintw(window, "%s", " ");
+                        if(colors) {
+                            wattron(window, COLOR_PAIR(CP_BLACK));
+                            wprintw(window, "%s", " ");
+                            wattron(window, COLOR_PAIR(CP_WHITE));
+                            wprintw(window, "%s", " ");
+                        } else {
+                            wprintw(window, "%s", ">");
+                        }
+
                         // find next quote or break
                         offset++;
                         if(line->text->text[offset] == ' ')
@@ -450,10 +460,11 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
                                 case '_':
                                     wattroff(window, A_UNDERLINE);
                                     break;
-				// disable inline code
+                                // disable inline code
                                 case '`':
-                                    wattroff(window, A_REVERSE);
-				    break;
+                                    if(colors)
+                                        wattron(window, COLOR_PAIR(CP_WHITE));
+                                    break;
                             }
 
                             // remove top special char from stack
@@ -480,7 +491,8 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
                                     break;
                                 // enable inline code
                                 case '`':
-                                    wattron(window, A_REVERSE);
+                                    if(colors)
+                                        wattron(window, COLOR_PAIR(CP_BLACK));
                                     break;
                                 // do nothing for backslashes
                             }
@@ -515,7 +527,8 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
                             break;
                         // disable inline code
                         case '`':
-			    wattroff(window, A_REVERSE);
+                            if(colors)
+                                wattron(window, COLOR_PAIR(CP_WHITE));
                             break;
                         // do nothing for backslashes
                     }
@@ -531,7 +544,6 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
         if(colors)
             wattron(window, COLOR_PAIR(CP_WHITE));
         wattroff(window, A_UNDERLINE);
-        wattroff(window, A_REVERSE);
     }
 
     (stack->delete)(stack);
@@ -539,7 +551,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
 
 void fade_out(WINDOW *window, int trans, int colors, int invert) {
     int i; // increment
-    if(colors) {
+    if(colors && COLORS == 256) {
         for(i = 22; i >= 0; i--) {
 
             // dim color pairs
@@ -547,10 +559,12 @@ void fade_out(WINDOW *window, int trans, int colors, int invert) {
                 init_pair(CP_WHITE, white_ramp_invert[i], trans);
                 init_pair(CP_BLUE, blue_ramp_invert[i], trans);
                 init_pair(CP_RED, red_ramp_invert[i], trans);
+                init_pair(CP_BLACK, 15, white_ramp_invert[i]);
             } else {
                 init_pair(CP_WHITE, white_ramp[i], trans);
                 init_pair(CP_BLUE, blue_ramp[i], trans);
                 init_pair(CP_RED, red_ramp[i], trans);
+                init_pair(CP_BLACK, 16, white_ramp[i]);
             }
 
             // refresh window with new color
@@ -564,7 +578,7 @@ void fade_out(WINDOW *window, int trans, int colors, int invert) {
 
 void fade_in(WINDOW *window, int trans, int colors, int invert) {
     int i; // increment
-    if(colors) {
+    if(colors && COLORS == 256) {
         for(i = 0; i <= 23; i++) {
 
             // brighten color pairs
@@ -572,10 +586,12 @@ void fade_in(WINDOW *window, int trans, int colors, int invert) {
                 init_pair(CP_WHITE, white_ramp_invert[i], trans);
                 init_pair(CP_BLUE, blue_ramp_invert[i], trans);
                 init_pair(CP_RED, red_ramp_invert[i], trans);
+                init_pair(CP_BLACK, 15, white_ramp_invert[i]);
             } else {
                 init_pair(CP_WHITE, white_ramp[i], trans);
                 init_pair(CP_BLUE, blue_ramp[i], trans);
                 init_pair(CP_RED, red_ramp[i], trans);
+                init_pair(CP_BLACK, 16, white_ramp[i]);
             }
 
             // refresh window with new color

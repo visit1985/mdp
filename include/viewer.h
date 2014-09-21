@@ -41,6 +41,7 @@
 #define CP_BLUE   2 // 123
 #define CP_RED    3 // 213
 #define CP_YELLOW 4 // 208
+#define CP_BLACK  5 // CP_WHITE with foreground and background swapped
 
 #define FADE_DELAY 15000 // micro seconds
 
