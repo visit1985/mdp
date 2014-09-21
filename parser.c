@@ -192,8 +192,10 @@ deck_t *markdown_load(FILE *input) {
     // combine underlined H1/H2 in single line
     slide = deck->slide;
     while(slide) {
+        line_t* tmp;
         line = slide->line;
         while(line) {
+            tmp = line->next;
             if((CHECK_BIT(line->bits, IS_H1) ||
                 CHECK_BIT(line->bits, IS_H2)) &&
                CHECK_BIT(line->bits, IS_EMPTY) &&
@@ -223,7 +225,7 @@ deck_t *markdown_load(FILE *input) {
                 (tmp->text->delete)(tmp->text);
                 free(tmp);
             }
-            line = line->next;
+            line = tmp;
         }
         slide = slide->next;
     }
