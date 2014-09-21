@@ -109,8 +109,13 @@ int main(int argc, char *argv[]) {
     fclose(input);
 
     // replace stdin with current tty if input was a pipe
-    if(input == stdin)
-        freopen("/dev/tty", "rw", stdin);
+    if(input == stdin) {
+        input = freopen("/dev/tty", "rw", stdin);
+        if(!input) {
+            fprintf(stderr, "%s: %s: %s\n", argv[0], "/dev/tty", strerror(errno));
+            exit(EXIT_FAILURE);
+        }
+    }
 
     if(debug > 0) {
         markdown_debug(deck, debug);
