@@ -47,11 +47,12 @@ void cstring_expand(cstring_t *self, char x) {
 
 void cstring_expand_arr(cstring_t *self, char *x) {
     if(self->size + strlen(x) + sizeof(char) > self->alloc) {
-        self->alloc += (REALLOC_ADD * sizeof(char));
+        self->alloc = ((strlen(x) + self->size + 1) * sizeof(char));
         self->text = realloc(self->text, self->alloc);
     }
     self->text = strcat(self->text, x);
     self->size = strlen(self->text);
+    self->text[self->size+1] = '\0';
 }
 
 void cstring_reset(cstring_t *self) {

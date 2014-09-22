@@ -49,7 +49,7 @@ install: mdp
 	install -m 755 mdp $(PREFIX)$(DESTDIR)/mdp
 
 uninstall:
-	rm -f $(PREFIX)$(DESTDIR)/mdp
+	$(RM) $(PREFIX)$(DESTDIR)/mdp
 
 .PHONY: all clean install uninstall
 
