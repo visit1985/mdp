@@ -1,6 +1,6 @@
 %title: mdp - Sample Presentation
-%author: Michael Göhler
-%date: 2014-09-18
+%author: visit1985
+%date: 2014-09-22
 
 mdp
 ===
@@ -160,6 +160,22 @@ upsilon = Ʊ, phi = ɸ
 Use *Ctrl + z* to suspend the presentation.
 
 Use *fg* to resume it.
+
+-------------------------------------------------
+
+# Convert your presentation to PDF
+
+To publish your presentation later on, you may
+want to convert it to PDF.
+
+This can be achieved by two additional tools:
+
+- *markdown* to convert to HTML
+- *wkhtmltopdf* to convert from HTML to PDF
+
+After installing them, you can simply type:
+
+    $ markdown sample.md | wkhtmltopdf - sample.pdf
 
 -------------------------------------------------
 
