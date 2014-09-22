@@ -25,11 +25,13 @@ CFLAGS  := -O0 -Wall -g
 LDFLAGS :=
 endif
 
-ifeq (Windows_NT, $(OS))
-CURSES   = pdcurses
-CFLAGS  += -DWIN32=1
-else
+OSTYPE  := $(shell uname -o)
 CURSES   = ncursesw
+ifeq (Windows_NT, $(OS))
+ifneq (Cygwin, $(OSTYPE))
+CURSES  := pdcurses
+CFLAGS  += -DWIN32=1
+endif
 endif
 
 LDFLAGS  = -s
