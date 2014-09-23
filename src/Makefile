@@ -26,8 +26,8 @@ ifeq ($(DEBUG),1)
 CFLAGS  := -O0 -Wall -g -I../include
 endif
 
-OSTYPE  := $(shell uname -o)
 ifeq (Windows_NT, $(OS))
+OSTYPE  := $(shell uname -o)
 ifneq (Cygwin, $(OSTYPE))
 CFLAGS  += -DWIN32=1
 endif
