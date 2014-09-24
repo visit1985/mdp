@@ -392,14 +392,14 @@ int length_utf8(char ch) {
 
 int next_nonblank(cstring_t *text, int i) {
     while ((i < text->size) && isspace((unsigned char) (text->text)[i]))
-        ++i;
+        i++;
 
     return i;
 }
 
 int next_blank(cstring_t *text, int i) {
     while ((i < text->size) && !isspace((unsigned char) (text->text)[i]))
-        ++i;
+        i++;
 
     return i;
 }
