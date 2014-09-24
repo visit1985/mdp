@@ -382,7 +382,7 @@ int length_utf8(char ch) {
 
     int i = 0; // increment
 
-    while(ch & 0x80) {
+    while(is_utf8(ch)) {
         i++;
         ch <<= 1;
     }
