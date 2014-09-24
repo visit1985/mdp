@@ -108,8 +108,8 @@ becomes
 
 Inline highlighting is supported as followed:
 
-- *\** colors text as red
-- *\_* underlines text
+\- *\** colors text as red
+\- *\_* underlines text
 
 \_some\_ \*highlighted\* \_\*text\*\_
 
@@ -130,6 +130,32 @@ characters.
 becomes
 
 \*special\*
+
+-------------------------------------------------
+
+# Supported markdown formatting's
+
+The leading stars or minuses make list.
+
+TODO list:
+\* TODO major 1
+\    \- TODO minor 1.1
+\    \- TODO minor 1.2
+\* TODO major 2
+\* TODO major 3
+\    \* TODO minor 3.1
+\    \* TODO minor 3.2
+
+becomes
+
+TODO list:
+* TODO major 1
+    - TODO minor 1.1
+    - TODO minor 1.2
+* TODO major 2
+* TODO major 3
+    * TODO minor 3.1
+    * TODO minor 3.2
 
 -------------------------------------------------
 
@@ -170,8 +196,8 @@ want to convert it to PDF.
 
 This can be achieved by two additional tools:
 
-- *markdown* to convert to HTML
-- *wkhtmltopdf* to convert from HTML to PDF
+\- *markdown* to convert to HTML
+\- *wkhtmltopdf* to convert from HTML to PDF
 
 After installing them, you can simply type:
 
