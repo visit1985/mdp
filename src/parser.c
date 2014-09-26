@@ -222,22 +222,20 @@ deck_t *markdown_load(FILE *input) {
                 // delete line
                 (tmp->text->delete)(tmp->text);
                 free(tmp);
-            } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)) {
+            } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_3)) {
                 tmp = line->next;
-                line_t *list_last_level_1 = line;
+                line_t *list_last_level_3 = line;
 
                 while(tmp &&
-                      (CHECK_BIT(tmp->bits, IS_UNORDERED_LIST_1) ||
-                       CHECK_BIT(tmp->bits, IS_UNORDERED_LIST_2) ||
-                       CHECK_BIT(tmp->bits, IS_UNORDERED_LIST_3))) {
-                    if(CHECK_BIT(tmp->bits, IS_UNORDERED_LIST_1)) {
-                        list_last_level_1 = tmp;
+                      CHECK_BIT(tmp->bits, IS_UNORDERED_LIST_3)) {
+                    if(CHECK_BIT(tmp->bits, IS_UNORDERED_LIST_3)) {
+                        list_last_level_3 = tmp;
                     }
                     tmp = tmp->next;
                 }
 
-                for(tmp = line; tmp != list_last_level_1; tmp = tmp->next) {
-                    SET_BIT(tmp->bits, IS_UNORDERED_LIST_1);
+                for(tmp = line; tmp != list_last_level_3; tmp = tmp->next) {
+                    SET_BIT(tmp->bits, IS_UNORDERED_LIST_3);
                 }
             } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)) {
                 tmp = line->next;
@@ -255,20 +253,22 @@ deck_t *markdown_load(FILE *input) {
                 for(tmp = line; tmp != list_last_level_2; tmp = tmp->next) {
                     SET_BIT(tmp->bits, IS_UNORDERED_LIST_2);
                 }
-            } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_3)) {
+            } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)) {
                 tmp = line->next;
-                line_t *list_last_level_3 = line;
+                line_t *list_last_level_1 = line;
 
                 while(tmp &&
-                      CHECK_BIT(tmp->bits, IS_UNORDERED_LIST_3)) {
-                    if(CHECK_BIT(tmp->bits, IS_UNORDERED_LIST_3)) {
-                        list_last_level_3 = tmp;
+                      (CHECK_BIT(tmp->bits, IS_UNORDERED_LIST_1) ||
+                       CHECK_BIT(tmp->bits, IS_UNORDERED_LIST_2) ||
+                       CHECK_BIT(tmp->bits, IS_UNORDERED_LIST_3))) {
+                    if(CHECK_BIT(tmp->bits, IS_UNORDERED_LIST_1)) {
+                        list_last_level_1 = tmp;
                     }
                     tmp = tmp->next;
                 }
                 
-                for(tmp = line; tmp != list_last_level_3; tmp = tmp->next) {
-                    SET_BIT(tmp->bits, IS_UNORDERED_LIST_3);
+                for(tmp = line; tmp != list_last_level_1; tmp = tmp->next) {
+                    SET_BIT(tmp->bits, IS_UNORDERED_LIST_1);
                 }
             }
 
