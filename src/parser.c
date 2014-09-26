@@ -501,6 +501,13 @@ int next_nonblank(cstring_t *text, int i) {
     return i;
 }
 
+int prev_blank(cstring_t *text, int i) {
+    while ((i > 0) && !isspace((unsigned char) (text->text)[i]))
+        i--;
+
+    return i;
+}
+
 int next_blank(cstring_t *text, int i) {
     while ((i < text->size) && !isspace((unsigned char) (text->text)[i]))
         i++;
