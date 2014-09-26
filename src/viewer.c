@@ -114,7 +114,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
         if(max_lines + bar_top + bar_bottom + 2 > LINES)
             fprintf(stderr, "You may need to add additional horizontal rules ('***') to split your file in shorter slides.\n");
         if(max_cols > COLS)
-            fprintf(stderr, "Automatic line wrapping is not supported jet. You may need to shorten some lines by inserting line breaks.\n");
+            fprintf(stderr, "Automatic line wrapping is not supported yet. You may need to shorten some lines by inserting line breaks.\n");
 
         return(1);
     }
