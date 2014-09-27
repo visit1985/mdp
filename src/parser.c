@@ -189,7 +189,6 @@ deck_t *markdown_load(FILE *input) {
         deck->slide->lines -= hc;
     }
 
-    // combine underlined H1/H2 in single line
     slide = deck->slide;
     while(slide) {
         line = slide->line;
@@ -199,6 +198,7 @@ deck_t *markdown_load(FILE *input) {
                CHECK_BIT(line->bits, IS_EMPTY) &&
                line->prev &&
                !CHECK_BIT(line->prev->bits, IS_EMPTY)) {
+                // combine underlined H1/H2 in single line
 
                 // remove line from linked list
                 line->prev->next = line->next;
@@ -222,7 +222,56 @@ deck_t *markdown_load(FILE *input) {
                 // delete line
                 (tmp->text->delete)(tmp->text);
                 free(tmp);
+            } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_3)) {
+                tmp = line->next;
+                line_t *list_last_level_3 = line;
+
+                while(tmp &&
+                      CHECK_BIT(tmp->bits, IS_UNORDERED_LIST_3)) {
+                    if(CHECK_BIT(tmp->bits, IS_UNORDERED_LIST_3)) {
+                        list_last_level_3 = tmp;
+                    }
+                    tmp = tmp->next;
+                }
+
+                for(tmp = line; tmp != list_last_level_3; tmp = tmp->next) {
+                    SET_BIT(tmp->bits, IS_UNORDERED_LIST_3);
+                }
+            } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)) {
+                tmp = line->next;
+                line_t *list_last_level_2 = line;
+
+                while(tmp &&
+                      (CHECK_BIT(tmp->bits, IS_UNORDERED_LIST_2) ||
+                       CHECK_BIT(tmp->bits, IS_UNORDERED_LIST_3))) {
+                    if(CHECK_BIT(tmp->bits, IS_UNORDERED_LIST_2)) {
+                        list_last_level_2 = tmp;
+                    }
+                    tmp = tmp->next;
+                }
+
+                for(tmp = line; tmp != list_last_level_2; tmp = tmp->next) {
+                    SET_BIT(tmp->bits, IS_UNORDERED_LIST_2);
+                }
+            } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)) {
+                tmp = line->next;
+                line_t *list_last_level_1 = line;
+
+                while(tmp &&
+                      (CHECK_BIT(tmp->bits, IS_UNORDERED_LIST_1) ||
+                       CHECK_BIT(tmp->bits, IS_UNORDERED_LIST_2) ||
+                       CHECK_BIT(tmp->bits, IS_UNORDERED_LIST_3))) {
+                    if(CHECK_BIT(tmp->bits, IS_UNORDERED_LIST_1)) {
+                        list_last_level_1 = tmp;
+                    }
+                    tmp = tmp->next;
+                }
+                
+                for(tmp = line; tmp != list_last_level_1; tmp = tmp->next) {
+                    SET_BIT(tmp->bits, IS_UNORDERED_LIST_1);
+                }
             }
+
             line = line->next;
         }
         slide = slide->next;
@@ -233,6 +282,9 @@ deck_t *markdown_load(FILE *input) {
 
 int markdown_analyse(cstring_t *text) {
 
+    static int unordered_list_level = 0;
+    static int unordered_list_level_offset[] = {-1, -1, -1, -1};
+
     int i = 0;      // increment
     int bits = 0;   // markdown bits
     int offset = 0; // text offset
@@ -242,77 +294,126 @@ int markdown_analyse(cstring_t *text) {
         stars  = 0, minus  = 0,
         spaces = 0, other  = 0; // special character counts
 
+    const int unordered_list_offset = unordered_list_level_offset[unordered_list_level];
+
     // count leading spaces
     offset = next_nonblank(text, 0);
 
     // strip trailing spaces
     for(eol = text->size; eol > offset && isspace((unsigned char) text->text[eol - 1]); eol--);
 
-    // IS_CODE
-    if(offset >= CODE_INDENT) {
-        SET_BIT(bits, IS_CODE);
+    if(text->size >= offset + 2 &&
+       (text->text[offset] == '*' || text->text[offset] == '-') &&
+       text->text[offset + 1] == ' ') {
+
+        for(i = offset; i<eol; i++)
+            if(text->text[i] != '*' &&
+               text->text[i] != '-' &&
+               text->text[i] != ' ') {
+                if(offset > unordered_list_offset + CODE_INDENT) {
+                    SET_BIT(bits, IS_CODE);
+                } else if(offset != unordered_list_offset) {
+                    for(i = unordered_list_level; i >= 0; i--) {
+                        if(unordered_list_level_offset[i] == offset) {
+                            unordered_list_level = i;
+                            break;
+                        }
+                    }
+                    if(i != unordered_list_level) {
+                        unordered_list_level = MIN(unordered_list_level + 1, UNORDERED_LIST_MAX_LEVEL);
+                        unordered_list_level_offset[unordered_list_level] = offset;
+                    }
+                }
+
+                if(unordered_list_level == 0) {
+                    unordered_list_level = 1;
+                    unordered_list_level_offset[1] = offset;
+                 }
+
+                switch(unordered_list_level) {
+                    case 1: SET_BIT(bits, IS_UNORDERED_LIST_1); break;
+                    case 2: SET_BIT(bits, IS_UNORDERED_LIST_2); break;
+                    case 3: SET_BIT(bits, IS_UNORDERED_LIST_3); break;
+                    default: break;
+                }
+                
+                break;
+            }
     }
+    
+    if(!CHECK_BIT(bits, IS_UNORDERED_LIST_1) &&
+       !CHECK_BIT(bits, IS_UNORDERED_LIST_2) &&
+       !CHECK_BIT(bits, IS_UNORDERED_LIST_3)) {
 
-    for(i = offset; i < eol; i++) {
+        unordered_list_level = 0;
 
-        if(text->text[i] == ' ') {
-            spaces++;
-
-        } else if(CHECK_BIT(bits, IS_CODE)) {
-            other++;
-
+        if(offset >= CODE_INDENT) {
+            // IS_CODE
+            SET_BIT(bits, IS_CODE);
         } else {
-            switch(text->text[i]) {
-                case '=': equals++;  break;
-                case '#': hashes++;  break;
-                case '*': stars++;   break;
-                case '-': minus++;   break;
-                case '\\': other++; i++; break;
-                default:  other++;   break;
+
+            for(i = offset; i < eol; i++) {
+
+                if(text->text[i] == ' ') {
+                    spaces++;
+
+                } else if(CHECK_BIT(bits, IS_CODE)) {
+                    other++;
+
+                } else {
+                    switch(text->text[i]) {
+                        case '=': equals++;  break;
+                        case '#': hashes++;  break;
+                        case '*': stars++;   break;
+                        case '-': minus++;   break;
+                        case '\\': other++; i++; break;
+                        default:  other++;   break;
+                    }
+                }
+            }
+
+            // IS_H1
+            if((equals > 0 &&
+                hashes + stars + minus + spaces + other == 0) ||
+               (text &&
+                text->text &&
+                text->text[offset] == '#' &&
+                text->text[offset+1] != '#')) {
+
+                SET_BIT(bits, IS_H1);
+            }
+
+            // IS_H2
+            if((minus > 0 &&
+                equals + hashes + stars + spaces + other == 0) ||
+               (text &&
+                text->text &&
+                text->text[offset] == '#' &&
+                text->text[offset+1] == '#')) {
+
+                SET_BIT(bits, IS_H2);
+            }
+
+            // IS_QUOTE
+            if(text &&
+               text->text &&
+               text->text[offset] == '>') {
+
+                SET_BIT(bits, IS_QUOTE);
+            }
+
+            // IS_HR
+            if((minus >= 3 && equals + hashes + stars + other == 0) ||
+               (stars >= 3 && equals + hashes + minus + other == 0)) {
+
+                SET_BIT(bits, IS_HR);
+            }
+
+            // IS_EMPTY
+            if(other == 0) {
+                SET_BIT(bits, IS_EMPTY);
             }
         }
-    }
-
-    // IS_H1
-    if((equals > 0 &&
-        hashes + stars + minus + spaces + other == 0) ||
-       (text &&
-        text->text &&
-        text->text[offset] == '#' &&
-        text->text[offset+1] != '#')) {
-
-        SET_BIT(bits, IS_H1);
-    }
-
-    // IS_H2
-    if((minus > 0 &&
-        equals + hashes + stars + spaces + other == 0) ||
-       (text &&
-        text->text &&
-        text->text[offset] == '#' &&
-        text->text[offset+1] == '#')) {
-
-        SET_BIT(bits, IS_H2);
-    }
-
-    // IS_QUOTE
-    if(text &&
-       text->text &&
-       text->text[offset] == '>') {
-
-        SET_BIT(bits, IS_QUOTE);
-    }
-
-    // IS_HR
-    if((minus >= 3 && equals + hashes + stars + other == 0) ||
-       (stars >= 3 && equals + hashes + minus + other == 0)) {
-
-        SET_BIT(bits, IS_HR);
-    }
-
-    // IS_EMPTY
-    if(other == 0) {
-        SET_BIT(bits, IS_EMPTY);
     }
 
     return bits;
@@ -382,7 +483,7 @@ int length_utf8(char ch) {
 
     int i = 0; // increment
 
-    while(ch & 0x80) {
+    while(is_utf8(ch)) {
         i++;
         ch <<= 1;
     }
@@ -392,14 +493,14 @@ int length_utf8(char ch) {
 
 int next_nonblank(cstring_t *text, int i) {
     while ((i < text->size) && isspace((unsigned char) (text->text)[i]))
-        ++i;
+        i++;
 
     return i;
 }
 
 int next_blank(cstring_t *text, int i) {
     while ((i < text->size) && !isspace((unsigned char) (text->text)[i]))
-        ++i;
+        i++;
 
     return i;
 }

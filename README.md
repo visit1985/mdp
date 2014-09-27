@@ -34,10 +34,12 @@ _Supports basic markdown formating:_
     - headlines
     - code
     - quotes
+    - unordered list
 
 - in-line formating
     - bold text
     - underlined text
+    - code
 
 _Supports headers prefixed by @ symbol._
 

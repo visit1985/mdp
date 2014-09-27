@@ -35,10 +35,12 @@
  *
  */
 
+#include "common.h"
 #include "markdown.h"
 
 #define EXPAND_TABS 4
 #define CODE_INDENT 4
+#define UNORDERED_LIST_MAX_LEVEL 3
 
 deck_t *markdown_load(FILE *input);
 int markdown_analyse(cstring_t *text);
