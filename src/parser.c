@@ -305,33 +305,46 @@ int markdown_analyse(cstring_t *text) {
     if(text->size >= offset + 2 &&
        (text->text[offset] == '*' || text->text[offset] == '-') &&
        text->text[offset + 1] == ' ') {
-        if(offset > unordered_list_offset + CODE_INDENT) {
-            SET_BIT(bits, IS_CODE);
-        } else if(offset != unordered_list_offset) {
-            for(i = unordered_list_level; i >= 0; i--) {
-                if(unordered_list_level_offset[i] == offset) {
-                    unordered_list_level = i;
-                    break;
+
+        for(i = offset; i<eol; i++)
+            if(text->text[i] != '*' &&
+               text->text[i] != '-' &&
+               text->text[i] != ' ') {
+                if(offset > unordered_list_offset + CODE_INDENT) {
+                    SET_BIT(bits, IS_CODE);
+                } else if(offset != unordered_list_offset) {
+                    for(i = unordered_list_level; i >= 0; i--) {
+                        if(unordered_list_level_offset[i] == offset) {
+                            unordered_list_level = i;
+                            break;
+                        }
+                    }
+                    if(i != unordered_list_level) {
+                        unordered_list_level = MIN(unordered_list_level + 1, UNORDERED_LIST_MAX_LEVEL);
+                        unordered_list_level_offset[unordered_list_level] = offset;
+                    }
                 }
-            }
-            if(i != unordered_list_level) {
-                unordered_list_level = MIN(unordered_list_level + 1, UNORDERED_LIST_MAX_LEVEL);
-                unordered_list_level_offset[unordered_list_level] = offset;
-            }
-        }
 
-        if(unordered_list_level == 0) {
-            unordered_list_level = 1;
-            unordered_list_level_offset[1] = offset;
-        }
+                if(unordered_list_level == 0) {
+                    unordered_list_level = 1;
+                    unordered_list_level_offset[1] = offset;
+                 }
 
-        switch(unordered_list_level) {
-            case 1: SET_BIT(bits, IS_UNORDERED_LIST_1); break;
-            case 2: SET_BIT(bits, IS_UNORDERED_LIST_2); break;
-            case 3: SET_BIT(bits, IS_UNORDERED_LIST_3); break;
-            default: break;
-        }
-    } else {
+                switch(unordered_list_level) {
+                    case 1: SET_BIT(bits, IS_UNORDERED_LIST_1); break;
+                    case 2: SET_BIT(bits, IS_UNORDERED_LIST_2); break;
+                    case 3: SET_BIT(bits, IS_UNORDERED_LIST_3); break;
+                    default: break;
+                }
+                
+                break;
+            }
+    }
+    
+    if(!CHECK_BIT(bits, IS_UNORDERED_LIST_1) &&
+       !CHECK_BIT(bits, IS_UNORDERED_LIST_2) &&
+       !CHECK_BIT(bits, IS_UNORDERED_LIST_3)) {
+
         unordered_list_level = 0;
 
         if(offset >= CODE_INDENT) {
