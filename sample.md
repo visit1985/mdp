@@ -140,6 +140,8 @@ The leading stars or minuses make list.
 TODO list:
 \* TODO major 1
 \    \- TODO minor 1.1
+\        \- Detail 1.1.1
+\        \- Detail 1.1.2
 \    \- TODO minor 1.2
 \* TODO major 2
 \* TODO major 3
@@ -151,6 +153,8 @@ becomes
 TODO list:
 * TODO major 1
     - TODO minor 1.1
+        - Detail 1.1.1
+        - Detail 1.1.2
     - TODO minor 1.2
 * TODO major 2
 * TODO major 3
