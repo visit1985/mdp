@@ -372,38 +372,41 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
     if(line->text->text) {
         int offset = 0; // text offset
 
+        // IS_UNORDERED_LIST_3
         if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_3)) {
             offset = next_nonblank(line->text, 0);
             char format_s[15];
-            strcpy(&format_s[0], CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)? "|   " : "    ");
-            strcpy(&format_s[4], CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)? "|   " : "    ");
-            strcpy(&format_s[8], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_3)? "+-- %s" : "`-- %s");
+            strcpy(&format_s[0], CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)? " |  " : "    ");
+            strcpy(&format_s[4], CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)? " |  " : "    ");
+            strcpy(&format_s[8], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_3)? " +- %s" : " `- %s");
             mvwprintw(window,
                       y, x,
                       format_s,
                       &line->text->text[offset + 2]);
+
+        // IS_UNORDERED_LIST_2
         } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)) {
             offset = next_nonblank(line->text, 0);
             char format_s[11];
-            strcpy(&format_s[0], CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)? "|   " : "    ");
-            strcpy(&format_s[4], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_2)? "+-- %s" : "`-- %s");
+            strcpy(&format_s[0], CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)? " |  " : "    ");
+            strcpy(&format_s[4], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_2)? " +- %s" : " `- %s");
             mvwprintw(window,
                       y, x,
                       format_s,
                       &line->text->text[offset + 2]);
+
+        // IS_UNORDERED_LIST_1
         } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)) {
             offset = next_nonblank(line->text, 0);
             char format_s[7];
-            strcpy(&format_s[0], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_1)? "+-- %s" : "`-- %s");
+            strcpy(&format_s[0], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_1)? " +- %s" : " `- %s");
             mvwprintw(window,
                       y, x,
                       format_s,
                       &line->text->text[offset + 2]);
-        } else
-
 
         // IS_CODE
-        if(CHECK_BIT(line->bits, IS_CODE)) {
+        } else if(CHECK_BIT(line->bits, IS_CODE)) {
 
             // set static offset for code
             offset = CODE_INDENT;

@@ -135,31 +135,23 @@ becomes
 
 # Supported markdown formatting's
 
-The leading stars or minuses make list.
+Leading *\** or *-* indicate lists.
 
-TODO list:
-\* TODO major 1
-\    \- TODO minor 1.1
-\        \- Detail 1.1.1
-\        \- Detail 1.1.2
-\    \- TODO minor 1.2
-\* TODO major 2
-\* TODO major 3
-\    \* TODO minor 3.1
-\    \* TODO minor 3.2
+TODO list
+\* major 1
+\    \- minor 1.1
+\        \- detail 1.1.1
+\        \- detail 1.1.2
+\    \- minor 1.2
 
 becomes
 
-TODO list:
-* TODO major 1
-    - TODO minor 1.1
-        - Detail 1.1.1
-        - Detail 1.1.2
-    - TODO minor 1.2
-* TODO major 2
-* TODO major 3
-    * TODO minor 3.1
-    * TODO minor 3.2
+TODO list
+* major 1
+    - minor 1.1
+        - detail 1.1.1
+        - detail 1.1.2
+    - minor 1.2
 
 -------------------------------------------------
 
