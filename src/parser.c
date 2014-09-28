@@ -302,11 +302,12 @@ int markdown_analyse(cstring_t *text) {
     // strip trailing spaces
     for(eol = text->size; eol > offset && isspace((unsigned char) text->text[eol - 1]); eol--);
 
+    // IS_UNORDERED_LIST_#
     if(text->size >= offset + 2 &&
        (text->text[offset] == '*' || text->text[offset] == '-') &&
        text->text[offset + 1] == ' ') {
 
-        for(i = offset; i<eol; i++)
+        for(i = offset; i<eol; i++) {
             if(text->text[i] != '*' &&
                text->text[i] != '-' &&
                text->text[i] != ' ') {
@@ -328,7 +329,7 @@ int markdown_analyse(cstring_t *text) {
                 if(unordered_list_level == 0) {
                     unordered_list_level = 1;
                     unordered_list_level_offset[1] = offset;
-                 }
+                }
 
                 switch(unordered_list_level) {
                     case 1: SET_BIT(bits, IS_UNORDERED_LIST_1); break;
@@ -339,6 +340,7 @@ int markdown_analyse(cstring_t *text) {
                 
                 break;
             }
+        }
     }
     
     if(!CHECK_BIT(bits, IS_UNORDERED_LIST_1) &&
@@ -347,9 +349,10 @@ int markdown_analyse(cstring_t *text) {
 
         unordered_list_level = 0;
 
+        // IS_CODE
         if(offset >= CODE_INDENT) {
-            // IS_CODE
             SET_BIT(bits, IS_CODE);
+
         } else {
 
             for(i = offset; i < eol; i++) {
@@ -494,6 +497,13 @@ int length_utf8(char ch) {
 int next_nonblank(cstring_t *text, int i) {
     while ((i < text->size) && isspace((unsigned char) (text->text)[i]))
         i++;
+
+    return i;
+}
+
+int prev_blank(cstring_t *text, int i) {
+    while ((i > 0) && !isspace((unsigned char) (text->text)[i]))
+        i--;
 
     return i;
 }

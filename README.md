@@ -9,7 +9,8 @@
 
 mdp needs the ncursesw headers to compile.
 So make sure you have them installed:
-- On Ubuntu/Debian you need `libncursesw5` and `libncursesw5-dev` to be installed.
+- on Ubuntu/Debian you need `libncursesw5` and `libncursesw5-dev`
+- on Cygwin you need `libncursesw10` and `libncurses-devel`
 
 Now download and install mdp:
 

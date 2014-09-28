@@ -65,6 +65,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
     int c = 0;          // char
     int i = 0;          // iterate
     int l = 0;          // line number
+    int lc = 0;         // line count
     int sc = 1;         // slide count
     int colors = 0;     // amount of colors supported
     int fade = 0;       // disable color fading by default
@@ -82,39 +83,71 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
     slide_t *slide = deck->slide;
     line_t *line;
 
-    while(slide) {
-        // set max_lines if line count exceeded
-        max_lines = (slide->lines > max_lines) ? slide->lines : max_lines;
-        line = slide->line;
-        while(line) {
-            // set max_cols if length exceeded
-            max_cols = (line->length > max_cols) ? line->length : max_cols;
-            line = line->next;
-        }
-        slide = slide->next;
-    }
-
     // set locale to display UTF-8 correctly in ncurses
     setlocale(LC_CTYPE, "");
 
     // init ncurses
     initscr();
 
-    if((max_cols > COLS) ||
-       (max_lines + bar_top + bar_bottom + 2 > LINES)) {
+    while(slide) {
+        lc = 0;
+        line = slide->line;
+
+        while(line) {
+            if(line->length > COLS) {
+                i = line->length;
+                offset = 0;
+                while(i > COLS) {
+
+                    i = prev_blank(line->text, offset + COLS) - offset;
+
+                    // single word is > COLS
+                    if(!i) {
+                        // calculate min_width
+                        i = next_blank(line->text, offset + COLS) - offset;
+
+                        // disable ncurses
+                        endwin();
+
+                        // print error
+                        fprintf(stderr, "Error: Terminal width (%i columns) too small. Need at least %i columns.\n", COLS, i);
+                        fprintf(stderr, "You may need to shorten some lines by inserting line breaks.\n");
+
+                        return(1);
+                    }
+
+                    // set max_cols
+                    max_cols = (i > max_cols) ? i : max_cols;
+
+                    // iterate to next line
+                    offset = prev_blank(line->text, offset + COLS);
+                    i = line->length - offset;
+                    lc++;
+                }
+                // set max_cols one last time
+                max_cols = (i > max_cols) ? i : max_cols;
+            } else {
+                // set max_cols
+                max_cols = (line->length > max_cols) ? line->length : max_cols;
+            }
+            lc++;
+            line = line->next;
+        }
+
+        max_lines = (lc > max_lines) ? lc : max_lines;
+
+        slide = slide->next;
+    }
+
+    // not enough lines
+    if(max_lines + bar_top + bar_bottom > LINES) {
 
         // disable ncurses
         endwin();
 
         // print error
-        fprintf(stderr, "Error: Terminal size %ix%i too small. Need at least %ix%i.\n",
-            COLS, LINES, max_cols, max_lines + bar_top + bar_bottom + 2);
-
-        // print hint to solve it
-        if(max_lines + bar_top + bar_bottom + 2 > LINES)
-            fprintf(stderr, "You may need to add additional horizontal rules ('***') to split your file in shorter slides.\n");
-        if(max_cols > COLS)
-            fprintf(stderr, "Automatic line wrapping is not supported jet. You may need to shorten some lines by inserting line breaks.\n");
+        fprintf(stderr, "Error: Terminal heigth (%i lines) too small. Need at least %i lines.\n", LINES, max_lines + bar_top + bar_bottom);
+        fprintf(stderr, "You may need to add additional horizontal rules ('***') to split your file in shorter slides.\n");
 
         return(1);
     }
@@ -372,38 +405,41 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
     if(line->text->text) {
         int offset = 0; // text offset
 
+        // IS_UNORDERED_LIST_3
         if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_3)) {
             offset = next_nonblank(line->text, 0);
             char format_s[15];
-            strcpy(&format_s[0], CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)? "|   " : "    ");
-            strcpy(&format_s[4], CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)? "|   " : "    ");
-            strcpy(&format_s[8], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_3)? "+-- %s" : "`-- %s");
+            strcpy(&format_s[0], CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)? " |  " : "    ");
+            strcpy(&format_s[4], CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)? " |  " : "    ");
+            strcpy(&format_s[8], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_3)? " +- %s" : " `- %s");
             mvwprintw(window,
                       y, x,
                       format_s,
                       &line->text->text[offset + 2]);
+
+        // IS_UNORDERED_LIST_2
         } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)) {
             offset = next_nonblank(line->text, 0);
             char format_s[11];
-            strcpy(&format_s[0], CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)? "|   " : "    ");
-            strcpy(&format_s[4], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_2)? "+-- %s" : "`-- %s");
+            strcpy(&format_s[0], CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)? " |  " : "    ");
+            strcpy(&format_s[4], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_2)? " +- %s" : " `- %s");
             mvwprintw(window,
                       y, x,
                       format_s,
                       &line->text->text[offset + 2]);
+
+        // IS_UNORDERED_LIST_1
         } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)) {
             offset = next_nonblank(line->text, 0);
             char format_s[7];
-            strcpy(&format_s[0], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_1)? "+-- %s" : "`-- %s");
+            strcpy(&format_s[0], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_1)? " +- %s" : " `- %s");
             mvwprintw(window,
                       y, x,
                       format_s,
                       &line->text->text[offset + 2]);
-        } else
-
 
         // IS_CODE
-        if(CHECK_BIT(line->bits, IS_CODE)) {
+        } else if(CHECK_BIT(line->bits, IS_CODE)) {
 
             // set static offset for code
             offset = CODE_INDENT;

@@ -18,9 +18,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-OSTYPE  := $(shell uname -o)
 CURSES   = ncursesw
 ifeq (Windows_NT, $(OS))
+OSTYPE  := $(shell uname -o)
 ifneq (Cygwin, $(OSTYPE))
 CURSES  := pdcurses
 endif
