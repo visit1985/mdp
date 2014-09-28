@@ -18,19 +18,20 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+UNAME_S := $(shell uname -s 2>/dev/null || echo not)
+
 SOURCES = $(wildcard *.c)
 OBJECTS = $(SOURCES:.c=.o)
+CFLAGS  = -O3 -Wall -I../include
 
-CFLAGS   = -O3 -Wall -I../include
 ifeq ($(DEBUG),1)
-CFLAGS  := -O0 -Wall -g -I../include
+	CFLAGS := -O0 -Wall -g -I../include
 endif
 
-ifeq (Windows_NT, $(OS))
-OSTYPE  := $(shell uname -o)
-ifneq (Cygwin, $(OSTYPE))
-CFLAGS  += -DWIN32=1
-endif
+ifeq ($(OS),Windows_NT)
+	ifeq (,$(findstring CYGWIN,$(UNAME_S)))
+		CFLAGS += -DWIN32
+	endif
 endif
 
 all: $(OBJECTS)

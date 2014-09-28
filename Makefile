@@ -18,24 +18,32 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-CURSES   = ncursesw
-ifeq (Windows_NT, $(OS))
-OSTYPE  := $(shell uname -o)
-ifneq (Cygwin, $(OSTYPE))
-CURSES  := pdcurses
-endif
+UNAME_S := $(shell uname -s 2>/dev/null || echo not)
+
+SOURCES = $(wildcard src/*.c)
+OBJECTS = $(SOURCES:.c=.o)
+TARGET  = mdp
+DESTDIR = /usr/bin
+
+CURSES  = ncursesw
+LDFLAGS = -s
+
+ifeq (Windows_NT,$(OS))
+	ifeq (,$(findstring CYGWIN,$(UNAME_S)))
+		CURSES := pdcurses
+	endif
 endif
 
-LDFLAGS  = -s
-LDLIBS   = -l$(CURSES)
-SOURCES  = $(wildcard src/*.c)
-OBJECTS  = $(SOURCES:.c=.o)
-TARGET   = mdp
-DESTDIR  = /usr/bin
+ifeq ($(UNAME_S),Darwin)
+	CURSES := ncurses
+	LDFLAGS :=
+endif
 
 ifeq ($(DEBUG),1)
-LDFLAGS :=
+	LDFLAGS :=
 endif
+
+LDLIBS   = -l$(CURSES)
 
 all: $(TARGET)
 

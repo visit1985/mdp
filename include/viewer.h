@@ -32,10 +32,10 @@
  *
  */
 
-#if WIN32 == 1
-# include <curses.h>
+#if defined( WIN32 )
+#include <curses.h>
 #else
-# include <ncurses.h>
+#include <ncurses.h>
 #endif
 
 #include "parser.h"
