@@ -25,7 +25,7 @@
 
 cstack_t *cstack_init() {
     cstack_t *stack = malloc(sizeof(cstack_t));
-    stack->content = (void*)0;
+    stack->content = NULL;
     stack->alloc = stack->size = 0;
     stack->head = -1;
     stack->push = cstack_push;
