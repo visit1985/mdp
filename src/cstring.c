@@ -65,4 +65,3 @@ void cstring_delete(cstring_t *self) {
     free(self->text);
     free(self);
 }
-

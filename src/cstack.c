@@ -56,12 +56,11 @@ int cstack_top(cstack_t *self, char c) {
     return 0;
 }
 
-int cstack_empty(cstack_t *self)  {
-   return self->head == -1;
+int cstack_empty(cstack_t *self) {
+    return self->head == -1;
 }
 
 void cstack_delete(cstack_t *self) {
     free(self->content);
     free(self);
 }
-
