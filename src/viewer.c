@@ -397,120 +397,121 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
 }
 
 void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colors) {
+
+    if(!line->text->text) {
+        return;
+    }
+
     int i; // increment
+    int offset = 0; // text offset
 
-    if(line->text->text) {
-        int offset = 0; // text offset
+    // move the cursor in position
+    wmove(window, y, x);
 
-        // IS_UNORDERED_LIST_3
-        if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_3)) {
-            offset = next_nonblank(line->text, 0);
-            char format_s[15];
-            strcpy(&format_s[0], CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)? " |  " : "    ");
-            strcpy(&format_s[4], CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)? " |  " : "    ");
-            strcpy(&format_s[8], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_3)? " +- %s" : " `- %s");
-            mvwprintw(window,
-                      y, x,
-                      format_s,
-                      &line->text->text[offset + 2]);
+    // IS_UNORDERED_LIST_3
+    if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_3)) {
+        offset = next_nonblank(line->text, 0);
+        char prompt[10];
+        strcpy(&prompt[0], CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)? "|  " : "   ");
+        strcpy(&prompt[3], CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)? "|  " : "   ");
+        strcpy(&prompt[6], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_3)? "+- " : "`- ");
+        wprintw(window,
+                "%s", prompt);
 
-        // IS_UNORDERED_LIST_2
-        } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)) {
-            offset = next_nonblank(line->text, 0);
-            char format_s[11];
-            strcpy(&format_s[0], CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)? " |  " : "    ");
-            strcpy(&format_s[4], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_2)? " +- %s" : " `- %s");
-            mvwprintw(window,
-                      y, x,
-                      format_s,
-                      &line->text->text[offset + 2]);
+        inline_display(window, &line->text->text[offset + 2], colors);
 
-        // IS_UNORDERED_LIST_1
-        } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)) {
-            offset = next_nonblank(line->text, 0);
-            char format_s[7];
-            strcpy(&format_s[0], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_1)? " +- %s" : " `- %s");
-            mvwprintw(window,
-                      y, x,
-                      format_s,
-                      &line->text->text[offset + 2]);
+    // IS_UNORDERED_LIST_2
+    } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)) {
+        offset = next_nonblank(line->text, 0);
+        char prompt[7];
+        strcpy(&prompt[0], CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)? "|  " : "   ");
+        strcpy(&prompt[3], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_2)? "+- " : "`- ");
+        wprintw(window,
+                "%s", prompt);
 
-        // IS_CODE
-        } else if(CHECK_BIT(line->bits, IS_CODE)) {
+        inline_display(window, &line->text->text[offset + 2], colors);
 
-            // set static offset for code
-            offset = CODE_INDENT;
+    // IS_UNORDERED_LIST_1
+    } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)) {
+        offset = next_nonblank(line->text, 0);
+        char prompt[4];
+        strcpy(&prompt[0], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_1)? "+- " : "`- ");
+        wprintw(window,
+                "%s", prompt);
 
-            // reverse color for code blocks
+        inline_display(window, &line->text->text[offset + 2], colors);
+
+    // IS_CODE
+    } else if(CHECK_BIT(line->bits, IS_CODE)) {
+
+        // set static offset for code
+        offset = CODE_INDENT;
+
+        // reverse color for code blocks
+        if(colors)
+            wattron(window, COLOR_PAIR(CP_BLACK));
+
+        // print whole lines
+        wprintw(window,
+                "%s", &line->text->text[offset]);
+
+    } else {
+
+        // IS_H1 || IS_H2
+        if(CHECK_BIT(line->bits, IS_H1) || CHECK_BIT(line->bits, IS_H2)) {
+
+            // set headline color
             if(colors)
-                wattron(window, COLOR_PAIR(CP_BLACK));
+                wattron(window, COLOR_PAIR(CP_BLUE));
+
+            // enable underline for H1
+            if(CHECK_BIT(line->bits, IS_H1))
+                wattron(window, A_UNDERLINE);
+
+            // skip hashes
+            while(line->text->text[offset] == '#')
+                offset = next_word(line->text, offset);
 
             // print whole lines
-            mvwprintw(window,
-                      y, x,
-                      "%s", &line->text->text[offset]);
+            wprintw(window,
+                    "%s", &line->text->text[offset]);
+
+            wattroff(window, A_UNDERLINE);
 
         } else {
 
-            // IS_H1 || IS_H2
-            if(CHECK_BIT(line->bits, IS_H1) || CHECK_BIT(line->bits, IS_H2)) {
-
-                // set headline color
-                if(colors)
-                    wattron(window, COLOR_PAIR(CP_BLUE));
-
-                // enable underline for H1
-                if(CHECK_BIT(line->bits, IS_H1))
-                    wattron(window, A_UNDERLINE);
-
-                // skip hashes
-                while(line->text->text[offset] == '#')
-                    offset = next_word(line->text, offset);
-
-                // print whole lines
-                mvwprintw(window,
-                      y, x,
-                      "%s", &line->text->text[offset]);
-
-                wattroff(window, A_UNDERLINE);
-
-            } else {
-                // move the cursor in position
-                wmove(window, y, x);
-
-                // IS_QUOTE
-                if(CHECK_BIT(line->bits, IS_QUOTE)) {
-                    while(line->text->text[offset] == '>') {
-                        // print a reverse color block
-                        if(colors) {
-                            wattron(window, COLOR_PAIR(CP_BLACK));
-                            wprintw(window, "%s", " ");
-                            wattron(window, COLOR_PAIR(CP_WHITE));
-                            wprintw(window, "%s", " ");
-                        } else {
-                            wprintw(window, "%s", ">");
-                        }
-
-                        // find next quote or break
-                        offset++;
-                        if(line->text->text[offset] == ' ')
-                            offset = next_word(line->text, offset);
+            // IS_QUOTE
+            if(CHECK_BIT(line->bits, IS_QUOTE)) {
+                while(line->text->text[offset] == '>') {
+                    // print a reverse color block
+                    if(colors) {
+                        wattron(window, COLOR_PAIR(CP_BLACK));
+                        wprintw(window, "%s", " ");
+                        wattron(window, COLOR_PAIR(CP_WHITE));
+                        wprintw(window, "%s", " ");
+                    } else {
+                        wprintw(window, "%s", ">");
                     }
+
+                    // find next quote or break
+                    offset++;
+                    if(line->text->text[offset] == ' ')
+                        offset = next_word(line->text, offset);
                 }
-
-                inline_display(window, &line->text->text[offset], colors);
             }
+
+            inline_display(window, &line->text->text[offset], colors);
         }
-
-        // fill rest off line with spaces
-        for(i = getcurx(window) - x; i < max_cols; i++)
-            wprintw(window, "%s", " ");
-
-        // reset to default color
-        if(colors)
-            wattron(window, COLOR_PAIR(CP_WHITE));
-        wattroff(window, A_UNDERLINE);
     }
+
+    // fill rest off line with spaces
+    for(i = getcurx(window) - x; i < max_cols; i++)
+        wprintw(window, "%s", " ");
+
+    // reset to default color
+    if(colors)
+        wattron(window, COLOR_PAIR(CP_WHITE));
+    wattroff(window, A_UNDERLINE);
 }
 
 void inline_display(WINDOW *window, const char *c, const int colors) {
