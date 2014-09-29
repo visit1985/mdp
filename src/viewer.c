@@ -519,7 +519,7 @@ void inline_display(WINDOW *window, const char *c, const int colors) {
     cstack_t *stack = cstack_init();
 
     // for each char in line
-    while(*c) {
+    for(; *c; c++) {
 
         // if char is in special char list
         if(strchr(special, *c)) {
@@ -590,8 +590,6 @@ void inline_display(WINDOW *window, const char *c, const int colors) {
             // print regular char
             wprintw(window, "%c", *c);
         }
-
-        c++;
     }
 
     // pop stack until empty to prevent formated trailing spaces
