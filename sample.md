@@ -140,7 +140,7 @@ Leading *\** or *-* indicate lists.
 TODO list
 \* major 1
 \    \- minor 1.1
-\        \- detail 1.1.1
+\        \- detail 1.1.1 \*IMPORTANT\*
 \        \- detail 1.1.2
 \    \- minor 1.2
 
@@ -149,7 +149,7 @@ becomes
 TODO list
 * major 1
     - minor 1.1
-        - detail 1.1.1
+        - detail 1.1.1 *IMPORTANT*
         - detail 1.1.2
     - minor 1.2
 
