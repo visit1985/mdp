@@ -51,6 +51,7 @@
 
 int ncurses_display(deck_t *deck, int notrans, int nofade, int invert);
 void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colors);
+void inline_display(WINDOW *window, const char *c, const int colors);
 void fade_out(WINDOW *window, int trans, int colors, int invert);
 void fade_in(WINDOW *window, int trans, int colors, int invert);
 int int_length (int val);

@@ -397,11 +397,8 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
 }
 
 void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colors) {
-    int i = 0; // increment
-    char *c; // char pointer for iteration
-    char *special = "\\*_`"; // list of interpreted chars
-    cstack_t *stack = cstack_init();
-    
+    int i; // increment
+
     if(line->text->text) {
         int offset = 0; // text offset
 
@@ -501,103 +498,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
                     }
                 }
 
-                // for each char in line
-                c = &line->text->text[offset];
-                while(*c) {
-
-                    // if char is in special char list
-                    if(strchr(special, *c)) {
-
-                        // closing special char (or second backslash)
-                        if((stack->top)(stack, *c)) {
-
-                            switch(*c) {
-                                // print escaped backslash
-                                case '\\':
-                                    wprintw(window, "%c", *c);
-                                    break;
-                                // disable highlight
-                                case '*':
-                                    if(colors)
-                                        wattron(window, COLOR_PAIR(CP_WHITE));
-                                    break;
-                                // disable underline
-                                case '_':
-                                    wattroff(window, A_UNDERLINE);
-                                    break;
-                                // disable inline code
-                                case '`':
-                                    if(colors)
-                                        wattron(window, COLOR_PAIR(CP_WHITE));
-                                    break;
-                            }
-
-                            // remove top special char from stack
-                            (stack->pop)(stack);
-
-                        // treat special as regular char
-                        } else if((stack->top)(stack, '\\')) {
-                            wprintw(window, "%c", *c);
-
-                            // remove backslash from stack
-                            (stack->pop)(stack);
-
-                        // opening special char
-                        } else {
-                            switch(*c) {
-                                // enable highlight
-                                case '*':
-                                    if(colors)
-                                        wattron(window, COLOR_PAIR(CP_RED));
-                                    break;
-                                // enable underline
-                                case '_':
-                                    wattron(window, A_UNDERLINE);
-                                    break;
-                                // enable inline code
-                                case '`':
-                                    if(colors)
-                                        wattron(window, COLOR_PAIR(CP_BLACK));
-                                    break;
-                                // do nothing for backslashes
-                            }
-
-                            // push special char to stack
-                            (stack->push)(stack, *c);
-                        }
-
-                    } else {
-                        // remove backslash from stack
-                        if((stack->top)(stack, '\\'))
-                            (stack->pop)(stack);
-
-                        // print regular char
-                        wprintw(window, "%c", *c);
-                    }
-
-                    c++;
-                }
-
-                // pop stack until empty to prevent formated trailing spaces
-                while(!(stack->empty)(stack)) {
-                    switch((stack->pop)(stack)) {
-                        // disable highlight
-                        case '*':
-                            if(colors)
-                                wattron(window, COLOR_PAIR(CP_WHITE));
-                            break;
-                        // disable underline
-                        case '_':
-                            wattroff(window, A_UNDERLINE);
-                            break;
-                        // disable inline code
-                        case '`':
-                            if(colors)
-                                wattron(window, COLOR_PAIR(CP_WHITE));
-                            break;
-                        // do nothing for backslashes
-                    }
-                }
+                inline_display(window, &line->text->text[offset], colors);
             }
         }
 
@@ -609,6 +510,108 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
         if(colors)
             wattron(window, COLOR_PAIR(CP_WHITE));
         wattroff(window, A_UNDERLINE);
+    }
+}
+
+void inline_display(WINDOW *window, const char *c, const int colors) {
+    const static char *special = "\\*_`"; // list of interpreted chars
+    cstack_t *stack = cstack_init();
+
+    // for each char in line
+    while(*c) {
+
+        // if char is in special char list
+        if(strchr(special, *c)) {
+
+            // closing special char (or second backslash)
+            if((stack->top)(stack, *c)) {
+
+                switch(*c) {
+                    // print escaped backslash
+                    case '\\':
+                        wprintw(window, "%c", *c);
+                        break;
+                    // disable highlight
+                    case '*':
+                        if(colors)
+                            wattron(window, COLOR_PAIR(CP_WHITE));
+                        break;
+                    // disable underline
+                    case '_':
+                        wattroff(window, A_UNDERLINE);
+                        break;
+                    // disable inline code
+                    case '`':
+                        if(colors)
+                            wattron(window, COLOR_PAIR(CP_WHITE));
+                        break;
+                }
+
+                // remove top special char from stack
+                (stack->pop)(stack);
+
+            // treat special as regular char
+            } else if((stack->top)(stack, '\\')) {
+                wprintw(window, "%c", *c);
+
+                // remove backslash from stack
+                (stack->pop)(stack);
+
+            // opening special char
+            } else {
+                switch(*c) {
+                    // enable highlight
+                    case '*':
+                        if(colors)
+                            wattron(window, COLOR_PAIR(CP_RED));
+                        break;
+                    // enable underline
+                    case '_':
+                        wattron(window, A_UNDERLINE);
+                        break;
+                    // enable inline code
+                    case '`':
+                        if(colors)
+                            wattron(window, COLOR_PAIR(CP_BLACK));
+                        break;
+                    // do nothing for backslashes
+                }
+
+                // push special char to stack
+                (stack->push)(stack, *c);
+            }
+
+        } else {
+            // remove backslash from stack
+            if((stack->top)(stack, '\\'))
+                (stack->pop)(stack);
+
+            // print regular char
+            wprintw(window, "%c", *c);
+        }
+
+        c++;
+    }
+
+    // pop stack until empty to prevent formated trailing spaces
+    while(!(stack->empty)(stack)) {
+        switch((stack->pop)(stack)) {
+            // disable highlight
+            case '*':
+                if(colors)
+                    wattron(window, COLOR_PAIR(CP_WHITE));
+                break;
+            // disable underline
+            case '_':
+                wattroff(window, A_UNDERLINE);
+                break;
+            // disable inline code
+            case '`':
+                if(colors)
+                    wattron(window, COLOR_PAIR(CP_WHITE));
+                break;
+            // do nothing for backslashes
+        }
     }
 
     (stack->delete)(stack);
