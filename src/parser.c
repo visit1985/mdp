@@ -36,18 +36,14 @@ deck_t *markdown_load(FILE *input) {
     int l = 0;    // line length
     int hc = 0;   // header count
     int lc = 0;   // line count
-    int sc = 0;   // slide count
+    int sc = 1;   // slide count
     int bits = 0; // markdown bits
 
     deck_t *deck = new_deck();
-    slide_t *slide = new_slide();
+    slide_t *slide = deck->slide;
     line_t *line = NULL;
     line_t *tmp = NULL;
     cstring_t *text = cstring_init();
-
-    // assign first slide to deck
-    deck->slide = slide;
-    sc++;
 
     while ((c = fgetc(input)) != EOF) {
         if (ferror(input)) {

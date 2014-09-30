@@ -26,8 +26,8 @@
 
 line_t *new_line() {
     line_t *x = malloc(sizeof(line_t));
-    x->text = (void*)0;
-    x->prev = x->next = (void*)0;
+    x->text = NULL;
+    x->prev = x->next = NULL;
     x->bits = x->length = x->offset = 0;
     return x;
 }
@@ -41,8 +41,8 @@ line_t *next_line(line_t *prev) {
 
 slide_t *new_slide() {
     slide_t *x = malloc(sizeof(slide_t));
-    x->line = (void*)0;
-    x->prev = x->next = (void*)0;
+    x->line = NULL;
+    x->prev = x->next = NULL;
     x->lines = 0;
     return x;
 }
@@ -56,8 +56,8 @@ slide_t *next_slide(slide_t *prev) {
 
 deck_t *new_deck() {
     deck_t *x = malloc(sizeof(deck_t));
-    x->header = (void*)0;
-    x->slide = (void*)0;
+    x->header = NULL;
+    x->slide = new_slide();
     x->slides = x->headers = 0;
     return x;
 }
