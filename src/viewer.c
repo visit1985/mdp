@@ -297,6 +297,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
             // show previous slide
             case KEY_UP:
             case KEY_LEFT:
+            case KEY_PPAGE:
             case 8:   // BACKSPACE (ascii)
             case 127: // BACKSPACE (xterm)
             case 263: // BACKSPACE (getty)
@@ -313,6 +314,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
             // show next slide
             case KEY_DOWN:
             case KEY_RIGHT:
+            case KEY_NPAGE:
             case '\n': // ENTER
             case ' ':  // SPACE
             case 'j':
@@ -401,7 +403,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
     char *c; // char pointer for iteration
     char *special = "\\*_`"; // list of interpreted chars
     cstack_t *stack = cstack_init();
-    
+
     if(line->text->text) {
         int offset = 0; // text offset
 
