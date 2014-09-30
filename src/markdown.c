@@ -61,4 +61,3 @@ deck_t *new_deck() {
     x->slides = x->headers = 0;
     return x;
 }
-

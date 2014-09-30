@@ -65,4 +65,3 @@ uninstall:
 	$(RM) $(PREFIX)$(DESTDIR)/$(TARGET)
 
 .PHONY: all clean install src uninstall
-

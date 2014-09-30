@@ -26,7 +26,7 @@
 
 cstring_t *cstring_init() {
     cstring_t *x = malloc(sizeof(cstring_t));
-    x->text = (void*)0;
+    x->text = NULL;
     x->size = x->alloc = 0;
     x->expand = cstring_expand;
     x->expand_arr = cstring_expand_arr;
@@ -57,7 +57,7 @@ void cstring_expand_arr(cstring_t *self, char *x) {
 
 void cstring_reset(cstring_t *self) {
     free(self->text);
-    self->text = (void*)0;
+    self->text = NULL;
     self->size = self->alloc = 0;
 }
 
@@ -65,4 +65,3 @@ void cstring_delete(cstring_t *self) {
     free(self->text);
     free(self);
 }
-

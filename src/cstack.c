@@ -25,7 +25,7 @@
 
 cstack_t *cstack_init() {
     cstack_t *stack = malloc(sizeof(cstack_t));
-    stack->content = (void*)0;
+    stack->content = NULL;
     stack->alloc = stack->size = 0;
     stack->head = -1;
     stack->push = cstack_push;
@@ -56,12 +56,11 @@ int cstack_top(cstack_t *self, char c) {
     return 0;
 }
 
-int cstack_empty(cstack_t *self)  {
-   return self->head == -1;
+int cstack_empty(cstack_t *self) {
+    return self->head == -1;
 }
 
 void cstack_delete(cstack_t *self) {
     free(self->content);
     free(self);
 }
-

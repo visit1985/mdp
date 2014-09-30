@@ -399,218 +399,217 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
 }
 
 void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colors) {
-    int i = 0; // increment
-    char *c; // char pointer for iteration
-    char *special = "\\*_`"; // list of interpreted chars
-    cstack_t *stack = cstack_init();
 
-    if(line->text->text) {
-        int offset = 0; // text offset
+    if(!line->text->text) {
+        return;
+    }
 
-        // IS_UNORDERED_LIST_3
-        if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_3)) {
-            offset = next_nonblank(line->text, 0);
-            char format_s[15];
-            strcpy(&format_s[0], CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)? " |  " : "    ");
-            strcpy(&format_s[4], CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)? " |  " : "    ");
-            strcpy(&format_s[8], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_3)? " +- %s" : " `- %s");
-            mvwprintw(window,
-                      y, x,
-                      format_s,
-                      &line->text->text[offset + 2]);
+    int i; // increment
+    int offset = 0; // text offset
 
-        // IS_UNORDERED_LIST_2
-        } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)) {
-            offset = next_nonblank(line->text, 0);
-            char format_s[11];
-            strcpy(&format_s[0], CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)? " |  " : "    ");
-            strcpy(&format_s[4], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_2)? " +- %s" : " `- %s");
-            mvwprintw(window,
-                      y, x,
-                      format_s,
-                      &line->text->text[offset + 2]);
+    // move the cursor in position
+    wmove(window, y, x);
 
-        // IS_UNORDERED_LIST_1
-        } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)) {
-            offset = next_nonblank(line->text, 0);
-            char format_s[7];
-            strcpy(&format_s[0], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_1)? " +- %s" : " `- %s");
-            mvwprintw(window,
-                      y, x,
-                      format_s,
-                      &line->text->text[offset + 2]);
+    // IS_UNORDERED_LIST_3
+    if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_3)) {
+        offset = next_nonblank(line->text, 0);
+        char prompt[10];
+        strcpy(&prompt[0], CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)? "|  " : "   ");
+        strcpy(&prompt[3], CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)? "|  " : "   ");
+        strcpy(&prompt[6], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_3)? "+- " : "`- ");
+        wprintw(window,
+                "%s", prompt);
 
-        // IS_CODE
-        } else if(CHECK_BIT(line->bits, IS_CODE)) {
+        inline_display(window, &line->text->text[offset + 2], colors);
 
-            // set static offset for code
-            offset = CODE_INDENT;
+    // IS_UNORDERED_LIST_2
+    } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)) {
+        offset = next_nonblank(line->text, 0);
+        char prompt[7];
+        strcpy(&prompt[0], CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)? "|  " : "   ");
+        strcpy(&prompt[3], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_2)? "+- " : "`- ");
+        wprintw(window,
+                "%s", prompt);
 
-            // reverse color for code blocks
-            if(colors)
-                wattron(window, COLOR_PAIR(CP_BLACK));
+        inline_display(window, &line->text->text[offset + 2], colors);
 
-            // print whole lines
-            mvwprintw(window,
-                      y, x,
-                      "%s", &line->text->text[offset]);
+    // IS_UNORDERED_LIST_1
+    } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)) {
+        offset = next_nonblank(line->text, 0);
+        char prompt[4];
+        strcpy(&prompt[0], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_1)? "+- " : "`- ");
+        wprintw(window,
+                "%s", prompt);
 
-        } else {
+        inline_display(window, &line->text->text[offset + 2], colors);
 
-            // IS_H1 || IS_H2
-            if(CHECK_BIT(line->bits, IS_H1) || CHECK_BIT(line->bits, IS_H2)) {
+    // IS_CODE
+    } else if(CHECK_BIT(line->bits, IS_CODE)) {
 
-                // set headline color
-                if(colors)
-                    wattron(window, COLOR_PAIR(CP_BLUE));
+        // set static offset for code
+        offset = CODE_INDENT;
 
-                // enable underline for H1
-                if(CHECK_BIT(line->bits, IS_H1))
-                    wattron(window, A_UNDERLINE);
+        // reverse color for code blocks
+        if(colors)
+            wattron(window, COLOR_PAIR(CP_BLACK));
 
-                // skip hashes
-                while(line->text->text[offset] == '#')
+        // print whole lines
+        wprintw(window,
+                "%s", &line->text->text[offset]);
+
+    // IS_H1 || IS_H2
+    } else if(CHECK_BIT(line->bits, IS_H1) || CHECK_BIT(line->bits, IS_H2)) {
+
+        // set headline color
+        if(colors)
+            wattron(window, COLOR_PAIR(CP_BLUE));
+
+        // enable underline for H1
+        if(CHECK_BIT(line->bits, IS_H1))
+            wattron(window, A_UNDERLINE);
+
+        // skip hashes
+        while(line->text->text[offset] == '#')
+            offset = next_word(line->text, offset);
+
+        // print whole lines
+        wprintw(window,
+                "%s", &line->text->text[offset]);
+
+        wattroff(window, A_UNDERLINE);
+
+    } else {
+
+        // IS_QUOTE
+        if(CHECK_BIT(line->bits, IS_QUOTE)) {
+            while(line->text->text[offset] == '>') {
+                // print a reverse color block
+                if(colors) {
+                    wattron(window, COLOR_PAIR(CP_BLACK));
+                    wprintw(window, "%s", " ");
+                    wattron(window, COLOR_PAIR(CP_WHITE));
+                    wprintw(window, "%s", " ");
+                } else {
+                    wprintw(window, "%s", ">");
+                }
+
+                // find next quote or break
+                offset++;
+                if(line->text->text[offset] == ' ')
                     offset = next_word(line->text, offset);
-
-                // print whole lines
-                mvwprintw(window,
-                      y, x,
-                      "%s", &line->text->text[offset]);
-
-                wattroff(window, A_UNDERLINE);
-
-            } else {
-                // move the cursor in position
-                wmove(window, y, x);
-
-                // IS_QUOTE
-                if(CHECK_BIT(line->bits, IS_QUOTE)) {
-                    while(line->text->text[offset] == '>') {
-                        // print a reverse color block
-                        if(colors) {
-                            wattron(window, COLOR_PAIR(CP_BLACK));
-                            wprintw(window, "%s", " ");
-                            wattron(window, COLOR_PAIR(CP_WHITE));
-                            wprintw(window, "%s", " ");
-                        } else {
-                            wprintw(window, "%s", ">");
-                        }
-
-                        // find next quote or break
-                        offset++;
-                        if(line->text->text[offset] == ' ')
-                            offset = next_word(line->text, offset);
-                    }
-                }
-
-                // for each char in line
-                c = &line->text->text[offset];
-                while(*c) {
-
-                    // if char is in special char list
-                    if(strchr(special, *c)) {
-
-                        // closing special char (or second backslash)
-                        if((stack->top)(stack, *c)) {
-
-                            switch(*c) {
-                                // print escaped backslash
-                                case '\\':
-                                    wprintw(window, "%c", *c);
-                                    break;
-                                // disable highlight
-                                case '*':
-                                    if(colors)
-                                        wattron(window, COLOR_PAIR(CP_WHITE));
-                                    break;
-                                // disable underline
-                                case '_':
-                                    wattroff(window, A_UNDERLINE);
-                                    break;
-                                // disable inline code
-                                case '`':
-                                    if(colors)
-                                        wattron(window, COLOR_PAIR(CP_WHITE));
-                                    break;
-                            }
-
-                            // remove top special char from stack
-                            (stack->pop)(stack);
-
-                        // treat special as regular char
-                        } else if((stack->top)(stack, '\\')) {
-                            wprintw(window, "%c", *c);
-
-                            // remove backslash from stack
-                            (stack->pop)(stack);
-
-                        // opening special char
-                        } else {
-                            switch(*c) {
-                                // enable highlight
-                                case '*':
-                                    if(colors)
-                                        wattron(window, COLOR_PAIR(CP_RED));
-                                    break;
-                                // enable underline
-                                case '_':
-                                    wattron(window, A_UNDERLINE);
-                                    break;
-                                // enable inline code
-                                case '`':
-                                    if(colors)
-                                        wattron(window, COLOR_PAIR(CP_BLACK));
-                                    break;
-                                // do nothing for backslashes
-                            }
-
-                            // push special char to stack
-                            (stack->push)(stack, *c);
-                        }
-
-                    } else {
-                        // remove backslash from stack
-                        if((stack->top)(stack, '\\'))
-                            (stack->pop)(stack);
-
-                        // print regular char
-                        wprintw(window, "%c", *c);
-                    }
-
-                    c++;
-                }
-
-                // pop stack until empty to prevent formated trailing spaces
-                while(!(stack->empty)(stack)) {
-                    switch((stack->pop)(stack)) {
-                        // disable highlight
-                        case '*':
-                            if(colors)
-                                wattron(window, COLOR_PAIR(CP_WHITE));
-                            break;
-                        // disable underline
-                        case '_':
-                            wattroff(window, A_UNDERLINE);
-                            break;
-                        // disable inline code
-                        case '`':
-                            if(colors)
-                                wattron(window, COLOR_PAIR(CP_WHITE));
-                            break;
-                        // do nothing for backslashes
-                    }
-                }
             }
         }
 
-        // fill rest off line with spaces
-        for(i = getcurx(window) - x; i < max_cols; i++)
-            wprintw(window, "%s", " ");
+        inline_display(window, &line->text->text[offset], colors);
+    }
 
-        // reset to default color
-        if(colors)
-            wattron(window, COLOR_PAIR(CP_WHITE));
-        wattroff(window, A_UNDERLINE);
+    // fill rest off line with spaces
+    for(i = getcurx(window) - x; i < max_cols; i++)
+        wprintw(window, "%s", " ");
+
+    // reset to default color
+    if(colors)
+        wattron(window, COLOR_PAIR(CP_WHITE));
+    wattroff(window, A_UNDERLINE);
+}
+
+void inline_display(WINDOW *window, const char *c, const int colors) {
+    const static char *special = "\\*_`"; // list of interpreted chars
+    cstack_t *stack = cstack_init();
+
+    // for each char in line
+    for(; *c; c++) {
+
+        // if char is in special char list
+        if(strchr(special, *c)) {
+
+            // closing special char (or second backslash)
+            if((stack->top)(stack, *c)) {
+
+                switch(*c) {
+                    // print escaped backslash
+                    case '\\':
+                        wprintw(window, "%c", *c);
+                        break;
+                    // disable highlight
+                    case '*':
+                        if(colors)
+                            wattron(window, COLOR_PAIR(CP_WHITE));
+                        break;
+                    // disable underline
+                    case '_':
+                        wattroff(window, A_UNDERLINE);
+                        break;
+                    // disable inline code
+                    case '`':
+                        if(colors)
+                            wattron(window, COLOR_PAIR(CP_WHITE));
+                        break;
+                }
+
+                // remove top special char from stack
+                (stack->pop)(stack);
+
+            // treat special as regular char
+            } else if((stack->top)(stack, '\\')) {
+                wprintw(window, "%c", *c);
+
+                // remove backslash from stack
+                (stack->pop)(stack);
+
+            // opening special char
+            } else {
+                switch(*c) {
+                    // enable highlight
+                    case '*':
+                        if(colors)
+                            wattron(window, COLOR_PAIR(CP_RED));
+                        break;
+                    // enable underline
+                    case '_':
+                        wattron(window, A_UNDERLINE);
+                        break;
+                    // enable inline code
+                    case '`':
+                        if(colors)
+                            wattron(window, COLOR_PAIR(CP_BLACK));
+                        break;
+                    // do nothing for backslashes
+                }
+
+                // push special char to stack
+                (stack->push)(stack, *c);
+            }
+
+        } else {
+            // remove backslash from stack
+            if((stack->top)(stack, '\\'))
+                (stack->pop)(stack);
+
+            // print regular char
+            wprintw(window, "%c", *c);
+        }
+    }
+
+    // pop stack until empty to prevent formated trailing spaces
+    while(!(stack->empty)(stack)) {
+        switch((stack->pop)(stack)) {
+            // disable highlight
+            case '*':
+                if(colors)
+                    wattron(window, COLOR_PAIR(CP_WHITE));
+                break;
+            // disable underline
+            case '_':
+                wattroff(window, A_UNDERLINE);
+                break;
+            // disable inline code
+            case '`':
+                if(colors)
+                    wattron(window, COLOR_PAIR(CP_WHITE));
+                break;
+            // do nothing for backslashes
+        }
     }
 
     (stack->delete)(stack);

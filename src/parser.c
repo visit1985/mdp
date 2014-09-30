@@ -266,7 +266,7 @@ deck_t *markdown_load(FILE *input) {
                     }
                     tmp = tmp->next;
                 }
-                
+
                 for(tmp = line; tmp != list_last_level_1; tmp = tmp->next) {
                     SET_BIT(tmp->bits, IS_UNORDERED_LIST_1);
                 }
@@ -337,12 +337,12 @@ int markdown_analyse(cstring_t *text) {
                     case 3: SET_BIT(bits, IS_UNORDERED_LIST_3); break;
                     default: break;
                 }
-                
+
                 break;
             }
         }
     }
-    
+
     if(!CHECK_BIT(bits, IS_UNORDERED_LIST_1) &&
        !CHECK_BIT(bits, IS_UNORDERED_LIST_2) &&
        !CHECK_BIT(bits, IS_UNORDERED_LIST_3)) {
@@ -518,4 +518,3 @@ int next_blank(cstring_t *text, int i) {
 int next_word(cstring_t *text, int i) {
     return next_nonblank(text, next_blank(text, i));
 }
-
