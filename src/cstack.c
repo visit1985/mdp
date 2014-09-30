@@ -19,27 +19,36 @@
  *
  */
 
+#include <stdio.h> // fprintf
 #include <stdlib.h> // malloc, realloc
 
 #include "cstack.h"
 
 cstack_t *cstack_init() {
-    cstack_t *stack = malloc(sizeof(cstack_t));
-    stack->content = NULL;
-    stack->alloc = stack->size = 0;
-    stack->head = -1;
-    stack->push = cstack_push;
-    stack->pop = cstack_pop;
-    stack->top = cstack_top;
-    stack->empty = cstack_empty;
-    stack->delete = cstack_delete;
+    cstack_t *stack = NULL;
+    if((stack = malloc(sizeof(cstack_t))) != NULL) {
+        stack->content = NULL;
+        stack->alloc = stack->size = 0;
+        stack->head = -1;
+        stack->push = cstack_push;
+        stack->pop = cstack_pop;
+        stack->top = cstack_top;
+        stack->empty = cstack_empty;
+        stack->delete = cstack_delete;
+    } else {
+        fprintf(stderr, "%s\n", "cstack_init() failed to allocate memory.");
+        exit(EXIT_FAILURE);
+    }
     return stack;
 }
 
 void cstack_push(cstack_t *self, char c) {
     if(self->size + sizeof(c) > self->alloc) {
         self->alloc += (sizeof(char));
-        self->content = realloc(self->content, self->alloc);
+        if((self->content = realloc(self->content, self->alloc)) == NULL) {
+            fprintf(stderr, "%s\n", "cstack_push() failed to reallocate memory.");
+            exit(EXIT_FAILURE);
+        }
     }
     self->content[++self->head] = c;
     self->size += (sizeof(char));

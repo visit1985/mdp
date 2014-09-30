@@ -20,25 +20,34 @@
  */
 
 #include <string.h> // strlen
+#include <stdio.h> // fprintf
 #include <stdlib.h> // malloc, realloc
 
 #include "cstring.h"
 
 cstring_t *cstring_init() {
-    cstring_t *x = malloc(sizeof(cstring_t));
-    x->text = NULL;
-    x->size = x->alloc = 0;
-    x->expand = cstring_expand;
-    x->expand_arr = cstring_expand_arr;
-    x->reset = cstring_reset;
-    x->delete = cstring_delete;
+    cstring_t *x = NULL;
+    if((x = malloc(sizeof(cstring_t))) != NULL) {
+        x->text = NULL;
+        x->size = x->alloc = 0;
+        x->expand = cstring_expand;
+        x->expand_arr = cstring_expand_arr;
+        x->reset = cstring_reset;
+        x->delete = cstring_delete;
+    } else {
+        fprintf(stderr, "%s\n", "cstring_init() failed to allocate memory.");
+        exit(EXIT_FAILURE);
+    }
     return x;
 }
 
 void cstring_expand(cstring_t *self, char x) {
     if(self->size + sizeof(x) + sizeof(char) > self->alloc) {
         self->alloc += (REALLOC_ADD * sizeof(char));
-        self->text = realloc(self->text, self->alloc);
+        if((self->text = realloc(self->text, self->alloc)) == NULL) {
+            fprintf(stderr, "%s\n", "cstring_expand() failed to reallocate memory.");
+            exit(EXIT_FAILURE);
+        }
     }
     self->text[self->size] = x;
     self->text[self->size+1] = '\0';
@@ -48,7 +57,10 @@ void cstring_expand(cstring_t *self, char x) {
 void cstring_expand_arr(cstring_t *self, char *x) {
     if(self->size + strlen(x) + sizeof(char) > self->alloc) {
         self->alloc = ((strlen(x) + self->size + 1) * sizeof(char));
-        self->text = realloc(self->text, self->alloc);
+        if((self->text = realloc(self->text, self->alloc)) == NULL) {
+            fprintf(stderr, "%s\n", "cstring_expand() failed to reallocate memory.");
+            exit(EXIT_FAILURE);
+        }
     }
     self->text = strcat(self->text, x);
     self->size = strlen(self->text);

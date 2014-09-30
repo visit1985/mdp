@@ -22,8 +22,10 @@
  */
 
 #include <ctype.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "parser.h"
 
@@ -48,6 +50,11 @@ deck_t *markdown_load(FILE *input) {
     sc++;
 
     while ((c = fgetc(input)) != EOF) {
+        if (ferror(input)) {
+            fprintf(stderr, "markdown_load() failed to read input: %s\n", strerror(errno));
+            exit(EXIT_FAILURE);
+        }
+
         if(c == '\n') {
 
             // markdown analyse
