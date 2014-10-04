@@ -21,6 +21,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  *
+ * type: bool variable stores only true or false.
+ *
  * macro: MAX returns the higher one of two input variables
  * macro: MIN returns the lower one of two input variables
  *
@@ -33,7 +35,7 @@
 #if !defined( bool )
 typedef enum {
     false = 0,
-    true
+    true  = 1
 } bool;
 #endif   // !defined( bool )
 #endif   // __STDC_VERSION__ >= 199901L
