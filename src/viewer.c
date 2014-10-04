@@ -117,7 +117,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
                     }
 
                     // set max_cols
-                    max_cols = (i > max_cols) ? i : max_cols;
+                    max_cols = MAX(i, max_cols);
 
                     // iterate to next line
                     offset = prev_blank(line->text, offset + COLS);
@@ -125,16 +125,16 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
                     lc++;
                 }
                 // set max_cols one last time
-                max_cols = (i > max_cols) ? i : max_cols;
+                max_cols = MAX(i, max_cols);
             } else {
                 // set max_cols
-                max_cols = (line->length > max_cols) ? line->length : max_cols;
+                max_cols = MAX(line->length, max_cols);
             }
             lc++;
             line = line->next;
         }
 
-        max_lines = (lc > max_lines) ? lc : max_lines;
+        max_lines = MAX(lc, max_lines);
 
         slide = slide->next;
     }
