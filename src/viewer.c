@@ -113,7 +113,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
                         fprintf(stderr, "Error: Terminal width (%i columns) too small. Need at least %i columns.\n", COLS, i);
                         fprintf(stderr, "You may need to shorten some lines by inserting line breaks.\n");
 
-                        return(1);
+                        return 1;
                     }
 
                     // set max_cols
@@ -149,7 +149,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
         fprintf(stderr, "Error: Terminal heigth (%i lines) too small. Need at least %i lines.\n", LINES, max_lines + bar_top + bar_bottom);
         fprintf(stderr, "You may need to add additional horizontal rules ('***') to split your file in shorter slides.\n");
 
-        return(1);
+        return 1;
     }
 
     // disable cursor
@@ -395,7 +395,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
 
     endwin();
 
-    return(0);
+    return 0;
 }
 
 void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colors) {

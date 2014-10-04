@@ -123,5 +123,5 @@ int main(int argc, char *argv[]) {
 
     ncurses_display(deck, notrans, nofade, invert);
 
-    return(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }
