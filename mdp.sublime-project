@@ -13,4 +13,20 @@
         "file_exclude_patterns": [".*", "mdp", "mdp.sublime-project"]
     }
     ]
+    ,"build_systems":
+    [
+    {
+        "name": "mdp",
+        "cmd": ["make"],
+        "working_dir": "${project_path:${folder}}",
+
+        "variants":
+        [
+        {
+            "name": "clean",
+            "cmd": ["make", "clean"],
+        }
+        ]
+    }
+    ]
 }
