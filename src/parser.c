@@ -181,8 +181,8 @@ deck_t *markdown_load(FILE *input) {
         }
 
         // split linked list
-        line->prev->next = (void*)0;
-        line->prev = (void*)0;
+        line->prev->next = NULL;
+        line->prev = NULL;
 
         // remove header lines from slide
         deck->slide->line = line;

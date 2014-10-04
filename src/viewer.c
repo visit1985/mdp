@@ -379,7 +379,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
             case 'q':
                 // do not fade out on exit
                 fade = 0;
-                slide = (void*)0;
+                slide = NULL;
                 break;
 
             default:
