@@ -194,7 +194,8 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
             init_pair(CP_YELLOW, 208, trans);
 
             // enable color fading
-            if(!nofade) fade = 1;
+            if(!nofade)
+                fade = true;
 
         // 8 color mode
         } else {
@@ -285,7 +286,8 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
             fade_in(content, trans, colors, invert);
 
         // re-enable fading after any undefined key press
-        if(COLORS == 256 && !nofade) fade = 1;
+        if(COLORS == 256 && !nofade)
+            fade = true;
 
         // wait for user input
         c = getch();
@@ -307,7 +309,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
                     slide = slide->prev;
                     sc--;
                 } else {
-                    fade = 0;
+                    fade = false;
                 }
                 break;
 
@@ -323,7 +325,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
                     slide = slide->next;
                     sc++;
                 } else {
-                    fade = 0;
+                    fade = false;
                 }
                 break;
 
@@ -355,7 +357,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
                     }
                 } else {
                     // disable fading if slide n doesn't exist
-                    fade = 0;
+                    fade = false;
                 }
                 break;
 
@@ -378,13 +380,13 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
             // quit
             case 'q':
                 // do not fade out on exit
-                fade = 0;
+                fade = false;
                 slide = NULL;
                 break;
 
             default:
                 // disable fading on undefined key press
-                fade = 0;
+                fade = false;
                 break;
         }
 

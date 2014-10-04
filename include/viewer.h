@@ -38,6 +38,7 @@
 #include <ncurses.h>
 #endif
 
+#include "common.h"
 #include "parser.h"
 #include "cstack.h"
 
