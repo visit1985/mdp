@@ -478,8 +478,8 @@ void markdown_debug(deck_t *deck, int debug) {
     }
 }
 
-int is_utf8(char ch) {
-    return (ch & 0x80);
+bool is_utf8(char ch) {
+    return (ch & 0x80) != 0x00;
 }
 
 int length_utf8(char ch) {

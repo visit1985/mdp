@@ -38,6 +38,8 @@
  *
  */
 
+#include "common.h"
+
 typedef struct _cstack_t {
     char *content;
     size_t alloc;
@@ -45,16 +47,16 @@ typedef struct _cstack_t {
     int head;
     void (*push)(struct _cstack_t *self, char c);
     char (*pop)(struct _cstack_t *self);
-    int (*top)(struct _cstack_t *self, char c);
-    int (*empty)(struct _cstack_t *self);
+    bool (*top)(struct _cstack_t *self, char c);
+    bool (*empty)(struct _cstack_t *self);
     void (*delete)(struct _cstack_t *self);
 } cstack_t;
 
 cstack_t *cstack_init();
 void cstack_push(cstack_t *self, char c);
 char cstack_pop(cstack_t *self);
-int cstack_top(cstack_t *self, char c);
-int cstack_empty(cstack_t *self);
+bool cstack_top(cstack_t *self, char c);
+bool cstack_empty(cstack_t *self);
 void cstack_delete(cstack_t *self);
 
 #endif // !defined( CSTACK_H )

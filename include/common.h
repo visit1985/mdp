@@ -26,6 +26,23 @@
  *
  */
 
+#if defined( __STDC__ )  // for standard C compiler
+#if __STDC_VERSION__ >= 199901L    // for C99 and later
+#include <stdbool.h>
+#else    // __STDC_VERSION__ >= 199901L
+#if !defined( bool )
+typedef enum {
+    false = 0,
+    true
+} bool;
+#endif   // !defined( bool )
+#endif   // __STDC_VERSION__ >= 199901L
+#else    // defined( __STDC__ )
+#define bool    int
+#define true    1
+#define false   0
+#endif   // defined( __STDC__ )
+
 #define MAX(a, b) ({ typeof(a) _a = a; typeof(b) _b = b; _a > _b? _a : _b; })
 #define MIN(a, b) ({ typeof(a) _a = a; typeof(b) _b = b; _a < _b? _a : _b; })
 
