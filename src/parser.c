@@ -363,9 +363,6 @@ int markdown_analyse(cstring_t *text) {
                 if(text->text[i] == ' ') {
                     spaces++;
 
-                } else if(CHECK_BIT(bits, IS_CODE)) {
-                    other++;
-
                 } else {
                     switch(text->text[i]) {
                         case '=': equals++;  break;
