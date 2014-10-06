@@ -24,7 +24,7 @@
         [
         {
             "name": "clean",
-            "cmd": ["make", "clean"],
+            "cmd": ["make", "clean"]
         }
         ]
     }
