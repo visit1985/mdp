@@ -225,6 +225,7 @@ deck_t *markdown_load(FILE *input) {
                 // delete line
                 (tmp->text->delete)(tmp->text);
                 free(tmp);
+
             } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_3)) {
                 tmp = line->next;
                 line_t *list_last_level_3 = line;
@@ -240,6 +241,7 @@ deck_t *markdown_load(FILE *input) {
                 for(tmp = line; tmp != list_last_level_3; tmp = tmp->next) {
                     SET_BIT(tmp->bits, IS_UNORDERED_LIST_3);
                 }
+
             } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)) {
                 tmp = line->next;
                 line_t *list_last_level_2 = line;
@@ -256,6 +258,7 @@ deck_t *markdown_load(FILE *input) {
                 for(tmp = line; tmp != list_last_level_2; tmp = tmp->next) {
                     SET_BIT(tmp->bits, IS_UNORDERED_LIST_2);
                 }
+
             } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)) {
                 tmp = line->next;
                 line_t *list_last_level_1 = line;
@@ -298,6 +301,12 @@ int markdown_analyse(cstring_t *text) {
         spaces = 0, other  = 0; // special character counts
 
     const int unordered_list_offset = unordered_list_level_offset[unordered_list_level];
+
+    // return IS_EMPTY on null pointers
+    if(!text || !text->text) {
+        SET_BIT(bits, IS_EMPTY);
+        return bits;
+    }
 
     // count leading spaces
     offset = next_nonblank(text, 0);
@@ -358,6 +367,36 @@ int markdown_analyse(cstring_t *text) {
 
         } else {
 
+            // IS_QUOTE
+            if(text->text[offset] == '>') {
+                SET_BIT(bits, IS_QUOTE);
+            }
+
+            // IS_CENTER
+            if(text->size >= offset + 3 &&
+               text->text[offset] == '-' &&
+               text->text[offset + 1] == '>' &&
+               text->text[offset + 2] == ' ') {
+                SET_BIT(bits, IS_CENTER);
+
+                // remove start tag
+                (text->strip)(text, offset, 3);
+                eol -= 3;
+
+                if(text->size >= offset + 3 &&
+                   text->text[eol - 1] == '-' &&
+                   text->text[eol - 2] == '<' &&
+                   text->text[eol - 3] == ' ') {
+
+                    // remove end tags
+                    (text->strip)(text, eol - 3, 3);
+
+                    // adjust end of line
+                    for(eol = text->size; eol > offset && isspace((unsigned char) text->text[eol - 1]); eol--);
+
+                }
+            }
+
             for(i = offset; i < eol; i++) {
 
                 if(text->text[i] == ' ') {
@@ -378,9 +417,7 @@ int markdown_analyse(cstring_t *text) {
             // IS_H1
             if((equals > 0 &&
                 hashes + stars + minus + spaces + other == 0) ||
-               (text &&
-                text->text &&
-                text->text[offset] == '#' &&
+               (text->text[offset] == '#' &&
                 text->text[offset+1] != '#')) {
 
                 SET_BIT(bits, IS_H1);
@@ -389,20 +426,10 @@ int markdown_analyse(cstring_t *text) {
             // IS_H2
             if((minus > 0 &&
                 equals + hashes + stars + spaces + other == 0) ||
-               (text &&
-                text->text &&
-                text->text[offset] == '#' &&
+               (text->text[offset] == '#' &&
                 text->text[offset+1] == '#')) {
 
                 SET_BIT(bits, IS_H2);
-            }
-
-            // IS_QUOTE
-            if(text &&
-               text->text &&
-               text->text[offset] == '>') {
-
-                SET_BIT(bits, IS_QUOTE);
             }
 
             // IS_HR

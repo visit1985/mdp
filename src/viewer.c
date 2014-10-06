@@ -459,50 +459,62 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
         wprintw(window,
                 "%s", &line->text->text[offset]);
 
-    // IS_H1 || IS_H2
-    } else if(CHECK_BIT(line->bits, IS_H1) || CHECK_BIT(line->bits, IS_H2)) {
-
-        // set headline color
-        if(colors)
-            wattron(window, COLOR_PAIR(CP_BLUE));
-
-        // enable underline for H1
-        if(CHECK_BIT(line->bits, IS_H1))
-            wattron(window, A_UNDERLINE);
-
-        // skip hashes
-        while(line->text->text[offset] == '#')
-            offset = next_word(line->text, offset);
-
-        // print whole lines
-        wprintw(window,
-                "%s", &line->text->text[offset]);
-
-        wattroff(window, A_UNDERLINE);
-
-    } else {
-
-        // IS_QUOTE
-        if(CHECK_BIT(line->bits, IS_QUOTE)) {
-            while(line->text->text[offset] == '>') {
-                // print a reverse color block
-                if(colors) {
-                    wattron(window, COLOR_PAIR(CP_BLACK));
-                    wprintw(window, "%s", " ");
-                    wattron(window, COLOR_PAIR(CP_WHITE));
-                    wprintw(window, "%s", " ");
-                } else {
-                    wprintw(window, "%s", ">");
-                }
-
-                // find next quote or break
-                offset++;
-                if(line->text->text[offset] == ' ')
-                    offset = next_word(line->text, offset);
+    // IS_QUOTE
+    } else if(CHECK_BIT(line->bits, IS_QUOTE)) {
+        while(line->text->text[offset] == '>') {
+            // print a reverse color block
+            if(colors) {
+                wattron(window, COLOR_PAIR(CP_BLACK));
+                wprintw(window, "%s", " ");
+                wattron(window, COLOR_PAIR(CP_WHITE));
+                wprintw(window, "%s", " ");
+            } else {
+                wprintw(window, "%s", ">");
             }
+
+            // find next quote or break
+            offset++;
+            if(line->text->text[offset] == ' ')
+                offset = next_word(line->text, offset);
         }
 
         inline_display(window, &line->text->text[offset], colors);
+
+    } else {
+
+        // IS_CENTER
+        if(CHECK_BIT(line->bits, IS_CENTER)) {
+            if(line->length < max_cols) {
+                wmove(window, y, x + ((max_cols - line->length) / 2));
+            }
+        }
+
+        // IS_H1 || IS_H2
+        if(CHECK_BIT(line->bits, IS_H1) || CHECK_BIT(line->bits, IS_H2)) {
+
+            // set headline color
+            if(colors)
+                wattron(window, COLOR_PAIR(CP_BLUE));
+
+            // enable underline for H1
+            if(CHECK_BIT(line->bits, IS_H1))
+                wattron(window, A_UNDERLINE);
+
+            // skip hashes
+            while(line->text->text[offset] == '#')
+                offset = next_word(line->text, offset);
+
+            // print whole lines
+            wprintw(window,
+                    "%s", &line->text->text[offset]);
+
+            wattroff(window, A_UNDERLINE);
+
+        // no line-wide markdown
+        } else {
+
+            inline_display(window, &line->text->text[offset], colors);
+        }
     }
 
     // fill rest off line with spaces

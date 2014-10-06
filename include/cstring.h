@@ -26,6 +26,7 @@
  * function: cstring_init to intialize struct of type cstring_t
  * function: cstring_t->expand to add one character to the struct
  * function: cstring_t->expand_arr to add a string to the struct
+ * function: cstring_t->strip to remove a substring
  * function: cstring_t->reset to clear and reuse the struct
  * function: cstring_t->delete to free the allocated memory
  *
@@ -46,6 +47,7 @@ typedef struct _cstring_t {
     size_t alloc;
     void (*expand)(struct _cstring_t *self, char x);
     void (*expand_arr)(struct _cstring_t *self, char *x);
+    void (*strip)(struct _cstring_t *self, int pos, int len);
     void (*reset)(struct _cstring_t *self);
     void (*delete)(struct _cstring_t *self);
 } cstring_t;
@@ -53,6 +55,7 @@ typedef struct _cstring_t {
 cstring_t *cstring_init();
 void cstring_expand(cstring_t *self, char x);
 void cstring_expand_arr(cstring_t *self, char *x);
+void cstring_strip(cstring_t *self, int pos, int len);
 void cstring_reset(cstring_t *self);
 void cstring_delete(cstring_t *self);
 

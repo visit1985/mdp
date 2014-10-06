@@ -47,6 +47,7 @@ enum line_bitmask {
     IS_UNORDERED_LIST_1,
     IS_UNORDERED_LIST_2,
     IS_UNORDERED_LIST_3,
+    IS_CENTER,
     IS_EMPTY
 };
 

@@ -19,7 +19,7 @@
  *
  */
 
-#include <string.h> // strlen
+#include <string.h> // strlen, memmove
 #include <stdio.h> // fprintf
 #include <stdlib.h> // malloc, realloc
 
@@ -32,6 +32,7 @@ cstring_t *cstring_init() {
         x->size = x->alloc = 0;
         x->expand = cstring_expand;
         x->expand_arr = cstring_expand_arr;
+        x->strip = cstring_strip;
         x->reset = cstring_reset;
         x->delete = cstring_delete;
     } else {
@@ -65,6 +66,18 @@ void cstring_expand_arr(cstring_t *self, char *x) {
     self->text = strcat(self->text, x);
     self->size = strlen(self->text);
     self->text[self->size+1] = '\0';
+}
+
+void cstring_strip(cstring_t *self, int pos, int len) {
+    if(pos + len >= self->size) {
+        if(pos <= self->size) {
+            self->text[pos] = '\0';
+            self->size = pos;
+        }
+        return;
+    }
+    memmove(&self->text[pos], &self->text[pos+len], self->size - pos);
+    self->size -= len;
 }
 
 void cstring_reset(cstring_t *self) {
