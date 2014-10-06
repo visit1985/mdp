@@ -274,8 +274,8 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
         // print lines
         while(line) {
             add_line(content, l, (COLS - max_cols) / 2, line, max_cols, colors);
+            l += (line->length / COLS) + 1;
             line = line->next;
-            l++;
         }
 
         // make content visible
