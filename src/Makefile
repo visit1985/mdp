@@ -22,7 +22,7 @@ UNAME_S := $(shell uname -s 2>/dev/null || echo not)
 
 SOURCES = $(wildcard *.c)
 OBJECTS = $(SOURCES:.c=.o)
-CFLAGS  = -O3 -Wall -I../include
+CFLAGS  = -O3 -Wall -I../include $(shell pkg-config --cflags ncursesw)
 
 ifeq ($(DEBUG),1)
 	CFLAGS := -O0 -Wall -g -I../include
