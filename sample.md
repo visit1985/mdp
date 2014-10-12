@@ -155,6 +155,24 @@ TODO list
 
 -------------------------------------------------
 
+# Supported markdown formatting's
+
+Leading *->* indicates centering.
+
+\-> # test <-
+\-> ## test <-
+\-> test
+\-> \_\*test\*\_ <-
+
+becomes
+
+-> # test <-
+-> ## test <-
+-> test
+-> _*test*_ <-
+
+-------------------------------------------------
+
 ## More information about markdown
 
 can be found on
