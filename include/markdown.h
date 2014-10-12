@@ -40,7 +40,9 @@
 
 enum line_bitmask {
     IS_H1,
+    IS_H1_ATX,
     IS_H2,
+    IS_H2_ATX,
     IS_QUOTE,
     IS_CODE,
     IS_HR,

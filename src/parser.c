@@ -33,7 +33,6 @@ deck_t *markdown_load(FILE *input) {
 
     int c = 0;    // char
     int i = 0;    // increment
-    int l = 0;    // line length
     int hc = 0;   // header count
     int lc = 0;   // line count
     int sc = 1;   // slide count
@@ -70,7 +69,6 @@ deck_t *markdown_load(FILE *input) {
 
                 // clear text
                 (text->reset)(text);
-                l = 0;
 
                 // create next slide
                 slide = next_slide(slide);
@@ -100,15 +98,15 @@ deck_t *markdown_load(FILE *input) {
                 // add bits to line
                 line->bits = bits;
 
-                // add length to line
-                line->length = l;
-
                 // calc offset
                 line->offset = next_nonblank(text, 0);
 
+                // adjust line length dynamicaly - excluding markup
+                if(line->text->text)
+                    adjust_line_length(line);
+
                 // new text
                 text = cstring_init();
-                l = 0;
             }
 
         } else if(c == '\t') {
@@ -116,14 +114,12 @@ deck_t *markdown_load(FILE *input) {
             // expand tab to spaces
             for (i = 0;  i < EXPAND_TABS;  i++) {
                 (text->expand)(text, ' ');
-                l++;
             }
 
         } else if(c == '\\') {
 
             // add char to line
             (text->expand)(text, c);
-            l++;
 
             // if !IS_CODE add next char to line
             // and do not increase line count
@@ -147,7 +143,6 @@ deck_t *markdown_load(FILE *input) {
 
             // add char to line
             (text->expand)(text, c);
-            l++;
 
         } else if(is_utf8(c)) {
 
@@ -159,8 +154,6 @@ deck_t *markdown_load(FILE *input) {
                 c = fgetc(input);
                 (text->expand)(text, c);
             }
-
-            l++;
         }
     }
 
@@ -415,21 +408,26 @@ int markdown_analyse(cstring_t *text) {
             }
 
             // IS_H1
-            if((equals > 0 &&
-                hashes + stars + minus + spaces + other == 0) ||
-               (text->text[offset] == '#' &&
-                text->text[offset+1] != '#')) {
-
+            if(equals > 0 &&
+                hashes + stars + minus + spaces + other == 0) {
                 SET_BIT(bits, IS_H1);
+            }
+            if(text->text[offset] == '#' &&
+                text->text[offset+1] == ' ') {
+                SET_BIT(bits, IS_H1);
+                SET_BIT(bits, IS_H1_ATX);
             }
 
             // IS_H2
-            if((minus > 0 &&
-                equals + hashes + stars + spaces + other == 0) ||
-               (text->text[offset] == '#' &&
-                text->text[offset+1] == '#')) {
-
+            if(minus > 0 &&
+                equals + hashes + stars + spaces + other == 0) {
                 SET_BIT(bits, IS_H2);
+            }
+            if(text->text[offset] == '#' &&
+                text->text[offset+1] == '#' &&
+                text->text[offset+2] == ' ') {
+                SET_BIT(bits, IS_H2);
+                SET_BIT(bits, IS_H2_ATX);
             }
 
             // IS_HR
@@ -503,6 +501,50 @@ void markdown_debug(deck_t *deck, int debug) {
 
         slide = slide->next;
     }
+}
+
+void adjust_line_length(line_t *line) {
+    int l = 0;
+    const static char *special = "\\*_`"; // list of interpreted chars
+    const char *c = &line->text->text[line->offset];
+    cstack_t *stack = cstack_init();
+
+    // for each char in line
+    for(; *c; c++) {
+        // if char is in special char list
+        if(strchr(special, *c)) {
+
+            // closing special char (or second backslash)
+            if((stack->top)(stack, *c)) {
+                if(*c == '\\') l++;
+                (stack->pop)(stack);
+
+            // treat special as regular char
+            } else if((stack->top)(stack, '\\')) {
+                l++;
+                (stack->pop)(stack);
+
+            // opening special char
+            } else {
+                (stack->push)(stack, *c);
+            }
+
+        } else {
+            // remove backslash from stack
+            if((stack->top)(stack, '\\'))
+                (stack->pop)(stack);
+            l++;
+        }
+    }
+
+    if(CHECK_BIT(line->bits, IS_H1_ATX))
+        l -= 2;
+    if(CHECK_BIT(line->bits, IS_H2_ATX))
+        l -= 3;
+
+    line->length = l;
+
+    (stack->delete)(stack);
 }
 
 bool is_utf8(char ch) {

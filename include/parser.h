@@ -28,6 +28,7 @@
  * function: markdown_analyse which is used to identify line wide formating
  *           rules in given line
  * function: markdown_debug to print a report of the generated data structure
+ * function: adjust_line_length to calculate line length excluding markup
  * function: is_utf8 detects multi-byte char
  * function: length_utf8 calculates the amount of bytes used for a multi-byte
  *           char
@@ -37,6 +38,7 @@
 
 #include "common.h"
 #include "markdown.h"
+#include "cstack.h"
 
 #define EXPAND_TABS 4
 #define CODE_INDENT 4
@@ -45,6 +47,7 @@
 deck_t *markdown_load(FILE *input);
 int markdown_analyse(cstring_t *text);
 void markdown_debug(deck_t *deck, int debug);
+void adjust_line_length(line_t *line);
 bool is_utf8(char ch);
 int length_utf8(char ch);
 int next_nonblank(cstring_t *text, int i);
