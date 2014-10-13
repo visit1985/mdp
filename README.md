@@ -5,7 +5,7 @@
 
 ---
 
-*How to get started:*
+***How to get started:***
 
 mdp needs the ncursesw headers to compile.
 So make sure you have them installed:
@@ -22,38 +22,44 @@ Now download and install mdp:
 
 - On Arch you can use the existing [AUR package](https://aur.archlinux.org/packages/mdp-git/).
 
+Most terminals support 256 colors only if the TERM variable is
+set correctly. To enjoy mdp's color fading feature:
+
+    $ export TERM=xterm-256color
+
 ---
 
-*How to use it:*
+***How to use it:***
 
-_Horizontal rulers are used as slide separator._
+Horizontal rulers are used as slide separator.
 
-_Supports basic markdown formating:_
+Supports basic markdown formating:
 
-- line wide formating
+- line wide markup
     - headlines
     - code
     - quotes
     - unordered list
 
-- in-line formating
+- in-line markup
     - bold text
     - underlined text
     - code
 
-_Supports headers prefixed by @ symbol._
+Supports headers prefixed by @ symbol.
 
 - first two header lines are displayed as title and author
-  in top and bottom bar
+    in top and bottom bar
 
-_Review sample.md for more details._
+Review sample.md for more details.
 
 ---
 
-*Controls:*
+***Controls:***
 
 - h, j, k, l, Cursor keys,
-  Space, Enter, Backspace - next/previous slide
+    Space, Enter, Backspace,
+    Page Up, Page Down - next/previous slide
 - Home - go to first slide
 - End - go to last slide
 - 1-9 - go to slide n
@@ -62,8 +68,9 @@ _Review sample.md for more details._
 
 ---
 
-*How to debug it:*
+***How to debug it:***
 
 To make a debug version of `mdp`, just type:
 
     $ make DEBUG=1
+
