@@ -10,7 +10,7 @@
     {
         "follow_symlinks": true,
         "path": ".",
-        "file_exclude_patterns": [".*", "mdp", "mdp.sublime-project"]
+        "file_exclude_patterns": [".*", "mdp", "mdp.sublime-project", "mdp.sublime-workspace"]
     }
     ]
     ,"build_systems":
