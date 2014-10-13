@@ -418,7 +418,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
         char prompt[13];
         strcpy(&prompt[0], CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)? " |  " : "    ");
         strcpy(&prompt[4], CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)? " |  " : "    ");
-        strcpy(&prompt[8], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_3)? " +- " : " `- ");
+        strcpy(&prompt[8], " +- ");
         wprintw(window,
                 "%s", prompt);
 
@@ -429,7 +429,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
         offset = next_nonblank(line->text, 0);
         char prompt[9];
         strcpy(&prompt[0], CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)? " |  " : "    ");
-        strcpy(&prompt[4], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_2)? " +- " : " `- ");
+        strcpy(&prompt[4], " +- ");
         wprintw(window,
                 "%s", prompt);
 
@@ -439,7 +439,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
     } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)) {
         offset = next_nonblank(line->text, 0);
         char prompt[5];
-        strcpy(&prompt[0], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_1)? " +- " : " `- ");
+        strcpy(&prompt[0], " +- ");
         wprintw(window,
                 "%s", prompt);
 
