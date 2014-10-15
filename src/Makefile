@@ -1,5 +1,5 @@
-#                                                                                                                           
-#                                                                                                                             1 # Makefile
+#
+# Makefile
 # Copyright (C) 2014 Michael Goehler
 #
 # This file is part of mdp.
@@ -31,6 +31,13 @@ endif
 ifeq ($(OS),Windows_NT)
 	ifeq (,$(findstring CYGWIN,$(UNAME_S)))
 		CFLAGS += -DWIN32
+	endif
+endif
+
+ifeq ($(UNAME_S),Linux)
+	LSB_RELEASE := $(shell lsb_release -si 2>/dev/null || echo not)
+	ifneq ($(filter $(LSB_RELEASE),Debian Ubuntu LinuxMint),)
+		CFLAGS += -I/usr/include/ncursesw
 	endif
 endif
 
