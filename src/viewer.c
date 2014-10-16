@@ -418,35 +418,60 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
         char prompt[13];
         strcpy(&prompt[0], CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)? " |  " : "    ");
         strcpy(&prompt[4], CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)? " |  " : "    ");
-        strcpy(&prompt[8], " +- ");
+
+        if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_EXT)) {
+            strcpy(&prompt[8], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_3)? " |  " : "    ");
+        } else {
+            strcpy(&prompt[8], " +- ");
+            offset += 2;
+        }
+
         wprintw(window,
                 "%s", prompt);
 
-        inline_display(window, &line->text->text[offset + 2], colors);
+        if(!CHECK_BIT(line->bits, IS_CODE))
+            inline_display(window, &line->text->text[offset], colors);
 
     // IS_UNORDERED_LIST_2
     } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)) {
         offset = next_nonblank(line->text, 0);
         char prompt[9];
         strcpy(&prompt[0], CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)? " |  " : "    ");
-        strcpy(&prompt[4], " +- ");
+
+        if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_EXT)) {
+            strcpy(&prompt[4], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_2)? " |  " : "    ");
+        } else {
+            strcpy(&prompt[4], " +- ");
+            offset += 2;
+        }
+
         wprintw(window,
                 "%s", prompt);
 
-        inline_display(window, &line->text->text[offset + 2], colors);
+        if(!CHECK_BIT(line->bits, IS_CODE))
+            inline_display(window, &line->text->text[offset], colors);
 
     // IS_UNORDERED_LIST_1
     } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)) {
         offset = next_nonblank(line->text, 0);
         char prompt[5];
-        strcpy(&prompt[0], " +- ");
+
+        if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_EXT)) {
+            strcpy(&prompt[0], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_1)? " |  " : "    ");
+        } else {
+            strcpy(&prompt[0], " +- ");
+            offset += 2;
+        }
+
         wprintw(window,
                 "%s", prompt);
 
-        inline_display(window, &line->text->text[offset + 2], colors);
+        if(!CHECK_BIT(line->bits, IS_CODE))
+            inline_display(window, &line->text->text[offset], colors);
+    }
 
     // IS_CODE
-    } else if(CHECK_BIT(line->bits, IS_CODE)) {
+    if(CHECK_BIT(line->bits, IS_CODE)) {
 
         // set static offset for code
         offset = CODE_INDENT;
@@ -458,62 +483,68 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
         // print whole lines
         wprintw(window,
                 "%s", &line->text->text[offset]);
+    }
 
-    // IS_QUOTE
-    } else if(CHECK_BIT(line->bits, IS_QUOTE)) {
-        while(line->text->text[offset] == '>') {
-            // print a reverse color block
-            if(colors) {
-                wattron(window, COLOR_PAIR(CP_BLACK));
-                wprintw(window, "%s", " ");
-                wattron(window, COLOR_PAIR(CP_WHITE));
-                wprintw(window, "%s", " ");
-            } else {
-                wprintw(window, "%s", ">");
+    if(!CHECK_BIT(line->bits, IS_UNORDERED_LIST_1) &&
+       !CHECK_BIT(line->bits, IS_UNORDERED_LIST_2) &&
+       !CHECK_BIT(line->bits, IS_UNORDERED_LIST_3) &&
+       !CHECK_BIT(line->bits, IS_CODE)) {
+
+        // IS_QUOTE
+        if(CHECK_BIT(line->bits, IS_QUOTE)) {
+            while(line->text->text[offset] == '>') {
+                // print a reverse color block
+                if(colors) {
+                    wattron(window, COLOR_PAIR(CP_BLACK));
+                    wprintw(window, "%s", " ");
+                    wattron(window, COLOR_PAIR(CP_WHITE));
+                    wprintw(window, "%s", " ");
+                } else {
+                    wprintw(window, "%s", ">");
+                }
+
+                // find next quote or break
+                offset++;
+                if(line->text->text[offset] == ' ')
+                    offset = next_word(line->text, offset);
             }
-
-            // find next quote or break
-            offset++;
-            if(line->text->text[offset] == ' ')
-                offset = next_word(line->text, offset);
-        }
-
-        inline_display(window, &line->text->text[offset], colors);
-
-    } else {
-
-        // IS_CENTER
-        if(CHECK_BIT(line->bits, IS_CENTER)) {
-            if(line->length < max_cols) {
-                wmove(window, y, x + ((max_cols - line->length) / 2));
-            }
-        }
-
-        // IS_H1 || IS_H2
-        if(CHECK_BIT(line->bits, IS_H1) || CHECK_BIT(line->bits, IS_H2)) {
-
-            // set headline color
-            if(colors)
-                wattron(window, COLOR_PAIR(CP_BLUE));
-
-            // enable underline for H1
-            if(CHECK_BIT(line->bits, IS_H1))
-                wattron(window, A_UNDERLINE);
-
-            // skip hashes
-            while(line->text->text[offset] == '#')
-                offset = next_word(line->text, offset);
-
-            // print whole lines
-            wprintw(window,
-                    "%s", &line->text->text[offset]);
-
-            wattroff(window, A_UNDERLINE);
-
-        // no line-wide markdown
-        } else {
 
             inline_display(window, &line->text->text[offset], colors);
+        } else {
+
+            // IS_CENTER
+            if(CHECK_BIT(line->bits, IS_CENTER)) {
+                if(line->length < max_cols) {
+                    wmove(window, y, x + ((max_cols - line->length) / 2));
+                }
+            }
+
+            // IS_H1 || IS_H2
+            if(CHECK_BIT(line->bits, IS_H1) || CHECK_BIT(line->bits, IS_H2)) {
+
+                // set headline color
+                if(colors)
+                    wattron(window, COLOR_PAIR(CP_BLUE));
+
+                // enable underline for H1
+                if(CHECK_BIT(line->bits, IS_H1))
+                    wattron(window, A_UNDERLINE);
+
+                // skip hashes
+                while(line->text->text[offset] == '#')
+                    offset = next_word(line->text, offset);
+
+                // print whole lines
+                wprintw(window,
+                        "%s", &line->text->text[offset]);
+
+                wattroff(window, A_UNDERLINE);
+
+            // no line-wide markdown
+            } else {
+
+                inline_display(window, &line->text->text[offset], colors);
+            }
         }
     }
 

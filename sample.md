@@ -2,14 +2,14 @@
 %author: visit1985
 %date: 2014-09-22
 
-mdp
-===
+-> mdp <-
+=========
 
-A command-line based markdown presentation tool.
+-> A command-line based markdown presentation tool. <-
 
 -------------------------------------------------
 
-# Supported markdown formatting's
+-> # Supported markdown formatting's <-
 
 The input file is split into multiple slides by
 horizontal rules (hr). A hr consisting of at
@@ -25,7 +25,7 @@ Each of these represents the start of a new slide
 
 -------------------------------------------------
 
-# Supported markdown formatting's
+-> # Supported markdown formatting's <-
 
 First-level headers can be prefixed by single *#*
 or underlined by *===*.
@@ -38,7 +38,7 @@ becomes
 
 -------------------------------------------------
 
-# Supported markdown formatting's
+-> # Supported markdown formatting's <-
 
 Second-level headers can be prefixed by *##* or
 underlined by *---*.
@@ -54,7 +54,7 @@ second-level
 
 -------------------------------------------------
 
-# Supported markdown formatting's
+-> # Supported markdown formatting's <-
 
 Inline codes are surrounded with backticks.
 
@@ -66,7 +66,7 @@ C program starts with `main()`.
 
 -------------------------------------------------
 
-# Supported markdown formatting's
+-> # Supported markdown formatting's <-
 
 Code blocks are automatically detected by 4
 spaces at the beginning of a line.
@@ -86,7 +86,7 @@ becomes
 
 -------------------------------------------------
 
-# Supported markdown formatting's
+-> # Supported markdown formatting's <-
 
 Quotes are auto-detected by preceding *>*.
 
@@ -104,7 +104,7 @@ becomes
 
 -------------------------------------------------
 
-# Supported markdown formatting's
+-> # Supported markdown formatting's <-
 
 Inline highlighting is supported as followed:
 
@@ -119,7 +119,7 @@ _some_ *highlighted* _*text*_
 
 -------------------------------------------------
 
-# Supported markdown formatting's
+-> # Supported markdown formatting's <-
 
 Backslashes force special markdown characters
 like *\**, *\_*, *#* and *>* to be printed as normal
@@ -133,29 +133,29 @@ becomes
 
 -------------------------------------------------
 
-# Supported markdown formatting's
+-> # Supported markdown formatting's <-
 
 Leading *\** or *-* indicate lists.
 
-TODO list
-\* major 1
-\    \- minor 1.1
-\        \- detail 1.1.1 \*IMPORTANT\*
-\        \- detail 1.1.2
-\    \- minor 1.2
+list
+\* major
+\    - minor
+\        - \*important\*
+\          detail
+\    - minor
 
 becomes
 
-TODO list
-* major 1
-    - minor 1.1
-        - detail 1.1.1 *IMPORTANT*
-        - detail 1.1.2
-    - minor 1.2
+list
+* major
+    - minor
+        - *important*
+          detail
+    - minor
 
 -------------------------------------------------
 
-# Supported markdown formatting's
+-> # Supported markdown formatting's <-
 
 Leading *->* indicates centering.
 
@@ -173,7 +173,7 @@ becomes
 
 -------------------------------------------------
 
-## More information about markdown
+-> ## More information about markdown <-
 
 can be found on
 
@@ -181,7 +181,7 @@ _http://daringfireball.net/projects/markdown/_
 
 -------------------------------------------------
 
-# Support for UTF-8 special characters
+-> # Support for UTF-8 special characters <-
 
 Here are some examples.
 
@@ -195,7 +195,7 @@ upsilon = Ʊ, phi = ɸ
 
 -------------------------------------------------
 
-# Suspend your presentation for hands-on examples
+-> # Suspend your presentation for hands-on examples <-
 
 Use *Ctrl + z* to suspend the presentation.
 
@@ -203,7 +203,7 @@ Use *fg* to resume it.
 
 -------------------------------------------------
 
-# Convert your presentation to PDF
+-> # Convert your presentation to PDF <-
 
 To publish your presentation later on, you may
 want to convert it to PDF.
@@ -219,7 +219,7 @@ After installing them, you can simply type:
 
 -------------------------------------------------
 
-## Last words
+-> ## Last words <-
 
 I hope you like *mdp*. But be aware, that it is
 still in alpha status.

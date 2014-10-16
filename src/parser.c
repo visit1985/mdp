@@ -37,12 +37,16 @@ deck_t *markdown_load(FILE *input) {
     int lc = 0;   // line count
     int sc = 1;   // slide count
     int bits = 0; // markdown bits
+    int prev = 0; // markdown bits of previous line
 
     deck_t *deck = new_deck();
     slide_t *slide = deck->slide;
     line_t *line = NULL;
     line_t *tmp = NULL;
     cstring_t *text = cstring_init();
+
+    // initialize bits as empty line
+    SET_BIT(bits, IS_EMPTY);
 
     while ((c = fgetc(input)) != EOF) {
         if (ferror(input)) {
@@ -53,7 +57,8 @@ deck_t *markdown_load(FILE *input) {
         if(c == '\n') {
 
             // markdown analyse
-            bits = markdown_analyse(text);
+            prev = bits;
+            bits = markdown_analyse(text, prev);
 
             // if first line in file is markdown hr
             if(!line && CHECK_BIT(bits, IS_HR)) {
@@ -189,12 +194,13 @@ deck_t *markdown_load(FILE *input) {
     while(slide) {
         line = slide->line;
         while(line) {
+            // combine underlined H1/H2 in single line
             if((CHECK_BIT(line->bits, IS_H1) ||
                 CHECK_BIT(line->bits, IS_H2)) &&
                CHECK_BIT(line->bits, IS_EMPTY) &&
                line->prev &&
                !CHECK_BIT(line->prev->bits, IS_EMPTY)) {
-                // combine underlined H1/H2 in single line
+
 
                 // remove line from linked list
                 line->prev->next = line->next;
@@ -219,6 +225,8 @@ deck_t *markdown_load(FILE *input) {
                 (tmp->text->delete)(tmp->text);
                 free(tmp);
 
+            // pass enclosing flag IS_UNORDERED_LIST_3
+            // to nested levels for unordered lists
             } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_3)) {
                 tmp = line->next;
                 line_t *list_last_level_3 = line;
@@ -235,6 +243,8 @@ deck_t *markdown_load(FILE *input) {
                     SET_BIT(tmp->bits, IS_UNORDERED_LIST_3);
                 }
 
+            // pass enclosing flag IS_UNORDERED_LIST_2
+            // to nested levels for unordered lists
             } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)) {
                 tmp = line->next;
                 line_t *list_last_level_2 = line;
@@ -252,6 +262,8 @@ deck_t *markdown_load(FILE *input) {
                     SET_BIT(tmp->bits, IS_UNORDERED_LIST_2);
                 }
 
+            // pass enclosing flag IS_UNORDERED_LIST_1
+            // to nested levels for unordered lists
             } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)) {
                 tmp = line->next;
                 line_t *list_last_level_1 = line;
@@ -279,8 +291,10 @@ deck_t *markdown_load(FILE *input) {
     return deck;
 }
 
-int markdown_analyse(cstring_t *text) {
+int markdown_analyse(cstring_t *text, int prev) {
 
+    // static variables can not be redeclaired, but changed outside of a declaration
+    // the program remembers their value on every function calls
     static int unordered_list_level = 0;
     static int unordered_list_level_offset[] = {-1, -1, -1, -1};
 
@@ -312,39 +326,35 @@ int markdown_analyse(cstring_t *text) {
        (text->text[offset] == '*' || text->text[offset] == '-') &&
        text->text[offset + 1] == ' ') {
 
-        for(i = offset; i<eol; i++) {
-            if(text->text[i] != '*' &&
-               text->text[i] != '-' &&
-               text->text[i] != ' ') {
-                if(offset > unordered_list_offset + CODE_INDENT) {
-                    SET_BIT(bits, IS_CODE);
-                } else if(offset != unordered_list_offset) {
-                    for(i = unordered_list_level; i >= 0; i--) {
-                        if(unordered_list_level_offset[i] == offset) {
-                            unordered_list_level = i;
-                            break;
-                        }
-                    }
-                    if(i != unordered_list_level) {
-                        unordered_list_level = MIN(unordered_list_level + 1, UNORDERED_LIST_MAX_LEVEL);
-                        unordered_list_level_offset[unordered_list_level] = offset;
-                    }
-                }
+        // if different from last lines offset
+        if(offset != unordered_list_offset) {
 
-                if(unordered_list_level == 0) {
-                    unordered_list_level = 1;
-                    unordered_list_level_offset[1] = offset;
+            // test if offset matches a lower indent level
+            for(i = unordered_list_level; i >= 0; i--) {
+                if(unordered_list_level_offset[i] == offset) {
+                    unordered_list_level = i;
+                    break;
                 }
-
-                switch(unordered_list_level) {
-                    case 1: SET_BIT(bits, IS_UNORDERED_LIST_1); break;
-                    case 2: SET_BIT(bits, IS_UNORDERED_LIST_2); break;
-                    case 3: SET_BIT(bits, IS_UNORDERED_LIST_3); break;
-                    default: break;
-                }
-
-                break;
             }
+            // if offset doesn't match any previously stored indent level
+            if(i != unordered_list_level) {
+                unordered_list_level = MIN(unordered_list_level + 1, UNORDERED_LIST_MAX_LEVEL);
+                // memorize the offset as next bigger indent level
+                unordered_list_level_offset[unordered_list_level] = offset;
+            }
+        }
+
+        // if no previous indent level matches, this must be the first line of the list
+        if(unordered_list_level == 0) {
+            unordered_list_level = 1;
+            unordered_list_level_offset[1] = offset;
+        }
+
+        switch(unordered_list_level) {
+            case 1: SET_BIT(bits, IS_UNORDERED_LIST_1); break;
+            case 2: SET_BIT(bits, IS_UNORDERED_LIST_2); break;
+            case 3: SET_BIT(bits, IS_UNORDERED_LIST_3); break;
+            default: break;
         }
     }
 
@@ -352,10 +362,36 @@ int markdown_analyse(cstring_t *text) {
        !CHECK_BIT(bits, IS_UNORDERED_LIST_2) &&
        !CHECK_BIT(bits, IS_UNORDERED_LIST_3)) {
 
-        unordered_list_level = 0;
+        // continue list if indent level is still the same as in previous line
+        if ((CHECK_BIT(prev, IS_UNORDERED_LIST_1) ||
+             CHECK_BIT(prev, IS_UNORDERED_LIST_2) ||
+             CHECK_BIT(prev, IS_UNORDERED_LIST_3)) &&
+            offset >= unordered_list_offset) {
+
+            switch(unordered_list_level) {
+                case 1: SET_BIT(bits, IS_UNORDERED_LIST_1); break;
+                case 2: SET_BIT(bits, IS_UNORDERED_LIST_2); break;
+                case 3: SET_BIT(bits, IS_UNORDERED_LIST_3); break;
+                default: break;
+            }
+
+            // this line extends the previous list item
+            SET_BIT(bits, IS_UNORDERED_LIST_EXT);
+
+        // or reset indent level
+        } else {
+            unordered_list_level = 0;
+        }
+    }
+
+    if(!CHECK_BIT(bits, IS_UNORDERED_LIST_1) &&
+       !CHECK_BIT(bits, IS_UNORDERED_LIST_2) &&
+       !CHECK_BIT(bits, IS_UNORDERED_LIST_3)) {
 
         // IS_CODE
-        if(offset >= CODE_INDENT) {
+        if(offset >= CODE_INDENT &&
+           (CHECK_BIT(prev, IS_EMPTY) ||
+            CHECK_BIT(prev, IS_CODE))) {
             SET_BIT(bits, IS_CODE);
 
         } else {

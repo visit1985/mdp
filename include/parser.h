@@ -45,7 +45,7 @@
 #define UNORDERED_LIST_MAX_LEVEL 3
 
 deck_t *markdown_load(FILE *input);
-int markdown_analyse(cstring_t *text);
+int markdown_analyse(cstring_t *text, int prev);
 void markdown_debug(deck_t *deck, int debug);
 void adjust_line_length(line_t *line);
 bool is_utf8(char ch);
