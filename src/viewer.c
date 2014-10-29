@@ -21,10 +21,10 @@
  *
  */
 
+#include <ctype.h>  // isalnum
 #include <locale.h> // setlocale
-#include <stdlib.h>
 #include <string.h> // strchr
-#include <unistd.h>
+#include <unistd.h> // usleep
 
 #include "viewer.h"
 
@@ -560,21 +560,25 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
 
 void inline_display(WINDOW *window, const char *c, const int colors) {
     const static char *special = "\\*_`"; // list of interpreted chars
+    const char *i = c; // iterator
     cstack_t *stack = cstack_init();
 
+
     // for each char in line
-    for(; *c; c++) {
+    for(; *i; i++) {
 
         // if char is in special char list
-        if(strchr(special, *c)) {
+        if(strchr(special, *i)) {
 
             // closing special char (or second backslash)
-            if((stack->top)(stack, *c)) {
+            // only if not followed by :alnum:
+            if((stack->top)(stack, *i) &&
+               (!isalnum(*(i + 1)) || *(i + 1) == '\0' || *i == '\\')) {
 
-                switch(*c) {
+                switch(*i) {
                     // print escaped backslash
                     case '\\':
-                        wprintw(window, "%c", *c);
+                        wprintw(window, "%c", *i);
                         break;
                     // disable highlight
                     case '*':
@@ -597,33 +601,45 @@ void inline_display(WINDOW *window, const char *c, const int colors) {
 
             // treat special as regular char
             } else if((stack->top)(stack, '\\')) {
-                wprintw(window, "%c", *c);
+                wprintw(window, "%c", *i);
 
                 // remove backslash from stack
                 (stack->pop)(stack);
 
             // opening special char
             } else {
-                switch(*c) {
-                    // enable highlight
-                    case '*':
-                        if(colors)
-                            wattron(window, COLOR_PAIR(CP_RED));
-                        break;
-                    // enable underline
-                    case '_':
-                        wattron(window, A_UNDERLINE);
-                        break;
-                    // enable inline code
-                    case '`':
-                        if(colors)
-                            wattron(window, COLOR_PAIR(CP_BLACK));
-                        break;
-                    // do nothing for backslashes
-                }
 
-                // push special char to stack
-                (stack->push)(stack, *c);
+                // emphasis or code span can start after new-line or space only
+                // and of cause after another emphasis markup
+                if(*(i - 1) == ' ' ||
+                   ((*(i - 1) == '_' || *(i - 1) == '*') && (*(i - 2) == ' ' || (i - 1) == c)) ||
+                   *i == '\\' ||
+                   i == c) {
+
+                    switch(*i) {
+                        // enable highlight
+                        case '*':
+                            if(colors)
+                                wattron(window, COLOR_PAIR(CP_RED));
+                            break;
+                        // enable underline
+                        case '_':
+                            wattron(window, A_UNDERLINE);
+                            break;
+                        // enable inline code
+                        case '`':
+                            if(colors)
+                                wattron(window, COLOR_PAIR(CP_BLACK));
+                            break;
+                        // do nothing for backslashes
+                    }
+
+                    // push special char to stack
+                    (stack->push)(stack, *i);
+
+                } else {
+                    wprintw(window, "%c", *i);
+                }
             }
 
         } else {
@@ -632,7 +648,7 @@ void inline_display(WINDOW *window, const char *c, const int colors) {
                 (stack->pop)(stack);
 
             // print regular char
-            wprintw(window, "%c", *c);
+            wprintw(window, "%c", *i);
         }
     }
 
