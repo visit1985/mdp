@@ -23,7 +23,8 @@ UNAME_S := $(shell uname -s 2>/dev/null || echo not)
 SOURCES = $(wildcard src/*.c)
 OBJECTS = $(SOURCES:.c=.o)
 TARGET  = mdp
-DESTDIR = /usr/bin
+DESTDIR =
+PREFIX  = /usr/local
 
 CURSES  = ncursesw
 LDFLAGS = -s
@@ -58,10 +59,10 @@ clean:
 	$(RM) $(TARGET)
 
 install:
-	install -d $(PREFIX)$(DESTDIR)
-	install -m 755 mdp $(PREFIX)$(DESTDIR)/$(TARGET)
+	install -d $(DESTDIR)$(PREFIX)/bin
+	install -m 755 mdp $(DESTDIR)$(PREFIX)/bin/$(TARGET)
 
 uninstall:
-	$(RM) $(PREFIX)$(DESTDIR)/$(TARGET)
+	$(RM) $(DESTDIR)$(PREFIX)/$(TARGET)
 
 .PHONY: all clean install src uninstall
