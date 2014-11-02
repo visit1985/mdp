@@ -573,7 +573,7 @@ void inline_display(WINDOW *window, const char *c, const int colors) {
             // closing special char (or second backslash)
             // only if not followed by :alnum:
             if((stack->top)(stack, *i) &&
-               (!isalnum(*(i + 1)) || *(i + 1) == '\0' || *i == '\\')) {
+               (!isalnum((int)i[1]) || *(i + 1) == '\0' || *i == '\\')) {
 
                 switch(*i) {
                     // print escaped backslash
