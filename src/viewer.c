@@ -266,6 +266,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
                   "%d / %d", sc, deck->slides);
 
         // make header + fooder visible
+        wrefresh(content);
         wrefresh(stdscr);
 
         line = slide->line;
