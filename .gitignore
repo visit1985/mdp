@@ -3,6 +3,7 @@
 
 # Binary excutions
 mdp
+mdp.exe
 
 # Other temporary files
 .DS_Store
