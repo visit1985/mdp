@@ -22,6 +22,7 @@ Now download and install mdp:
 
 - On Arch you can use the existing [AUR package](https://aur.archlinux.org/packages/mdp-git/).
 - On Slackware, grab the SlackBuild here: (http://slackbuilds.org/apps/mdp/), or run `sbopkg -i mdp`
+- On FreeBSD, you can use the port [misc/mdp](http://www.freshports.org/misc/mdp).
 
 Most terminals support 256 colors only if the TERM variable is
 set correctly. To enjoy mdp's color fading feature:
