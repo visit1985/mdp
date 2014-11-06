@@ -615,7 +615,7 @@ void inline_display(WINDOW *window, const char *c, const int colors) {
                 //TODO this condition looks ugly
                 if(i == c ||
                    *(i - 1) == ' ' ||
-                   ((i + 1 > c) && (*(i - 1) == '_' || *(i - 1) == '*') && (*(i - 2) == ' ' || (i - 1) == c)) ||
+                   ((*(i - 1) == '_' || *(i - 1) == '*') && ((i - 1) == c || *(i - 2) == ' ')) ||
                    *i == '\\') {
 
                     switch(*i) {
