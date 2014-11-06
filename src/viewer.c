@@ -612,10 +612,11 @@ void inline_display(WINDOW *window, const char *c, const int colors) {
 
                 // emphasis or code span can start after new-line or space only
                 // and of cause after another emphasis markup
-                if(*(i - 1) == ' ' ||
-                   ((*(i - 1) == '_' || *(i - 1) == '*') && (*(i - 2) == ' ' || (i - 1) == c)) ||
-                   *i == '\\' ||
-                   i == c) {
+                //TODO this condition looks ugly
+                if(i == c ||
+                   *(i - 1) == ' ' ||
+                   ((i + 1 > c) && (*(i - 1) == '_' || *(i - 1) == '*') && (*(i - 2) == ' ' || (i - 1) == c)) ||
+                   *i == '\\') {
 
                     switch(*i) {
                         // enable highlight
