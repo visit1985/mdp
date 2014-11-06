@@ -76,7 +76,7 @@ void cstring_strip(cstring_t *self, int pos, int len) {
         }
         return;
     }
-    memmove(&self->text[pos], &self->text[pos+len], self->size - pos);
+    memmove(&self->text[pos], &self->text[pos+len], self->size - pos - len+1);
     self->size -= len;
 }
 
