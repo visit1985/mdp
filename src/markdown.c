@@ -61,3 +61,28 @@ deck_t *new_deck() {
     x->slides = x->headers = 0;
     return x;
 }
+
+void free_line(line_t *l) {
+    line_t *n;
+    while (l) {
+        n = l->next;
+        cstring_delete(l->text);
+        free(l);
+        l = n;
+    }
+}
+
+void free_deck(deck_t *deck) {
+    slide_t *s, *t;
+    if (deck == NULL)
+        return;
+    s = deck->slide;
+    while (s) {
+        free_line(s->line);
+        t = s->next;
+        free(s);
+        s = t;
+    }
+    free_line(deck->header);
+    free(deck);
+}

@@ -82,5 +82,6 @@ line_t *next_line(line_t *prev);
 slide_t *new_slide();
 slide_t *next_slide(slide_t *prev);
 deck_t *new_deck();
+void free_deck(deck_t *);
 
 #endif // !defined( MARKDOWN_H )
