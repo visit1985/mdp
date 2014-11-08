@@ -32,6 +32,8 @@
  * function: next_slide to extend a linked list of type slide by one element
  * function: new_line to initialize a new linked list of type line
  * function: next_line to extend a linked list of type line by one element
+ * function: free_line to free a line elements memory
+ * function: free_deck to free a deck's memory
  *
  */
 
@@ -82,6 +84,7 @@ line_t *next_line(line_t *prev);
 slide_t *new_slide();
 slide_t *next_slide(slide_t *prev);
 deck_t *new_deck();
+void free_line(line_t *l);
 void free_deck(deck_t *);
 
 #endif // !defined( MARKDOWN_H )

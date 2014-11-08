@@ -161,7 +161,7 @@ deck_t *markdown_load(FILE *input) {
             }
         }
     }
-    cstring_delete(text);
+    (text->delete)(text);
 
     slide->lines = lc;
     deck->slides = sc;

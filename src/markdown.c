@@ -62,26 +62,26 @@ deck_t *new_deck() {
     return x;
 }
 
-void free_line(line_t *l) {
-    line_t *n;
-    while (l) {
-        n = l->next;
-        cstring_delete(l->text);
-        free(l);
-        l = n;
+void free_line(line_t *line) {
+    line_t *next;
+    while (line) {
+        next = line->next;
+        (line->text->delete)(line->text);
+        free(line);
+        line = next;
     }
 }
 
 void free_deck(deck_t *deck) {
-    slide_t *s, *t;
+    slide_t *slide, *next;
     if (deck == NULL)
         return;
-    s = deck->slide;
-    while (s) {
-        free_line(s->line);
-        t = s->next;
-        free(s);
-        s = t;
+    slide = deck->slide;
+    while (slide) {
+        free_line(slide->line);
+        next = slide->next;
+        free(slide);
+        slide = next;
     }
     free_line(deck->header);
     free(deck);
