@@ -22,8 +22,9 @@ UNAME_S := $(shell uname -s 2>/dev/null || echo not)
 
 SOURCES  = $(wildcard *.c)
 OBJECTS  = $(SOURCES:.c=.o)
-CFLAGS   = -O3 -Wall
-CPPFLAGS = -I../include
+CFLAGS   ?= -O3
+CFLAGS   += -Wall
+CPPFLAGS += -I../include
 
 ifeq ($(DEBUG),1)
 	CFLAGS := -O0 -Wall -g

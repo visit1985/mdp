@@ -27,7 +27,7 @@ DESTDIR =
 PREFIX  = /usr/local
 
 CURSES  = ncursesw
-LDFLAGS = -s
+LDFLAGS ?= -s
 
 ifeq (Windows_NT,$(OS))
 	ifeq (,$(findstring CYGWIN,$(UNAME_S)))
