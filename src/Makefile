@@ -38,7 +38,7 @@ endif
 
 ifeq ($(UNAME_S),Linux)
 	LSB_RELEASE := $(shell lsb_release -si 2>/dev/null || echo not)
-	ifneq ($(filter $(LSB_RELEASE),Debian Ubuntu LinuxMint),)
+	ifneq ($(filter $(LSB_RELEASE),Debian Ubuntu LinuxMint CrunchBang),)
 		CPPFLAGS += -I/usr/include/ncursesw
 	endif
 endif
