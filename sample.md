@@ -177,6 +177,9 @@ becomes
 
 URL in John MacFarlane's Pandoc style are supported :
 
+\[GitHub repository for mdp](https://github.com/visit1985/mdp)
+\[Google](google.com)
+
 [GitHub repository for mdp](https://github.com/visit1985/mdp)
 [Google](google.com)
 
