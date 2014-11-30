@@ -27,7 +27,6 @@
 #include <unistd.h> // usleep
 
 #include "viewer.h"
-#include "url.h"
 
 // color ramp for fading from black to color
 static short white_ramp[24] = { 16, 232, 233, 234, 235, 236,
@@ -235,9 +234,9 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
 
     slide = deck->slide;
     while(slide) {
-		
-		url_init();
-		
+
+        url_init();
+
         // clear windows
         werase(content);
         werase(stdscr);
@@ -282,13 +281,13 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
             l += (line->length / COLS) + 1;
             line = line->next;
         }
-        
+
         int i, ymax;
         getmaxyx( content, ymax, i );
         for (i = 0; i < url_get_amount(); i++) {
-			mvwprintw(content, ymax - url_get_amount() - 1 + i, 3, 
-				"[%d] %s", i, url_get_target(i));
-		}
+            mvwprintw(content, ymax - url_get_amount() - 1 + i, 3,
+                      "[%d] %s", i, url_get_target(i));
+        }
 
         // make content visible
         wrefresh(content);
@@ -405,7 +404,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
         // fade out
         if(fade)
             fade_out(content, trans, colors, invert);
-           
+
         url_purge();
     }
 
@@ -633,41 +632,47 @@ void inline_display(WINDOW *window, const char *c, const int colors) {
                    ((*(i - 1) == '_' || *(i - 1) == '*') && ((i - 1) == c || *(i - 2) == ' ')) ||
                    *i == '\\') {
 
+                    // url in pandoc style
                     if (*i == '[' && strchr(i, ']')) {
-						
-						if (strchr(i, ']')[1] == '(') {// url in pandoc style
-							i++;
-							// turn higlighting and underlining on
-							if (colors)
-								wattron(window, COLOR_PAIR(CP_BLUE));
-							wattron(window, A_UNDERLINE);
-							
-							start_link_name = i;
-							
-							// print the content of the label
-							// the label is printed as is
-							do {
-								wprintw(window, "%c", *i);
-								i++;
-							} while (*i != ']');
-							
-							length_link_name = i - 1 - start_link_name;
-							
-							i++;
-							i++;
-							
-							start_url = i;
-							
-							while (*i != ')') i++;
-							
-							url_num = url_add(start_link_name, length_link_name, start_url, i - start_url, 0,0);
-							
-							wprintw(window, "[%d]", url_num);
-							// turn highlighting and undelining off
-							wattroff(window, A_UNDERLINE);
-							wattron(window, COLOR_PAIR(CP_WHITE));
-						} else wprintw(window, "[");
-					} else switch(*i) {
+                        if (strchr(i, ']')[1] == '(') {
+                            i++;
+
+                            // turn higlighting and underlining on
+                            if (colors)
+                                wattron(window, COLOR_PAIR(CP_BLUE));
+                            wattron(window, A_UNDERLINE);
+
+                            start_link_name = i;
+
+                            // print the content of the label
+                            // the label is printed as is
+                            do {
+                                wprintw(window, "%c", *i);
+                                i++;
+                            } while (*i != ']');
+
+                            length_link_name = i - 1 - start_link_name;
+
+                            i++;
+                            i++;
+
+                            start_url = i;
+
+                            while (*i != ')') i++;
+
+                            url_num = url_add(start_link_name, length_link_name, start_url, i - start_url, 0,0);
+
+                            wprintw(window, "[%d]", url_num);
+
+                            // turn highlighting and underlining off
+                            wattroff(window, A_UNDERLINE);
+                            wattron(window, COLOR_PAIR(CP_WHITE));
+
+                        } else {
+                            wprintw(window, "[");
+                        }
+
+                    } else switch(*i) {
                         // enable highlight
                         case '*':
                             if(colors)

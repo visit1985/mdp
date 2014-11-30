@@ -41,6 +41,7 @@
 #include "common.h"
 #include "parser.h"
 #include "cstack.h"
+#include "url.h"
 
 #define CP_WHITE  1 // 255
 #define CP_BLUE   2 // 123
