@@ -136,3 +136,23 @@ static void url_print(url_t *u) {
 int url_get_amount(void) {
     return index_max;
 }
+
+int url_count_inline(const char *line) {
+    int count = 0;
+    const char* i = line;
+
+    for (; *i; i++) {
+        if (*i == '\\') {
+            i++;
+        } else if ( *i == '[' && *(i+1) != ']') {
+            while (*i && *i != ']') i++;
+            i++;
+            if (*i == '(' && strchr(i, ')')) {
+                count ++;
+                i = strchr(i, ')') + 1;
+            }
+        }
+    }
+
+    return count;
+}

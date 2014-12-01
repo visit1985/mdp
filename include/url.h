@@ -38,5 +38,6 @@ char * url_get_name(int index);
 int url_get_amount(void);
 void url_purge(void);
 void url_dump(void);
+int url_count_inline(const char *line);
 
 #endif // !defined( URL_H )
