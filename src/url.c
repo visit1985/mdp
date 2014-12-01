@@ -47,13 +47,15 @@ int url_add(const char * link_name, int link_name_length, const char * target, i
 		assert(tmp);
 	}
 	
-	tmp -> link_name = calloc(link_name_length, sizeof(char));
+	tmp -> link_name = calloc(link_name_length+1, sizeof(char));
 	assert(tmp->link_name);
 	strncpy(tmp->link_name, link_name, link_name_length);
+	tmp->link_name[link_name_length] = '\0';
 	
-	tmp->target = calloc(target_length, sizeof(char));
+	tmp->target = calloc(target_length+1, sizeof(char));
 	assert(tmp->target);
 	strncpy(tmp->target, target, target_length);
+	tmp->target[target_length] = '\0';
 	
 	tmp->x = x;
 	tmp->y = y;
@@ -66,7 +68,11 @@ int url_add(const char * link_name, int link_name_length, const char * target, i
 
 
 char * url_get_target(int index) {
+	if (!init_ok) return NULL;
+	
 	Url_t * tmp = list;
+	
+	if (!tmp) return NULL;
 	
 	while (index > 0 && tmp && tmp->next) {
 		tmp = tmp->next;
