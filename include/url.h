@@ -10,6 +10,6 @@ char * url_get_name(int index);
 int url_get_amount(void);
 void url_purge(void);
 void url_dump(void);
-int url_count_inline(const char *line);
+int url_count_inline(const char *line, size_t line_len);
 
 #endif // URL_H

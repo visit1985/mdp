@@ -146,7 +146,7 @@ int url_get_amount(void) {
 	return index_max;
 }
 
-int url_count_inline(const char *line) {
+int url_count_inline(const char *line, size_t line_len) {
 	int count = 0;
 	const char* i = line;
 	
@@ -154,13 +154,15 @@ int url_count_inline(const char *line) {
 		if (*i == '\\') {
 			i++;
 		} else if ( *i == '[' && *(i+1) != ']') {
-			while (*i && *i != ']') i++;
+			while (*i && (i - line) < line_len && *i != ']') i++;
 			i++;
 			if (*i == '(' && strchr(i, ')')) {
 				count ++;
 				i = strchr(i, ')') + 1;
 			}
 		}
+		
+		if ((i - line) >= line_len) break;
 	}
 		
 	return count;
