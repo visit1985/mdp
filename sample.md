@@ -173,6 +173,18 @@ becomes
 
 -------------------------------------------------
 
+-> # Supported markdown formatting's <-
+
+URL in John MacFarlane's Pandoc style are supported :
+
+\[GitHub repository for mdp](https://github.com/visit1985/mdp)
+\[Google](google.com)
+
+[GitHub repository for mdp](https://github.com/visit1985/mdp)
+[Google](google.com)
+
+-------------------------------------------------
+
 -> ## More information about markdown <-
 
 can be found on
