@@ -139,7 +139,7 @@ int url_get_amount(void) {
 
 int url_count_inline(const char *line) {
     int count = 0;
-    const char* i = line;
+    const char *i = line;
 
     for (; *i; i++) {
         if (*i == '\\') {
@@ -149,7 +149,7 @@ int url_count_inline(const char *line) {
             i++;
             if (*i == '(' && strchr(i, ')')) {
                 count ++;
-                i = strchr(i, ')') + 1;
+                i = strchr(i, ')');
             }
         }
     }
