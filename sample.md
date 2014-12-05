@@ -175,21 +175,19 @@ becomes
 
 -> # Supported markdown formatting's <-
 
-URL in John MacFarlane's Pandoc style are supported :
+URL in pandoc style are supported:
 
-\[GitHub repository for mdp](https://github.com/visit1985/mdp)
-\[Google](google.com)
+\[Google](http://www.google.com/)
 
-[GitHub repository for mdp](https://github.com/visit1985/mdp)
-[Google](google.com)
+becomes
+
+[Google](http://www.google.com/)
 
 -------------------------------------------------
 
 -> ## More information about markdown <-
 
-can be found on
-
-_http://daringfireball.net/projects/markdown/_
+can be found in the [markdown documentation](http://daringfireball.net/projects/markdown/).
 
 -------------------------------------------------
 
@@ -237,8 +235,6 @@ I hope you like *mdp*. But be aware, that it is
 still in alpha status.
 
 If you observe strange behavior, feel free to
-open an issue on GitHub:
-
-_https://github.com/visit1985/mdp_
+open an issue on [GitHub](https://github.com/visit1985/mdp).
 
 
