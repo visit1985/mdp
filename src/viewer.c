@@ -576,7 +576,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
 }
 
 void inline_display(WINDOW *window, const char *c, const int colors) {
-    const static char *special = "\\*_`["; // list of interpreted chars
+    const static char *special = "\\*_`!["; // list of interpreted chars
     const char *i = c; // iterator
     const char *start_link_name, *start_url;
     int length_link_name, url_num;
@@ -637,7 +637,11 @@ void inline_display(WINDOW *window, const char *c, const int colors) {
                    *i == '\\') {
 
                     // url in pandoc style
-                    if (*i == '[' && strchr(i, ']')) {
+                    if ((*i == '[' && strchr(i, ']')) ||
+                        (*i == '!' && *(i + 1) == '[' && strchr(i, ']'))) {
+
+                        if (*i == '!') i++;
+
                         if (strchr(i, ']')[1] == '(') {
                             i++;
 
