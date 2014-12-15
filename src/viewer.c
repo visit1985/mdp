@@ -670,7 +670,7 @@ void inline_display(WINDOW *window, const char *c, const int colors) {
 
                             url_num = url_add(start_link_name, length_link_name, start_url, i - start_url, 0,0);
 
-                            wprintw(window, "[%d]", url_num);
+                            wprintw(window, " [%d]", url_num);
 
                             // turn highlighting and underlining off
                             wattroff(window, A_UNDERLINE);
