@@ -66,7 +66,8 @@ void free_line(line_t *line) {
     line_t *next;
     while (line) {
         next = line->next;
-        (line->text->delete)(line->text);
+        if(line->text)
+            (line->text->delete)(line->text);
         free(line);
         line = next;
     }

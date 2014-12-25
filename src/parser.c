@@ -174,21 +174,25 @@ deck_t *markdown_load(FILE *input) {
         deck->header = line;
 
         // find first non-header line
-        while(line->text->size > 0 && line->text->text[0] == '%') {
+        while(line && line->text->size > 0 && line->text->text[0] == '%') {
             hc++;
             line = line->next;
         }
 
-        // split linked list
-        line->prev->next = NULL;
-        line->prev = NULL;
+        // only split header if any non-header line is found
+        if(line) {
 
-        // remove header lines from slide
-        deck->slide->line = line;
+            // split linked list
+            line->prev->next = NULL;
+            line->prev = NULL;
 
-        // adjust counts
-        deck->headers += hc;
-        deck->slide->lines -= hc;
+            // remove header lines from slide
+            deck->slide->line = line;
+
+            // adjust counts
+            deck->headers += hc;
+            deck->slide->lines -= hc;
+        }
     }
 
     slide = deck->slide;
