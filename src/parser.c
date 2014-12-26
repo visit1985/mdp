@@ -192,6 +192,10 @@ deck_t *markdown_load(FILE *input) {
             // adjust counts
             deck->headers += hc;
             deck->slide->lines -= hc;
+        } else {
+
+            // remove header from deck
+            deck->header = NULL;
         }
     }
 
