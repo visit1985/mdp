@@ -156,3 +156,25 @@ int url_count_inline(const char *line) {
 
     return count;
 }
+
+int url_len_inline(const char *text) {
+    int count = 0;
+    const char *i = text;
+
+    for (; *i; i++) {
+        if (*i == '\\') {
+            i++;
+        } else if ( *i == '[' && *(i+1) != ']') {
+            while (*i && *i != ']') i++;
+            i++;
+            if (*i == '(' && strchr(i, ')')) {
+                while (*i && *i != ')') {
+                    count++;
+                    i++;
+                }
+            }
+        }
+    }
+
+    return count;
+}
