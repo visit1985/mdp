@@ -93,12 +93,12 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
         lc = 0;
         line = slide->line;
 
-        while(line) {
+        while(line && line->text) {
 
-            if (line && line->text && line->text->text)
+            if (line->text->text)
                 lc += url_count_inline(line->text->text);
 
-            if (line && line->text && line->text->text)
+            if (line->text->text)
                 line->length -= url_len_inline(line->text->text);
 
             if(line->length > COLS) {
@@ -415,7 +415,12 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
         url_purge();
     }
 
+    // disable ncurses
     endwin();
+
+    // free ncurses memory
+    delwin(content);
+    delwin(stdscr);
 
     return 0;
 }
