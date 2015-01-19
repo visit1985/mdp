@@ -7,6 +7,20 @@
 
 -> A command-line based markdown presentation tool. <-
 
+_Basic controls:_
+
+next slide      *Enter*, *Space*, *Page Down*, *j*, *l*,
+                *Down Arrow*, *Right Arrow*
+
+previous slide  *Backspace*, *Page Up*, *h*, *k*,
+                *Up Arrow*, *Left Arrow*
+
+quit            *q*
+reload          *r*
+slide N         *1..9*
+first slide     *Home*
+last slide      *End*
+
 -------------------------------------------------
 
 -> # Supported markdown formatting's <-

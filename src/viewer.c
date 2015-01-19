@@ -60,7 +60,7 @@ static short red_ramp_invert[24]   = { 15, 231, 231, 224, 224, 225,
                                       206, 207, 201, 200, 199, 199,
                                       198, 198, 197, 197, 196, 196};
 
-int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
+int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reload, int noreload) {
 
     int c = 0;          // char
     int i = 0;          // iterate
@@ -120,7 +120,8 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
                         fprintf(stderr, "Error: Terminal width (%i columns) too small. Need at least %i columns.\n", COLS, i);
                         fprintf(stderr, "You may need to shorten some lines by inserting line breaks.\n");
 
-                        return 1;
+                        // no reload
+                        return 0;
                     }
 
                     // set max_cols
@@ -156,7 +157,8 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
         fprintf(stderr, "Error: Terminal height (%i lines) too small. Need at least %i lines.\n", LINES, max_lines + bar_top + bar_bottom);
         fprintf(stderr, "You may need to add additional horizontal rules ('***') to split your file in shorter slides.\n");
 
-        return 1;
+        // no reload
+        return 0;
     }
 
     // disable cursor
@@ -240,6 +242,17 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
         wbkgd(content, COLOR_PAIR(CP_WHITE));
 
     slide = deck->slide;
+
+    // find slide to reload
+    while(reload > 1 && reload <= deck->slides) {
+        slide = slide->next;
+        sc++;
+        reload--;
+    }
+
+    // reset reload indicator
+    reload = 0;
+
     while(slide) {
 
         url_init();
@@ -395,10 +408,24 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
                 }
                 break;
 
+            // reload
+            case 'r':
+                if(noreload == 0) {
+                    // reload slide N
+                    reload = sc;
+                    slide = NULL;
+                } else {
+                    // disable fading if reload is not possible
+                    fade = false;
+                }
+                break;
+
             // quit
             case 'q':
                 // do not fade out on exit
                 fade = false;
+                // do not reload
+                reload = 0;
                 slide = NULL;
                 break;
 
@@ -420,9 +447,11 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert) {
 
     // free ncurses memory
     delwin(content);
-    delwin(stdscr);
+    if(reload == 0)
+        delwin(stdscr);
 
-    return 0;
+    // return reload indicator (0 means no reload)
+    return reload;
 }
 
 void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colors) {

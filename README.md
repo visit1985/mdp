@@ -59,12 +59,13 @@ Review sample.md for more details.
 
 ***Controls:***
 
-- h, j, k, l, Cursor keys,
+- h, j, k, l, Arrow keys,
     Space, Enter, Backspace,
     Page Up, Page Down - next/previous slide
 - Home - go to first slide
 - End - go to last slide
 - 1-9 - go to slide n
+- r - reload input file
 - q - exit
 
 
