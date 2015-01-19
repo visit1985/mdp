@@ -82,7 +82,7 @@ deck_t *markdown_load(FILE *input) {
             } else {
 
                 // if slide ! has line
-                if(!slide->line) {
+                if(!slide->line || !line) {
 
                     // create new line
                     line = new_line();

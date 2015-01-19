@@ -81,8 +81,6 @@ void free_deck(deck_t *deck) {
     while (slide) {
         free_line(slide->line);
         next = slide->next;
-        if (slide == NULL)
-            return;
         free(slide);
         slide = next;
     }
