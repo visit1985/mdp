@@ -1,7 +1,7 @@
 
 ## mdp - A command-line based markdown presentation tool.
 
-![image](https://cloud.githubusercontent.com/assets/2237222/4280231/d63178fa-3d2a-11e4-88a6-2b8e3608c4ca.gif)
+![image](https://cloud.githubusercontent.com/assets/2237222/5810237/797c494c-a043-11e4-9dbd-959cab4055fa.gif)
 
 ---
 
