@@ -155,7 +155,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
 
         // print error
         fprintf(stderr, "Error: Terminal height (%i lines) too small. Need at least %i lines.\n", LINES, max_lines + bar_top + bar_bottom);
-        fprintf(stderr, "You may need to add additional horizontal rules ('***') to split your file in shorter slides.\n");
+        fprintf(stderr, "You may need to add additional horizontal rules (---) to split your file in shorter slides.\n");
 
         // no reload
         return 0;
