@@ -24,21 +24,21 @@
  */
 
 typedef struct _url_t {
-    char *link_name;
-    char *target;
+    wchar_t *link_name;
+    wchar_t *target;
     int x;
     int y;
     struct _url_t *next;
 } url_t;
 
 void url_init(void);
-int url_add(const char *link_name, int link_name_length, const char *target, int target_length, int x, int y);
-char * url_get_target(int index);
-char * url_get_name(int index);
+int url_add(const wchar_t *link_name, int link_name_length, const wchar_t *target, int target_length, int x, int y);
+wchar_t* url_get_target(int index);
+wchar_t* url_get_name(int index);
 int url_get_amount(void);
 void url_purge(void);
 void url_dump(void);
-int url_count_inline(const char *line);
-int url_len_inline(const char *text);
+int url_count_inline(const wchar_t *line);
+int url_len_inline(const wchar_t *text);
 
 #endif // !defined( URL_H )
