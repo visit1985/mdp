@@ -19,7 +19,7 @@
  *
  */
 
-#include <string.h> // strlen, memmove
+#include <wchar.h> // wcslen, wcscat, wmemmove
 #include <stdio.h> // fprintf
 #include <stdlib.h> // malloc, realloc
 
@@ -42,41 +42,41 @@ cstring_t *cstring_init() {
     return x;
 }
 
-void cstring_expand(cstring_t *self, char x) {
-    if(self->size + sizeof(x) + sizeof(char) > self->alloc) {
-        self->alloc += (REALLOC_ADD * sizeof(char));
+void cstring_expand(cstring_t *self, wchar_t x) {
+    if((self->size + 2) * sizeof(wchar_t) > self->alloc) {
+        self->alloc += (REALLOC_ADD * sizeof(wchar_t));
         if((self->text = realloc(self->text, self->alloc)) == NULL) {
             fprintf(stderr, "%s\n", "cstring_expand() failed to reallocate memory.");
             exit(EXIT_FAILURE);
         }
     }
     self->text[self->size] = x;
-    self->text[self->size+1] = '\0';
-    self->size = strlen(self->text);
+    self->text[self->size+1] = L'\0';
+    self->size = wcslen(self->text);
 }
 
-void cstring_expand_arr(cstring_t *self, char *x) {
-    if(self->size + strlen(x) + sizeof(char) > self->alloc) {
-        self->alloc = ((strlen(x) + self->size + 1) * sizeof(char));
+void cstring_expand_arr(cstring_t *self, wchar_t *x) {
+    if((self->size + wcslen(x) + 1) * sizeof(wchar_t) > self->alloc) {
+        self->alloc = ((self->size + wcslen(x) + 1) * sizeof(wchar_t));
         if((self->text = realloc(self->text, self->alloc)) == NULL) {
-            fprintf(stderr, "%s\n", "cstring_expand() failed to reallocate memory.");
+            fprintf(stderr, "%s\n", "cstring_expand_arr() failed to reallocate memory.");
             exit(EXIT_FAILURE);
         }
     }
-    self->text = strcat(self->text, x);
-    self->size = strlen(self->text);
-    self->text[self->size+1] = '\0';
+    self->text = wcscat(self->text, x);
+    self->size = wcslen(self->text);
+    self->text[self->size+1] = L'\0';
 }
 
 void cstring_strip(cstring_t *self, int pos, int len) {
     if(pos + len >= self->size) {
         if(pos <= self->size) {
-            self->text[pos] = '\0';
+            self->text[pos] = L'\0';
             self->size = pos;
         }
         return;
     }
-    memmove(&self->text[pos], &self->text[pos+len], self->size - pos - len+1);
+    wmemmove(&self->text[pos], &self->text[pos+len], self->size - pos - len+1);
     self->size -= len;
 }
 

@@ -19,6 +19,7 @@
 
 #include <errno.h>
 #include <getopt.h>
+#include <locale.h> // setlocale
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -81,6 +82,9 @@ int main(int argc, char *argv[]) {
             default : fprintf(stderr, "%s: option '%c' is invalid\n", argv[0], optopt); usage(); break;
         }
     }
+
+    // set locale to read and display UTF-8 correctly in ncurses
+    setlocale(LC_CTYPE, "en_US.UTF8");
 
     // open file or set input to STDIN
     char *file = NULL;
