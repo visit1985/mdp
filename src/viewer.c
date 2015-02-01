@@ -361,16 +361,17 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
                 break;
 
             // show slide n
-            case '9': i++;
-            case '8': i++;
-            case '7': i++;
-            case '6': i++;
-            case '5': i++;
-            case '4': i++;
-            case '3': i++;
-            case '2': i++;
-            case '1': i++;
-                if(i <= deck->slides) {
+            case '9':
+            case '8':
+            case '7':
+            case '6':
+            case '5':
+            case '4':
+            case '3':
+            case '2':
+            case '1':
+                i = get_slide_number(c);
+                if(i > 0 && i <= deck->slides) {
                     while(sc != i) {
                         // search forward
                         if(sc < i) {
@@ -838,4 +839,21 @@ int int_length (int val) {
         val /= 10;
     }
     return l;
+}
+
+int get_slide_number(char init) {
+    int retval = init - '0';
+    char c;
+    // block for tenths of a second when using getch, ERR if no input
+    halfdelay(GOTO_SLIDE_DELAY);
+    while((c = getch()) != ERR) {
+        if (c < '0' || c > '9') {
+            retval = -1;
+            break;
+        }
+        retval = (retval * 10) + (c - '0');
+    }
+    nocbreak();     // cancel half delay mode
+    cbreak();       // go back to cbreak
+    return retval;
 }
