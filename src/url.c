@@ -178,9 +178,9 @@ int url_count_inline(const wchar_t *line) {
     return count;
 }
 
-int url_len_inline(const wchar_t *text) {
+int url_len_inline(const wchar_t *value) {
     int count = 0;
-    const wchar_t *i = text;
+    const wchar_t *i = value;
 
     for (; *i; i++) {
         if (*i == '\\') {

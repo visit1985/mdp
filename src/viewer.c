@@ -92,11 +92,11 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
 
         while(line && line->text) {
 
-            if (line->text->text)
-                lc += url_count_inline(line->text->text);
+            if (line->text->value)
+                lc += url_count_inline(line->text->value);
 
-            if (line->text->text)
-                line->length -= url_len_inline(line->text->text);
+            if (line->text->value)
+                line->length -= url_len_inline(line->text->value);
 
             if(line->length > COLS) {
                 i = line->length;
@@ -268,7 +268,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
             // add text to header
             mvwaddwstr(stdscr,
                        0, (COLS - line->length + offset) / 2,
-                       &line->text->text[offset]);
+                       &line->text->value[offset]);
         }
 
         // setup footer
@@ -278,7 +278,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
             // add text to left footer
             mvwaddwstr(stdscr,
                        LINES - 1, 3,
-                       &line->text->text[offset]);
+                       &line->text->value[offset]);
         }
 
         // add slide number to right footer
@@ -458,7 +458,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
 
 void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colors) {
 
-    if(!line->text->text) {
+    if(!line->text->value) {
         return;
     }
 
@@ -486,7 +486,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
                 "%s", prompt);
 
         if(!CHECK_BIT(line->bits, IS_CODE))
-            inline_display(window, &line->text->text[offset], colors);
+            inline_display(window, &line->text->value[offset], colors);
 
     // IS_UNORDERED_LIST_2
     } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)) {
@@ -505,7 +505,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
                 "%s", prompt);
 
         if(!CHECK_BIT(line->bits, IS_CODE))
-            inline_display(window, &line->text->text[offset], colors);
+            inline_display(window, &line->text->value[offset], colors);
 
     // IS_UNORDERED_LIST_1
     } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)) {
@@ -523,7 +523,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
                 "%s", prompt);
 
         if(!CHECK_BIT(line->bits, IS_CODE))
-            inline_display(window, &line->text->text[offset], colors);
+            inline_display(window, &line->text->value[offset], colors);
     }
 
     // IS_CODE
@@ -537,7 +537,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
             wattron(window, COLOR_PAIR(CP_BLACK));
 
         // print whole lines
-        waddwstr(window, &line->text->text[offset]);
+        waddwstr(window, &line->text->value[offset]);
     }
 
     if(!CHECK_BIT(line->bits, IS_UNORDERED_LIST_1) &&
@@ -547,7 +547,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
 
         // IS_QUOTE
         if(CHECK_BIT(line->bits, IS_QUOTE)) {
-            while(line->text->text[offset] == '>') {
+            while(line->text->value[offset] == '>') {
                 // print a reverse color block
                 if(colors) {
                     wattron(window, COLOR_PAIR(CP_BLACK));
@@ -560,11 +560,11 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
 
                 // find next quote or break
                 offset++;
-                if(line->text->text[offset] == ' ')
+                if(line->text->value[offset] == ' ')
                     offset = next_word(line->text, offset);
             }
 
-            inline_display(window, &line->text->text[offset], colors);
+            inline_display(window, &line->text->value[offset], colors);
         } else {
 
             // IS_CENTER
@@ -586,18 +586,18 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
                     wattron(window, A_UNDERLINE);
 
                 // skip hashes
-                while(line->text->text[offset] == '#')
+                while(line->text->value[offset] == '#')
                     offset = next_word(line->text, offset);
 
                 // print whole lines
-                waddwstr(window, &line->text->text[offset]);
+                waddwstr(window, &line->text->value[offset]);
 
                 wattroff(window, A_UNDERLINE);
 
             // no line-wide markdown
             } else {
 
-                inline_display(window, &line->text->text[offset], colors);
+                inline_display(window, &line->text->value[offset], colors);
             }
         }
     }

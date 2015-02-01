@@ -42,7 +42,7 @@
 #define REALLOC_ADD 10
 
 typedef struct _cstring_t {
-    wchar_t *text;
+    wchar_t *value;
     size_t size;
     size_t alloc;
     void (*expand)(struct _cstring_t *self, wchar_t x);

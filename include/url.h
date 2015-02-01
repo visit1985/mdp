@@ -39,6 +39,6 @@ int url_get_amount(void);
 void url_purge(void);
 void url_dump(void);
 int url_count_inline(const wchar_t *line);
-int url_len_inline(const wchar_t *text);
+int url_len_inline(const wchar_t *value);
 
 #endif // !defined( URL_H )
