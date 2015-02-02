@@ -27,8 +27,7 @@ Now download and install mdp:
 - On FreeBSD, you can use the port [misc/mdp](http://www.freshports.org/misc/mdp).
 - On Redhat/Centos/Fedora you can use the mdp.spec file by tar the directory and rpmbuild it:
 
-    $ tar -zcvf 0.93.0.tar.gz mdp/
-    $ rpmbuild -ta 0.93.0.tar.gz
+    $ tar -zcvf 0.93.0.tar.gz mdp/ && rpmbuild -ta 0.93.0.tar.gz
 	
 Most terminals support 256 colors only if the TERM variable is
 set correctly. To enjoy mdp's color fading feature:
