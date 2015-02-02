@@ -49,11 +49,9 @@ void version() {
 }
 
 int main(int argc, char *argv[]) {
-    int notrans = 0;   // disable transparency
-    int nofade = 0;    // disable fading
-    int invert = 0;    // invert color (black on white)
-    int reload = 0;    // reload page N (0 means no reload)
-    int noreload = 1;  // reload disabled until we know input is a file
+    int notrans = 0;
+    int nofade = 0;
+    int invert = 0;
 
     // define command-line options
     struct option longopts[] = {
@@ -83,7 +81,7 @@ int main(int argc, char *argv[]) {
     }
 
     // open file or set input to STDIN
-    char *file = NULL;
+    char *file;
     FILE *input;
     if (optind < argc) {
         do {
@@ -98,57 +96,34 @@ int main(int argc, char *argv[]) {
                 fprintf(stderr, "%s: %s: %s\n", argv[0], file, strerror(errno));
                 exit(EXIT_FAILURE);
             }
-            // enable reload because input is a file
-            noreload = 0;
         }
     } else {
         input = stdin;
     }
 
-    // reload loop
-    do {
+    // load deck object from input
+    deck_t *deck;
+    deck = markdown_load(input);
 
-        // reopen input file on reload
-        if(noreload == 0 && reload > 0) {
-            if(file) {
-                input = fopen(file,"r");
-                if(!input) {
-                    fprintf(stderr, "%s: %s: %s\n", argv[0], file, strerror(errno));
-                    exit(EXIT_FAILURE);
-                }
-            } else {
-                fprintf(stderr, "%s: %s\n", argv[0], "no input file");
-                exit(EXIT_FAILURE);
-            }
+    // close file
+    fclose(input);
+
+    // replace stdin with current tty if input was a pipe
+    if(input == stdin) {
+        input = freopen("/dev/tty", "rw", stdin);
+        if(!input) {
+            fprintf(stderr, "%s: %s: %s\n", argv[0], "/dev/tty", strerror(errno));
+            exit(EXIT_FAILURE);
         }
+    }
 
-        // load deck object from input
-        deck_t *deck;
-        deck = markdown_load(input);
+    if(debug > 0) {
+        markdown_debug(deck, debug);
+    }
 
-        // close file
-        fclose(input);
+    ncurses_display(deck, notrans, nofade, invert);
 
-        // replace stdin with current tty if input was a pipe
-        // if input was a pipe reload is disabled, so we simply check that
-        if(noreload == 1) {
-            input = freopen("/dev/tty", "rw", stdin);
-            if(!input) {
-                fprintf(stderr, "%s: %s: %s\n", argv[0], "/dev/tty", strerror(errno));
-                exit(EXIT_FAILURE);
-            }
-        }
-
-        if(debug > 0) {
-            markdown_debug(deck, debug);
-        }
-
-        reload = ncurses_display(deck, notrans, nofade, invert, reload, noreload);
-
-        free_deck(deck);
-
-    // reload if supported and requested
-    } while(noreload == 0 && reload > 0);
+    free_deck(deck);
 
     return EXIT_SUCCESS;
 }
