@@ -16,14 +16,19 @@ Now download and install mdp:
 
     $ git clone https://github.com/visit1985/mdp.git
     $ cd mdp
+    $ ./configure
     $ make
     $ make install
     $ mdp sample.md
 
+
 - On Arch you can use the existing [AUR package](https://aur.archlinux.org/packages/mdp-git/).
 - On Slackware, grab the SlackBuild here: (http://slackbuilds.org/apps/mdp/), or run `sbopkg -i mdp`
 - On FreeBSD, you can use the port [misc/mdp](http://www.freshports.org/misc/mdp).
-
+- On Redhat/Centos/Fedora you can use the mdp.spec file by tar the directory and rpmbuild it:
+    $ tar -zcvf 0.93.0.tar.gz mdp/
+    $ rpmbuild -ta 0.93.0.tar.gz
+	
 Most terminals support 256 colors only if the TERM variable is
 set correctly. To enjoy mdp's color fading feature:
 
