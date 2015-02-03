@@ -23,7 +23,7 @@ last slide      *End*, *G*
 
 -------------------------------------------------
 
--> # Supported markdown formatting's <-
+-> # Supported markdown formatting <-
 
 The input file is split into multiple slides by
 horizontal rules (hr). A hr consisting of at
@@ -39,7 +39,7 @@ Each of these represents the start of a new slide
 
 -------------------------------------------------
 
--> # Supported markdown formatting's <-
+-> # Supported markdown formatting <-
 
 First-level headers can be prefixed by single *#*
 or underlined by *===*.
@@ -52,7 +52,7 @@ becomes
 
 -------------------------------------------------
 
--> # Supported markdown formatting's <-
+-> # Supported markdown formatting <-
 
 Second-level headers can be prefixed by *##* or
 underlined by *---*.
@@ -80,7 +80,7 @@ C program starts with `main()`.
 
 -------------------------------------------------
 
--> # Supported markdown formatting's <-
+-> # Supported markdown formatting <-
 
 Code blocks are automatically detected by 4
 spaces at the beginning of a line.
@@ -100,7 +100,7 @@ becomes
 
 -------------------------------------------------
 
--> # Supported markdown formatting's <-
+-> # Supported markdown formatting <-
 
 Quotes are auto-detected by preceding *>*.
 
@@ -118,7 +118,7 @@ becomes
 
 -------------------------------------------------
 
--> # Supported markdown formatting's <-
+-> # Supported markdown formatting <-
 
 Inline highlighting is supported as followed:
 
@@ -133,7 +133,7 @@ _some_ *highlighted* _*text*_
 
 -------------------------------------------------
 
--> # Supported markdown formatting's <-
+-> # Supported markdown formatting <-
 
 Backslashes force special markdown characters
 like *\**, *\_*, *#* and *>* to be printed as normal
@@ -147,7 +147,7 @@ becomes
 
 -------------------------------------------------
 
--> # Supported markdown formatting's <-
+-> # Supported markdown formatting <-
 
 Leading *\** or *-* indicate lists.
 
@@ -169,7 +169,7 @@ list
 
 -------------------------------------------------
 
--> # Supported markdown formatting's <-
+-> # Supported markdown formatting <-
 
 Leading *->* indicates centering.
 
@@ -187,7 +187,7 @@ becomes
 
 -------------------------------------------------
 
--> # Supported markdown formatting's <-
+-> # Supported markdown formatting <-
 
 URL in pandoc style are supported:
 
@@ -245,10 +245,8 @@ After installing them, you can simply type:
 
 -> ## Last words <-
 
-I hope you like *mdp*. But be aware, that it is
+I hope you like *mdp*. But be aware that it is
 still in alpha status.
 
 If you observe strange behavior, feel free to
 open an issue on [GitHub](https://github.com/visit1985/mdp).
-
-
