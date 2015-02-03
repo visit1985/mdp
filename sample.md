@@ -18,8 +18,8 @@ previous slide  *Backspace*, *Page Up*, *h*, *k*,
 quit            *q*
 reload          *r*
 slide N         *1..9*
-first slide     *Home*
-last slide      *End*
+first slide     *Home*, *g*
+last slide      *End*, *G*
 
 -------------------------------------------------
 
