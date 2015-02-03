@@ -394,12 +394,14 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
                 break;
 
             // show first slide
+            case 'g':
             case KEY_HOME:
                 slide = deck->slide;
                 sc = 1;
                 break;
 
             // show last slide
+            case 'G':
             case KEY_END:
                 for(i = sc; i <= deck->slides; i++) {
                     if(slide->next) {
