@@ -40,6 +40,11 @@
 #include "markdown.h"
 #include "cstack.h"
 
+#if defined( CYGWIN )
+#undef WEOF
+#define WEOF (0xffff)
+#endif // defined( CYGWIN )
+
 #define EXPAND_TABS 4
 #define CODE_INDENT 4
 #define UNORDERED_LIST_MAX_LEVEL 3

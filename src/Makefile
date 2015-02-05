@@ -33,6 +33,8 @@ endif
 ifeq ($(OS),Windows_NT)
 	ifeq (,$(findstring CYGWIN,$(UNAME_S)))
 		CPPFLAGS += -DWIN32
+	else
+		CPPFLAGS += -DCYGWIN
 	endif
 endif
 
