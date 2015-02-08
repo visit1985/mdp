@@ -30,7 +30,7 @@ horizontal rules (hr). A hr consisting of at
 least 3 *\** or *-*. It can also contain spaces but
 no other characters.
 
-Each of these represents the start of a new slide
+Each of these represents the start of a new slide.
 
 \* \* \*
 \---
@@ -166,6 +166,31 @@ list
         - *important*
           detail
     - minor
+
+-------------------------------------------------
+
+-> # Supported markdown formatting <-
+
+A single *\<br\>* or *^* in a line indicates mdp
+to stop the output on that position.
+
+This can be used to show bullet points
+line by line.
+
+*\<br\>* is also not displayed in HTML converted
+output.
+
+Agenda
+<br>
+* major
+<br>
+    * minor
+<br>
+* major
+  ^
+    * minor
+      ^
+        * detail
 
 -------------------------------------------------
 
