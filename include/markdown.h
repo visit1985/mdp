@@ -53,6 +53,7 @@ enum line_bitmask {
     IS_UNORDERED_LIST_3,
     IS_UNORDERED_LIST_EXT,
     IS_CENTER,
+    IS_STOP,
     IS_EMPTY
 };
 
@@ -70,6 +71,7 @@ typedef struct _slide_t {
     struct _slide_t *prev;
     struct _slide_t *next;
     int lines;
+    int stop;
 } slide_t;
 
 typedef struct _deck_t {

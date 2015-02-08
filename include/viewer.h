@@ -32,6 +32,9 @@
  *
  */
 
+#define _GNU_SOURCE              // enable ncurses wchar support
+#define _XOPEN_SOURCE_EXTENDED 1 // enable ncurses wchar support
+
 #if defined( WIN32 )
 #include <curses.h>
 #else
@@ -54,7 +57,7 @@
 
 int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reload, int noreload);
 void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colors);
-void inline_display(WINDOW *window, const char *c, const int colors);
+void inline_display(WINDOW *window, const wchar_t *c, const int colors);
 void fade_out(WINDOW *window, int trans, int colors, int invert);
 void fade_in(WINDOW *window, int trans, int colors, int invert);
 int int_length (int val);

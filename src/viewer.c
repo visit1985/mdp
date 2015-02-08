@@ -22,10 +22,10 @@
  */
 
 #include <ctype.h>  // isalnum
-#include <locale.h> // setlocale
-#include <string.h> // strchr
+#include <wchar.h>  // wcschr
+#include <wctype.h> // iswalnum
+#include <string.h> // strcpy
 #include <unistd.h> // usleep
-
 #include "viewer.h"
 
 // color ramp for fading from black to color
@@ -73,6 +73,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
     int max_lines = 0;  // max lines per slide
     int max_cols = 0;   // max columns per line
     int offset;         // text offset
+    int stop = 0;       // passed stop bits per slide
 
     // header line 1 is displayed at the top
     int bar_top = (deck->headers > 0) ? 1 : 0;
@@ -83,9 +84,6 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
     slide_t *slide = deck->slide;
     line_t *line;
 
-    // set locale to display UTF-8 correctly in ncurses
-    setlocale(LC_CTYPE, "");
-
     // init ncurses
     initscr();
 
@@ -95,11 +93,11 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
 
         while(line && line->text) {
 
-            if (line->text->text)
-                lc += url_count_inline(line->text->text);
+            if (line->text->value)
+                lc += url_count_inline(line->text->value);
 
-            if (line->text->text)
-                line->length -= url_len_inline(line->text->text);
+            if (line->text->value)
+                line->length -= url_len_inline(line->text->value);
 
             if(line->length > COLS) {
                 i = line->length;
@@ -117,8 +115,8 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
                         endwin();
 
                         // print error
-                        fprintf(stderr, "Error: Terminal width (%i columns) too small. Need at least %i columns.\n", COLS, i);
-                        fprintf(stderr, "You may need to shorten some lines by inserting line breaks.\n");
+                        fwprintf(stderr, L"Error: Terminal width (%i columns) too small. Need at least %i columns.\n", COLS, i);
+                        fwprintf(stderr, L"You may need to shorten some lines by inserting line breaks.\n");
 
                         // no reload
                         return 0;
@@ -154,8 +152,8 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
         endwin();
 
         // print error
-        fprintf(stderr, "Error: Terminal height (%i lines) too small. Need at least %i lines.\n", LINES, max_lines + bar_top + bar_bottom);
-        fprintf(stderr, "You may need to add additional horizontal rules (---) to split your file in shorter slides.\n");
+        fwprintf(stderr, L"Error: Terminal height (%i lines) too small. Need at least %i lines.\n", LINES, max_lines + bar_top + bar_bottom);
+        fwprintf(stderr, L"You may need to add additional horizontal rules (---) to split your file in shorter slides.\n");
 
         // no reload
         return 0;
@@ -269,9 +267,9 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
             line = deck->header;
             offset = next_blank(line->text, 0) + 1;
             // add text to header
-            mvwprintw(stdscr,
-                      0, (COLS - line->length + offset) / 2,
-                      "%s", &line->text->text[offset]);
+            mvwaddwstr(stdscr,
+                       0, (COLS - line->length + offset) / 2,
+                       &line->text->value[offset]);
         }
 
         // setup footer
@@ -279,10 +277,11 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
             line = deck->header->next;
             offset = next_blank(line->text, 0) + 1;
             // add text to left footer
-            mvwprintw(stdscr,
-                      LINES - 1, 3,
-                      "%s", &line->text->text[offset]);
+            mvwaddwstr(stdscr,
+                       LINES - 1, 3,
+                       &line->text->value[offset]);
         }
+
         // add slide number to right footer
         mvwprintw(stdscr,
                   LINES - 1, COLS - int_length(deck->slides) - int_length(sc) - 6,
@@ -293,20 +292,34 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
         wrefresh(stdscr);
 
         line = slide->line;
-        l = 0;
+        l = stop = 0;
 
         // print lines
         while(line) {
             add_line(content, l, (COLS - max_cols) / 2, line, max_cols, colors);
+
+            // raise stop counter if we pass a line having a stop bit
+            if(CHECK_BIT(line->bits, IS_STOP))
+                stop++;
+
             l += (line->length / COLS) + 1;
             line = line->next;
+
+            // only stop here if we didn't stop here recently
+            if(stop > slide->stop)
+                break;
         }
 
-        int i, ymax;
-        getmaxyx( content, ymax, i );
-        for (i = 0; i < url_get_amount(); i++) {
-            mvwprintw(content, ymax - url_get_amount() - 1 + i, 3,
-                      "[%d] %s", i, url_get_target(i));
+        // print pandoc URL references
+        // only if we already printed all lines of the current slide
+        if(!line) {
+            int i, ymax;
+            getmaxyx( content, ymax, i );
+            for (i = 0; i < url_get_amount(); i++) {
+                mvwprintw(content, ymax - url_get_amount() - 1 + i, 3,
+                          "[%d] ", i);
+                waddwstr(content, url_get_target(i));
+            }
         }
 
         // make content visible
@@ -327,7 +340,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
         i = 0;
         switch(c) {
 
-            // show previous slide
+            // show previous slide or stop bit
             case KEY_UP:
             case KEY_LEFT:
             case KEY_PPAGE:
@@ -336,15 +349,23 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
             case 263: // BACKSPACE (getty)
             case 'h':
             case 'k':
-                if(slide->prev) {
-                    slide = slide->prev;
-                    sc--;
+                if(stop > 1 || (stop == 1 && !line)) {
+                    // show current slide again
+                    // but stop one stop bit earlier
+                    slide->stop--;
                 } else {
-                    fade = false;
+                    if(slide->prev) {
+                        // show previous slide
+                        slide = slide->prev;
+                        sc--;
+                    } else {
+                        // do nothing
+                        fade = false;
+                    }
                 }
                 break;
 
-            // show next slide
+            // show next slide or stop bit
             case KEY_DOWN:
             case KEY_RIGHT:
             case KEY_NPAGE:
@@ -352,11 +373,19 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
             case ' ':  // SPACE
             case 'j':
             case 'l':
-                if(slide->next) {
-                    slide = slide->next;
-                    sc++;
+                if(stop && line) {
+                    // show current slide again
+                    // but stop one stop bit later (or at end of slide)
+                    slide->stop++;
                 } else {
-                    fade = false;
+                    if(slide->next) {
+                        // show next slide
+                        slide = slide->next;
+                        sc++;
+                    } else {
+                        // do nothing
+                        fade = false;
+                    }
                 }
                 break;
 
@@ -459,7 +488,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
 
 void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colors) {
 
-    if(!line->text->text) {
+    if(!line->text->value) {
         return;
     }
 
@@ -487,7 +516,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
                 "%s", prompt);
 
         if(!CHECK_BIT(line->bits, IS_CODE))
-            inline_display(window, &line->text->text[offset], colors);
+            inline_display(window, &line->text->value[offset], colors);
 
     // IS_UNORDERED_LIST_2
     } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)) {
@@ -506,7 +535,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
                 "%s", prompt);
 
         if(!CHECK_BIT(line->bits, IS_CODE))
-            inline_display(window, &line->text->text[offset], colors);
+            inline_display(window, &line->text->value[offset], colors);
 
     // IS_UNORDERED_LIST_1
     } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)) {
@@ -524,7 +553,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
                 "%s", prompt);
 
         if(!CHECK_BIT(line->bits, IS_CODE))
-            inline_display(window, &line->text->text[offset], colors);
+            inline_display(window, &line->text->value[offset], colors);
     }
 
     // IS_CODE
@@ -538,8 +567,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
             wattron(window, COLOR_PAIR(CP_BLACK));
 
         // print whole lines
-        wprintw(window,
-                "%s", &line->text->text[offset]);
+        waddwstr(window, &line->text->value[offset]);
     }
 
     if(!CHECK_BIT(line->bits, IS_UNORDERED_LIST_1) &&
@@ -549,7 +577,7 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
 
         // IS_QUOTE
         if(CHECK_BIT(line->bits, IS_QUOTE)) {
-            while(line->text->text[offset] == '>') {
+            while(line->text->value[offset] == '>') {
                 // print a reverse color block
                 if(colors) {
                     wattron(window, COLOR_PAIR(CP_BLACK));
@@ -562,11 +590,11 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
 
                 // find next quote or break
                 offset++;
-                if(line->text->text[offset] == ' ')
+                if(line->text->value[offset] == ' ')
                     offset = next_word(line->text, offset);
             }
 
-            inline_display(window, &line->text->text[offset], colors);
+            inline_display(window, &line->text->value[offset], colors);
         } else {
 
             // IS_CENTER
@@ -588,19 +616,18 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
                     wattron(window, A_UNDERLINE);
 
                 // skip hashes
-                while(line->text->text[offset] == '#')
+                while(line->text->value[offset] == '#')
                     offset = next_word(line->text, offset);
 
                 // print whole lines
-                wprintw(window,
-                        "%s", &line->text->text[offset]);
+                waddwstr(window, &line->text->value[offset]);
 
                 wattroff(window, A_UNDERLINE);
 
             // no line-wide markdown
             } else {
 
-                inline_display(window, &line->text->text[offset], colors);
+                inline_display(window, &line->text->value[offset], colors);
             }
         }
     }
@@ -615,10 +642,10 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
     wattroff(window, A_UNDERLINE);
 }
 
-void inline_display(WINDOW *window, const char *c, const int colors) {
-    const static char *special = "\\*_`!["; // list of interpreted chars
-    const char *i = c; // iterator
-    const char *start_link_name, *start_url;
+void inline_display(WINDOW *window, const wchar_t *c, const int colors) {
+    const static wchar_t *special = L"\\*_`!["; // list of interpreted chars
+    const wchar_t *i = c; // iterator
+    const wchar_t *start_link_name, *start_url;
     int length_link_name, url_num;
     cstack_t *stack = cstack_init();
 
@@ -627,29 +654,29 @@ void inline_display(WINDOW *window, const char *c, const int colors) {
     for(; *i; i++) {
 
         // if char is in special char list
-        if(strchr(special, *i)) {
+        if(wcschr(special, *i)) {
 
             // closing special char (or second backslash)
             // only if not followed by :alnum:
             if((stack->top)(stack, *i) &&
-               (!isalnum((int)i[1]) || *(i + 1) == '\0' || *i == '\\')) {
+               (!iswalnum(i[1]) || *(i + 1) == L'\0' || *i == L'\\')) {
 
                 switch(*i) {
                     // print escaped backslash
-                    case '\\':
-                        wprintw(window, "%c", *i);
+                    case L'\\':
+                        waddnwstr(window, i, 1);
                         break;
                     // disable highlight
-                    case '*':
+                    case L'*':
                         if(colors)
                             wattron(window, COLOR_PAIR(CP_WHITE));
                         break;
                     // disable underline
-                    case '_':
+                    case L'_':
                         wattroff(window, A_UNDERLINE);
                         break;
                     // disable inline code
-                    case '`':
+                    case L'`':
                         if(colors)
                             wattron(window, COLOR_PAIR(CP_WHITE));
                         break;
@@ -659,8 +686,8 @@ void inline_display(WINDOW *window, const char *c, const int colors) {
                 (stack->pop)(stack);
 
             // treat special as regular char
-            } else if((stack->top)(stack, '\\')) {
-                wprintw(window, "%c", *i);
+            } else if((stack->top)(stack, L'\\')) {
+                waddnwstr(window, i, 1);
 
                 // remove backslash from stack
                 (stack->pop)(stack);
@@ -672,17 +699,18 @@ void inline_display(WINDOW *window, const char *c, const int colors) {
                 // and of cause after another emphasis markup
                 //TODO this condition looks ugly
                 if(i == c ||
-                   *(i - 1) == ' ' ||
-                   ((*(i - 1) == '_' || *(i - 1) == '*') && ((i - 1) == c || *(i - 2) == ' ')) ||
-                   *i == '\\') {
+                   iswspace(*(i - 1)) ||
+                   ((iswspace(*(i - 1)) || *(i - 1) == L'*' || *(i - 1) == L'_') &&
+                    ((i - 1) == c || iswspace(*(i - 2)))) ||
+                   *i == L'\\') {
 
                     // url in pandoc style
-                    if ((*i == '[' && strchr(i, ']')) ||
-                        (*i == '!' && *(i + 1) == '[' && strchr(i, ']'))) {
+                    if ((*i == L'[' && wcschr(i, L']')) ||
+                        (*i == L'!' && *(i + 1) == L'[' && wcschr(i, L']'))) {
 
-                        if (*i == '!') i++;
+                        if (*i == L'!') i++;
 
-                        if (strchr(i, ']')[1] == '(') {
+                        if (wcschr(i, L']')[1] == L'(') {
                             i++;
 
                             // turn higlighting and underlining on
@@ -695,9 +723,9 @@ void inline_display(WINDOW *window, const char *c, const int colors) {
                             // print the content of the label
                             // the label is printed as is
                             do {
-                                wprintw(window, "%c", *i);
+                                waddnwstr(window, i, 1);
                                 i++;
-                            } while (*i != ']');
+                            } while (*i != L']');
 
                             length_link_name = i - 1 - start_link_name;
 
@@ -706,9 +734,9 @@ void inline_display(WINDOW *window, const char *c, const int colors) {
 
                             start_url = i;
 
-                            while (*i != ')') i++;
+                            while (*i != L')') i++;
 
-                            url_num = url_add(start_link_name, length_link_name, start_url, i - start_url, 0,0);
+                            url_num = url_add(start_link_name, length_link_name, start_url, i - start_url, 0, 0);
 
                             wprintw(window, " [%d]", url_num);
 
@@ -722,16 +750,16 @@ void inline_display(WINDOW *window, const char *c, const int colors) {
 
                     } else switch(*i) {
                         // enable highlight
-                        case '*':
+                        case L'*':
                             if(colors)
                                 wattron(window, COLOR_PAIR(CP_RED));
                             break;
                         // enable underline
-                        case '_':
+                        case L'_':
                             wattron(window, A_UNDERLINE);
                             break;
                         // enable inline code
-                        case '`':
+                        case L'`':
                             if(colors)
                                 wattron(window, COLOR_PAIR(CP_BLACK));
                             break;
@@ -742,17 +770,17 @@ void inline_display(WINDOW *window, const char *c, const int colors) {
                     (stack->push)(stack, *i);
 
                 } else {
-                    wprintw(window, "%c", *i);
+                    waddnwstr(window, i, 1);
                 }
             }
 
         } else {
             // remove backslash from stack
-            if((stack->top)(stack, '\\'))
+            if((stack->top)(stack, L'\\'))
                 (stack->pop)(stack);
 
             // print regular char
-            wprintw(window, "%c", *i);
+            waddnwstr(window, i, 1);
         }
     }
 
@@ -760,16 +788,16 @@ void inline_display(WINDOW *window, const char *c, const int colors) {
     while(!(stack->empty)(stack)) {
         switch((stack->pop)(stack)) {
             // disable highlight
-            case '*':
+            case L'*':
                 if(colors)
                     wattron(window, COLOR_PAIR(CP_WHITE));
                 break;
             // disable underline
-            case '_':
+            case L'_':
                 wattroff(window, A_UNDERLINE);
                 break;
             // disable inline code
-            case '`':
+            case L'`':
                 if(colors)
                     wattron(window, COLOR_PAIR(CP_WHITE));
                 break;

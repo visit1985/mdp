@@ -25,13 +25,15 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <wchar.h>
+#include <wctype.h>
 #include <string.h>
 
 #include "parser.h"
 
 deck_t *markdown_load(FILE *input) {
 
-    int c = 0;    // char
+    wchar_t c = L'\0';    // char
     int i = 0;    // increment
     int hc = 0;   // header count
     int lc = 0;   // line count
@@ -48,13 +50,13 @@ deck_t *markdown_load(FILE *input) {
     // initialize bits as empty line
     SET_BIT(bits, IS_EMPTY);
 
-    while ((c = fgetc(input)) != EOF) {
+    while ((c = fgetwc(input)) != WEOF) {
         if (ferror(input)) {
             fprintf(stderr, "markdown_load() failed to read input: %s\n", strerror(errno));
             exit(EXIT_FAILURE);
         }
 
-        if(c == '\n') {
+        if(c == L'\n') {
 
             // markdown analyse
             prev = bits;
@@ -62,6 +64,14 @@ deck_t *markdown_load(FILE *input) {
 
             // if first line in file is markdown hr
             if(!line && CHECK_BIT(bits, IS_HR)) {
+
+                // clear text
+                (text->reset)(text);
+
+            } else if(line && CHECK_BIT(bits, IS_STOP)) {
+
+                // set stop bit on last line
+                SET_BIT(line->bits, IS_STOP);
 
                 // clear text
                 (text->reset)(text);
@@ -107,21 +117,21 @@ deck_t *markdown_load(FILE *input) {
                 line->offset = next_nonblank(text, 0);
 
                 // adjust line length dynamicaly - excluding markup
-                if(line->text->text)
+                if(line->text->value)
                     adjust_line_length(line);
 
                 // new text
                 text = cstring_init();
             }
 
-        } else if(c == '\t') {
+        } else if(c == L'\t') {
 
             // expand tab to spaces
             for (i = 0;  i < EXPAND_TABS;  i++) {
-                (text->expand)(text, ' ');
+                (text->expand)(text, L' ');
             }
 
-        } else if(c == '\\') {
+        } else if(c == L'\\') {
 
             // add char to line
             (text->expand)(text, c);
@@ -130,35 +140,14 @@ deck_t *markdown_load(FILE *input) {
             // and do not increase line count
             if(next_nonblank(text, 0) < CODE_INDENT) {
 
-                c = fgetc(input);
+                c = fgetwc(input);
                 (text->expand)(text, c);
-
-                if(is_utf8(c)) {
-
-                    // if utf-8 char > 1 byte add remaing to line
-                    for(i = 0; i < length_utf8(c) - 1; i++) {
-                        c = fgetc(input);
-                        (text->expand)(text, c);
-                    }
-                }
-
             }
 
-        } else if(isprint(c) || isspace((unsigned char) c)) {
+        } else if(iswprint(c) || iswspace(c)) {
 
             // add char to line
             (text->expand)(text, c);
-
-        } else if(is_utf8(c)) {
-
-            // add char to line
-            (text->expand)(text, c);
-
-            // if utf-8 char > 1 byte add remaing to line
-            for(i = 0; i < length_utf8(c) - 1; i++) {
-                c = fgetc(input);
-                (text->expand)(text, c);
-            }
         }
     }
     (text->delete)(text);
@@ -168,13 +157,13 @@ deck_t *markdown_load(FILE *input) {
 
     // detect header
     line = deck->slide->line;
-    if(line && line->text->size > 0 && line->text->text[0] == '%') {
+    if(line && line->text->size > 0 && line->text->value[0] == L'%') {
 
         // assign header to deck
         deck->header = line;
 
         // find first non-header line
-        while(line && line->text->size > 0 && line->text->text[0] == '%') {
+        while(line && line->text->size > 0 && line->text->value[0] == L'%') {
             hc++;
             line = line->next;
         }
@@ -319,7 +308,7 @@ int markdown_analyse(cstring_t *text, int prev) {
     const int unordered_list_offset = unordered_list_level_offset[unordered_list_level];
 
     // return IS_EMPTY on null pointers
-    if(!text || !text->text) {
+    if(!text || !text->value) {
         SET_BIT(bits, IS_EMPTY);
         return bits;
     }
@@ -327,13 +316,22 @@ int markdown_analyse(cstring_t *text, int prev) {
     // count leading spaces
     offset = next_nonblank(text, 0);
 
+    // IS_STOP
+    if((offset < CODE_INDENT || !CHECK_BIT(prev, IS_CODE)) &&
+       (!wcsncmp(&text->value[offset], L"<br>", 4) ||
+        !wcsncmp(&text->value[offset], L"<BR>", 4) ||
+        !wcsncmp(&text->value[offset], L"^", 1))) {
+        SET_BIT(bits, IS_STOP);
+        return bits;
+    }
+
     // strip trailing spaces
-    for(eol = text->size; eol > offset && isspace((unsigned char) text->text[eol - 1]); eol--);
+    for(eol = text->size; eol > offset && iswspace(text->value[eol - 1]); eol--);
 
     // IS_UNORDERED_LIST_#
     if(text->size >= offset + 2 &&
-       (text->text[offset] == '*' || text->text[offset] == '-') &&
-       text->text[offset + 1] == ' ') {
+       (text->value[offset] == L'*' || text->value[offset] == L'-') &&
+       iswspace(text->value[offset + 1])) {
 
         // if different from last lines offset
         if(offset != unordered_list_offset) {
@@ -400,21 +398,22 @@ int markdown_analyse(cstring_t *text, int prev) {
         // IS_CODE
         if(offset >= CODE_INDENT &&
            (CHECK_BIT(prev, IS_EMPTY) ||
-            CHECK_BIT(prev, IS_CODE))) {
+            CHECK_BIT(prev, IS_CODE)  ||
+            CHECK_BIT(prev, IS_STOP))) {
             SET_BIT(bits, IS_CODE);
 
         } else {
 
             // IS_QUOTE
-            if(text->text[offset] == '>') {
+            if(text->value[offset] == L'>') {
                 SET_BIT(bits, IS_QUOTE);
             }
 
             // IS_CENTER
             if(text->size >= offset + 3 &&
-               text->text[offset] == '-' &&
-               text->text[offset + 1] == '>' &&
-               text->text[offset + 2] == ' ') {
+               text->value[offset] == L'-' &&
+               text->value[offset + 1] == L'>' &&
+               iswspace(text->value[offset + 2])) {
                 SET_BIT(bits, IS_CENTER);
 
                 // remove start tag
@@ -422,31 +421,31 @@ int markdown_analyse(cstring_t *text, int prev) {
                 eol -= 3;
 
                 if(text->size >= offset + 3 &&
-                   text->text[eol - 1] == '-' &&
-                   text->text[eol - 2] == '<' &&
-                   text->text[eol - 3] == ' ') {
+                   text->value[eol - 1] == L'-' &&
+                   text->value[eol - 2] == L'<' &&
+                   iswspace(text->value[eol - 3])) {
 
                     // remove end tags
                     (text->strip)(text, eol - 3, 3);
 
                     // adjust end of line
-                    for(eol = text->size; eol > offset && isspace((unsigned char) text->text[eol - 1]); eol--);
+                    for(eol = text->size; eol > offset && iswspace(text->value[eol - 1]); eol--);
 
                 }
             }
 
             for(i = offset; i < eol; i++) {
 
-                if(text->text[i] == ' ') {
+                if(iswspace(text->value[i])) {
                     spaces++;
 
                 } else {
-                    switch(text->text[i]) {
-                        case '=': equals++;  break;
-                        case '#': hashes++;  break;
-                        case '*': stars++;   break;
-                        case '-': minus++;   break;
-                        case '\\': other++; i++; break;
+                    switch(text->value[i]) {
+                        case L'=': equals++;  break;
+                        case L'#': hashes++;  break;
+                        case L'*': stars++;   break;
+                        case L'-': minus++;   break;
+                        case L'\\': other++; i++; break;
                         default:  other++;   break;
                     }
                 }
@@ -454,23 +453,23 @@ int markdown_analyse(cstring_t *text, int prev) {
 
             // IS_H1
             if(equals > 0 &&
-                hashes + stars + minus + spaces + other == 0) {
+               hashes + stars + minus + spaces + other == 0) {
                 SET_BIT(bits, IS_H1);
             }
-            if(text->text[offset] == '#' &&
-                text->text[offset+1] == ' ') {
+            if(text->value[offset] == L'#' &&
+               iswspace(text->value[offset+1])) {
                 SET_BIT(bits, IS_H1);
                 SET_BIT(bits, IS_H1_ATX);
             }
 
             // IS_H2
             if(minus > 0 &&
-                equals + hashes + stars + spaces + other == 0) {
+               equals + hashes + stars + spaces + other == 0) {
                 SET_BIT(bits, IS_H2);
             }
-            if(text->text[offset] == '#' &&
-                text->text[offset+1] == '#' &&
-                text->text[offset+2] == ' ') {
+            if(text->value[offset] == L'#' &&
+               text->value[offset+1] == L'#' &&
+               iswspace(text->value[offset+2])) {
                 SET_BIT(bits, IS_H2);
                 SET_BIT(bits, IS_H2_ATX);
             }
@@ -501,7 +500,7 @@ void markdown_debug(deck_t *deck, int debug) {
     line_t *header;
 
     if(debug == 1) {
-        fprintf(stderr, "headers: %i\nslides: %i\n", deck->headers, deck->slides);
+        fwprintf(stderr, L"headers: %i\nslides: %i\n", deck->headers, deck->slides);
 
     } else if(debug > 1) {
 
@@ -510,12 +509,12 @@ void markdown_debug(deck_t *deck, int debug) {
             header = deck->header;
             while(header &&
                 header->length > 0 &&
-                header->text->text[0] == '%') {
+                header->text->value[0] == L'%') {
 
                 // skip descriptor word (e.g. %title:)
                 offset = next_blank(header->text, 0) + 1;
 
-                fprintf(stderr, "header: %s\n", &header->text->text[offset]);
+                fwprintf(stderr, L"header: %S\n", &header->text->value[offset]);
                 header = header->next;
             }
         }
@@ -529,17 +528,17 @@ void markdown_debug(deck_t *deck, int debug) {
         sc++;
 
         if(debug == 1) {
-            fprintf(stderr, "  slide %i: %i lines\n", sc, slide->lines);
+            fwprintf(stderr, L"  slide %i: %i lines\n", sc, slide->lines);
 
         } else if(debug > 1) {
 
             // also print bits and line length
-            fprintf(stderr, "  slide %i:\n", sc);
+            fwprintf(stderr, L"  slide %i:\n", sc);
             line = slide->line;
             lc = 0;
             while(line) {
                 lc++;
-                fprintf(stderr, "    line %i: bits = %i, length = %i\n", lc, line->bits, line->length);
+                fwprintf(stderr, L"    line %i: bits = %i, length = %i\n", lc, line->bits, line->length);
                 line = line->next;
             }
         }
@@ -550,22 +549,22 @@ void markdown_debug(deck_t *deck, int debug) {
 
 void adjust_line_length(line_t *line) {
     int l = 0;
-    const static char *special = "\\*_`"; // list of interpreted chars
-    const char *c = &line->text->text[line->offset];
+    const static wchar_t *special = L"\\*_`"; // list of interpreted chars
+    const wchar_t *c = &line->text->value[line->offset];
     cstack_t *stack = cstack_init();
 
     // for each char in line
     for(; *c; c++) {
         // if char is in special char list
-        if(strchr(special, *c)) {
+        if(wcschr(special, *c)) {
 
             // closing special char (or second backslash)
             if((stack->top)(stack, *c)) {
-                if(*c == '\\') l++;
+                if(*c == L'\\') l++;
                 (stack->pop)(stack);
 
             // treat special as regular char
-            } else if((stack->top)(stack, '\\')) {
+            } else if((stack->top)(stack, L'\\')) {
                 l++;
                 (stack->pop)(stack);
 
@@ -576,7 +575,7 @@ void adjust_line_length(line_t *line) {
 
         } else {
             // remove backslash from stack
-            if((stack->top)(stack, '\\'))
+            if((stack->top)(stack, L'\\'))
                 (stack->pop)(stack);
             l++;
         }
@@ -592,38 +591,22 @@ void adjust_line_length(line_t *line) {
     (stack->delete)(stack);
 }
 
-bool is_utf8(char ch) {
-    return (ch & 0x80) != 0x00;
-}
-
-int length_utf8(char ch) {
-
-    int i = 0; // increment
-
-    while(is_utf8(ch)) {
-        i++;
-        ch <<= 1;
-    }
-
-    return i;
-}
-
 int next_nonblank(cstring_t *text, int i) {
-    while ((i < text->size) && isspace((unsigned char) (text->text)[i]))
+    while ((i < text->size) && iswspace((text->value)[i]))
         i++;
 
     return i;
 }
 
 int prev_blank(cstring_t *text, int i) {
-    while ((i > 0) && !isspace((unsigned char) (text->text)[i]))
+    while ((i > 0) && !iswspace((text->value)[i]))
         i--;
 
     return i;
 }
 
 int next_blank(cstring_t *text, int i) {
-    while ((i < text->size) && !isspace((unsigned char) (text->text)[i]))
+    while ((i < text->size) && !iswspace((text->value)[i]))
         i++;
 
     return i;

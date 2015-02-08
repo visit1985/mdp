@@ -19,6 +19,7 @@
  *
  */
 
+#include <wchar.h>
 #include <stdio.h> // fprintf
 #include <stdlib.h> // malloc, realloc
 
@@ -42,24 +43,24 @@ cstack_t *cstack_init() {
     return stack;
 }
 
-void cstack_push(cstack_t *self, char c) {
+void cstack_push(cstack_t *self, wchar_t c) {
     if(self->size + sizeof(c) > self->alloc) {
-        self->alloc += (sizeof(char));
+        self->alloc += (sizeof(wchar_t));
         if((self->content = realloc(self->content, self->alloc)) == NULL) {
             fprintf(stderr, "%s\n", "cstack_push() failed to reallocate memory.");
             exit(EXIT_FAILURE);
         }
     }
     self->content[++self->head] = c;
-    self->size += (sizeof(char));
+    self->size += (sizeof(wchar_t));
 }
 
-char cstack_pop(cstack_t *self) {
-    self->size -= (sizeof(char));
+wchar_t cstack_pop(cstack_t *self) {
+    self->size -= (sizeof(wchar_t));
     return self->content[self->head--];
 }
 
-bool cstack_top(cstack_t *self, char c) {
+bool cstack_top(cstack_t *self, wchar_t c) {
     return self->head >= 0 && self->content[self->head] == c;
 }
 

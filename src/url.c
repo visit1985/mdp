@@ -21,7 +21,7 @@
 
 #include <stdlib.h>
 #include <assert.h>
-#include <string.h>
+#include <wchar.h>
 #include <stdio.h>
 
 #include "url.h"
@@ -39,7 +39,7 @@ void url_init(void) {
     init_ok = 1;
 }
 
-int url_add(const char *link_name, int link_name_length, const char *target, int target_length, int x, int y) {
+int url_add(const wchar_t *link_name, int link_name_length, const wchar_t *target, int target_length, int x, int y) {
     if (!init_ok) return -1;
 
     url_t *tmp = NULL;
@@ -60,14 +60,14 @@ int url_add(const char *link_name, int link_name_length, const char *target, int
         assert(tmp);
     }
 
-    tmp -> link_name = calloc(link_name_length+1, sizeof(char));
+    tmp -> link_name = calloc(link_name_length+1, sizeof(wchar_t));
     assert(tmp->link_name);
-    strncpy(tmp->link_name, link_name, link_name_length);
+    wcsncpy(tmp->link_name, link_name, link_name_length);
     tmp->link_name[link_name_length] = '\0';
 
-    tmp->target = calloc(target_length+1, sizeof(char));
+    tmp->target = calloc(target_length+1, sizeof(wchar_t));
     assert(tmp->target);
-    strncpy(tmp->target, target, target_length);
+    wcsncpy(tmp->target, target, target_length);
     tmp->target[target_length] = '\0';
 
     tmp->x = x;
@@ -79,7 +79,7 @@ int url_add(const char *link_name, int link_name_length, const char *target, int
     return index_max-1;
 }
 
-char * url_get_target(int index) {
+wchar_t * url_get_target(int index) {
     if (!init_ok) return NULL;
 
     url_t *tmp = list;
@@ -96,7 +96,7 @@ char * url_get_target(int index) {
     } else return NULL;
 }
 
-char * url_get_name(int index) {
+wchar_t * url_get_name(int index) {
     url_t *tmp = list;
 
     while (index > 0 && tmp && tmp->next) {
@@ -158,9 +158,9 @@ int url_get_amount(void) {
     return index_max;
 }
 
-int url_count_inline(const char *line) {
+int url_count_inline(const wchar_t *line) {
     int count = 0;
-    const char *i = line;
+    const wchar_t *i = line;
 
     for (; *i; i++) {
         if (*i == '\\') {
@@ -168,9 +168,9 @@ int url_count_inline(const char *line) {
         } else if ( *i == '[' && *(i+1) != ']') {
             while (*i && *i != ']') i++;
             i++;
-            if (*i == '(' && strchr(i, ')')) {
+            if (*i == '(' && wcschr(i, ')')) {
                 count ++;
-                i = strchr(i, ')');
+                i = wcschr(i, ')');
             }
         }
     }
@@ -178,9 +178,9 @@ int url_count_inline(const char *line) {
     return count;
 }
 
-int url_len_inline(const char *text) {
+int url_len_inline(const wchar_t *value) {
     int count = 0;
-    const char *i = text;
+    const wchar_t *i = value;
 
     for (; *i; i++) {
         if (*i == '\\') {
@@ -188,7 +188,7 @@ int url_len_inline(const char *text) {
         } else if ( *i == '[' && *(i+1) != ']') {
             while (*i && *i != ']') i++;
             i++;
-            if (*i == '(' && strchr(i, ')')) {
+            if (*i == '(' && wcschr(i, ')')) {
                 while (*i && *i != ')') {
                     count++;
                     i++;

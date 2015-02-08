@@ -43,7 +43,7 @@ slide_t *new_slide() {
     slide_t *x = malloc(sizeof(slide_t));
     x->line = NULL;
     x->prev = x->next = NULL;
-    x->lines = 0;
+    x->lines = x->stop = 0;
     return x;
 }
 

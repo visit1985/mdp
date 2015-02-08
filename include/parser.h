@@ -40,6 +40,11 @@
 #include "markdown.h"
 #include "cstack.h"
 
+#if defined( CYGWIN )
+#undef WEOF
+#define WEOF (0xffff)
+#endif // defined( CYGWIN )
+
 #define EXPAND_TABS 4
 #define CODE_INDENT 4
 #define UNORDERED_LIST_MAX_LEVEL 3
@@ -48,8 +53,6 @@ deck_t *markdown_load(FILE *input);
 int markdown_analyse(cstring_t *text, int prev);
 void markdown_debug(deck_t *deck, int debug);
 void adjust_line_length(line_t *line);
-bool is_utf8(char ch);
-int length_utf8(char ch);
 int next_nonblank(cstring_t *text, int i);
 int prev_blank(cstring_t *text, int i);
 int next_blank(cstring_t *text, int i);
