@@ -68,6 +68,14 @@ deck_t *markdown_load(FILE *input) {
                 // clear text
                 (text->reset)(text);
 
+            } else if(line && CHECK_BIT(bits, IS_STOP)) {
+
+                // set stop bit on last line
+                SET_BIT(line->bits, IS_STOP);
+
+                // clear text
+                (text->reset)(text);
+
             // if text is markdown hr
             } else if(CHECK_BIT(bits, IS_HR) &&
                       CHECK_BIT(line->bits, IS_EMPTY)) {
@@ -308,6 +316,15 @@ int markdown_analyse(cstring_t *text, int prev) {
     // count leading spaces
     offset = next_nonblank(text, 0);
 
+    // IS_STOP
+    if((offset < CODE_INDENT || !CHECK_BIT(prev, IS_CODE)) &&
+       (!wcsncmp(&text->value[offset], L"<br>", 4) ||
+        !wcsncmp(&text->value[offset], L"<BR>", 4) ||
+        !wcsncmp(&text->value[offset], L"^", 1))) {
+        SET_BIT(bits, IS_STOP);
+        return bits;
+    }
+
     // strip trailing spaces
     for(eol = text->size; eol > offset && iswspace(text->value[eol - 1]); eol--);
 
@@ -381,7 +398,8 @@ int markdown_analyse(cstring_t *text, int prev) {
         // IS_CODE
         if(offset >= CODE_INDENT &&
            (CHECK_BIT(prev, IS_EMPTY) ||
-            CHECK_BIT(prev, IS_CODE))) {
+            CHECK_BIT(prev, IS_CODE)  ||
+            CHECK_BIT(prev, IS_STOP))) {
             SET_BIT(bits, IS_CODE);
 
         } else {

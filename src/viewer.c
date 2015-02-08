@@ -73,6 +73,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
     int max_lines = 0;  // max lines per slide
     int max_cols = 0;   // max columns per line
     int offset;         // text offset
+    int stop = 0;       // passed stop bits per slide
 
     // header line 1 is displayed at the top
     int bar_top = (deck->headers > 0) ? 1 : 0;
@@ -291,21 +292,34 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
         wrefresh(stdscr);
 
         line = slide->line;
-        l = 0;
+        l = stop = 0;
 
         // print lines
         while(line) {
             add_line(content, l, (COLS - max_cols) / 2, line, max_cols, colors);
+
+            // raise stop counter if we pass a line having a stop bit
+            if(CHECK_BIT(line->bits, IS_STOP))
+                stop++;
+
             l += (line->length / COLS) + 1;
             line = line->next;
+
+            // only stop here if we didn't stop here recently
+            if(stop > slide->stop)
+                break;
         }
 
-        int i, ymax;
-        getmaxyx( content, ymax, i );
-        for (i = 0; i < url_get_amount(); i++) {
-            mvwprintw(content, ymax - url_get_amount() - 1 + i, 3,
-                      "[%d] ", i);
-            waddwstr(content, url_get_target(i));
+        // print pandoc URL references
+        // only if we already printed all lines of the current slide
+        if(!line) {
+            int i, ymax;
+            getmaxyx( content, ymax, i );
+            for (i = 0; i < url_get_amount(); i++) {
+                mvwprintw(content, ymax - url_get_amount() - 1 + i, 3,
+                          "[%d] ", i);
+                waddwstr(content, url_get_target(i));
+            }
         }
 
         // make content visible
@@ -326,7 +340,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
         i = 0;
         switch(c) {
 
-            // show previous slide
+            // show previous slide or stop bit
             case KEY_UP:
             case KEY_LEFT:
             case KEY_PPAGE:
@@ -335,15 +349,23 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
             case 263: // BACKSPACE (getty)
             case 'h':
             case 'k':
-                if(slide->prev) {
-                    slide = slide->prev;
-                    sc--;
+                if(stop > 1 || (stop == 1 && !line)) {
+                    // show current slide again
+                    // but stop one stop bit earlier
+                    slide->stop--;
                 } else {
-                    fade = false;
+                    if(slide->prev) {
+                        // show previous slide
+                        slide = slide->prev;
+                        sc--;
+                    } else {
+                        // do nothing
+                        fade = false;
+                    }
                 }
                 break;
 
-            // show next slide
+            // show next slide or stop bit
             case KEY_DOWN:
             case KEY_RIGHT:
             case KEY_NPAGE:
@@ -351,11 +373,19 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
             case ' ':  // SPACE
             case 'j':
             case 'l':
-                if(slide->next) {
-                    slide = slide->next;
-                    sc++;
+                if(stop && line) {
+                    // show current slide again
+                    // but stop one stop bit later (or at end of slide)
+                    slide->stop++;
                 } else {
-                    fade = false;
+                    if(slide->next) {
+                        // show next slide
+                        slide = slide->next;
+                        sc++;
+                    } else {
+                        // do nothing
+                        fade = false;
+                    }
                 }
                 break;
 
