@@ -633,8 +633,11 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
     }
 
     // fill rest off line with spaces
-    for(i = getcurx(window) - x; i < max_cols; i++)
-        wprintw(window, "%s", " ");
+    // we only need this if the color is inverted (e.g. code-blocks),
+    // to ensure the background fades too
+    if(CHECK_BIT(line->bits, IS_CODE))
+        for(i = getcurx(window) - x; i < max_cols; i++)
+            wprintw(window, "%s", " ");
 
     // reset to default color
     if(colors)
