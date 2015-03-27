@@ -3,7 +3,7 @@
 
 /*
  * An implementation of markdown objects.
- * Copyright (C) 2014 Michael Goehler
+ * Copyright (C) 2015 Michael Goehler
  *
  * This file is part of mdp.
  *
