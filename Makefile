@@ -61,6 +61,7 @@ clean:
 install:
 	install -d $(DESTDIR)$(PREFIX)/bin
 	install -m 755 mdp $(DESTDIR)$(PREFIX)/bin/$(TARGET)
+	install -m 644 mdp.1 $(DESTDIR)$(PREFIX)/share/man/man1/
 
 uninstall:
 	$(RM) $(DESTDIR)$(PREFIX)/$(TARGET)

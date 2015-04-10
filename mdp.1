@@ -1,0 +1,115 @@
+.\" This is the groff documentation source for MDP
+.\"
+.\" Preview with: groff -man -Tascii mdp.1
+.\"
+
+
+.TH MDP 1 "2015-4-10"
+.SH NAME
+mdp \- A command-line based markdown presentation tool
+.SH SYNOPSIS
+.BI "mdp [" options "] file"
+.SH DESCRIPTION
+.B mdp
+is a command-line program that allows you to make elegant presentations from
+markdown format files, and is as easy as write your presentation content in the
+text editor of your preference and trigger the presentation from the
+command-line.
+.SH OPTIONS
+.HP
+\fB\-f\fR, \fB\-\-nofade
+.IP
+Disable color fading in 256 color mode
+.HP
+\fB\-i\fR, \fB\-\-invert
+.IP
+Swap black and white color
+.HP
+\fB\-t\fR, \fB\-\-notrans
+.IP
+Disable transparency in transparent terminal
+.HP
+\fB\-h\fR, \fB\-\-help
+.IP
+Display usage message and exit
+.HP
+\fB\-d\fR, \fB\-\-debug
+.IP
+Enable debug messages on STDERR, add multiple times to increases debug level
+.SH PRESENTATION FILES
+.B mdp
+uses
+.B markdown
+format files, you can write your presentations content in that format using the
+text editor of your preference.
+
+Horizontal rules are used as slide separator, if any slide are too large to fit
+into your current screen an error message will be displayed at the moment the
+presentation is initiated.
+
+.SS
+Markdown formating supported
+
+.B mdp
+supports headers prefixed by
+.B @
+symbol. The first two header lines are displayed as title and author in top and
+bottom bar.
+
+.TP
+.RI Line-wide\ markup
+* headlines
+
+* code
+
+* quotes
+
+* unordered list
+.TP
+.RI In-line\ markup
+* bold text
+
+* underlined text
+
+* code
+
+.SH CONTROLS
+.HP
+\fBh\fR, \fBj\fR, \fBk\fR, \fBl\fR, \fBArrow Keys\fR, \fBSpace\fR, \fBEnter\fR, \fBBackspace\fR, \fBPage Up\fR, \fBPage Down\fR
+.IP
+Next/Previous slide
+.HP
+\fBg\fR, \fBHome\fR
+.IP
+Go to first slide
+.HP
+\fBG\fR, \fBEnd\fR
+.IP
+Go to last slide
+.HP
+\fB1-9\fR
+.IP
+Go to
+.B n
+slide
+.HP
+\fBr\fR
+.IP
+Reload input file
+.HP
+\fBq\fR
+.IP
+Exit
+
+.SH DEBUG
+To make a debug version of
+.B mdp
+use:
+.IP
+.B $ make DEBUG=1
+
+.SH AUTHOR
+Written by: Michel Gohler and contributors in the github repository at
+<wwwgithub.com/visit1985/mdp>
+
+Extra credits in CREDITS file
