@@ -1,115 +1,143 @@
 .\" This is the groff documentation source for MDP
 .\"
 .\" Preview with: groff -man -Tascii mdp.1
+.\"           or: man -l mdp.1
 .\"
-
-
-.TH MDP 1 "2015-4-10"
+.
+.
+.TH MDP 1 "2015-04-10" "User Commands"
 .SH NAME
-mdp \- A command-line based markdown presentation tool
+mdp \- A command-line based
+markdown presentation tool
 .SH SYNOPSIS
-.BI "mdp [" options "] file"
+.B mdp
+.RI [ OPTION ].\|.\|.\|
+.RI [ FILE ]
+.
 .SH DESCRIPTION
 .B mdp
 is a command-line program that allows you to make elegant presentations from
-markdown format files, and is as easy as write your presentation content in the
-text editor of your preference and trigger the presentation from the
-command-line.
+.B markdown formatted
+.IR FILE s.
+.PP
+It is as easy as write your presentation content in the text editor of your
+preference and launch the presentation from the command-line.
+.
 .SH OPTIONS
-.HP
-\fB\-f\fR, \fB\-\-nofade
-.IP
-Disable color fading in 256 color mode
-.HP
-\fB\-i\fR, \fB\-\-invert
-.IP
-Swap black and white color
-.HP
-\fB\-t\fR, \fB\-\-notrans
-.IP
-Disable transparency in transparent terminal
-.HP
-\fB\-h\fR, \fB\-\-help
-.IP
-Display usage message and exit
-.HP
-\fB\-d\fR, \fB\-\-debug
-.IP
-Enable debug messages on STDERR, add multiple times to increases debug level
-.SH PRESENTATION FILES
+.SS "Input Control"
+.TP
+.IR FILE
+The input file from which the presentation is read. If no file is specified,
+or if the file name is
+.BR \- ","
+the presentation is read from standard input.
+.SS "Output Control"
+.TP
+.BR \-f ", " \-\^\-nofade
+Disable color fading in 256 color mode.
+.TP
+.BR \-i ", " \-\^\-invert
+Swap black and white color.
+.TP
+.BR \-t ", " \-\^\-notrans
+Disable transparency in transparent terminal.
+.
+.SS "Miscellaneous Options"
+.TP
+.BR \-h ", " \-\^\-help
+Display usage message and exit.
+.TP
+.BR \-d ", " \-\^\-debug
+Enable debug messages on STDERR. Add multiple times to increases debug level.
+.
+.SH MARKDOWN FORMATTING
+For a complete list of supported markups, refer the sample presentation
+(sample.md) provided alongside
+.BR mdp ,\|
+or online available at
+.IR https://github.com/visit1985/mdp .
+.SS "Slides"
+The input
+.IR FILE
+is split into multiple slides by horizontal rules. Each consisting of at least
+3
+.B \-\-\-
+or
+.B ***
+characters on a single line.
+.B This line must be prefixed by an completely empty line.
+It can also contain spaces but no other characters.
+.PP
+If any slide is too large to fit into your current screen, an error message
+will be displayed at the moment the presentation is launched.
+.
+.SS "Line-by-Line Mode"
+.SS "Block-by-Block Mode"
+A single
+.BR "<br>" ", " "<BR>" " or " "^"
+on an otherwise empty line signals
 .B mdp
-uses
-.B markdown
-format files, you can write your presentations content in that format using the
-text editor of your preference.
-
-Horizontal rules are used as slide separator, if any slide are too large to fit
-into your current screen an error message will be displayed at the moment the
-presentation is initiated.
-
-.SS
-Markdown formating supported
-
+to stop output of the current slide (stop point) and wait for a key-press by
+the user.
+.PP
+This enables the user to display bullet points or list items one by one
+(line by line) or block by block.
+.
+.SS "Headers"
 .B mdp
-supports headers prefixed by
-.B @
-symbol. The first two header lines are displayed as title and author in top and
+supports header lines in the format of
+.BR @ "[DESCRIPTION] " [VALUE]
+The first two header lines are displayed as title and author in top and
 bottom bar.
-
+.PP
+Headers are only recognized at the top of the input
+.IR FILE .
+.
+.SS "Line spanning markup"
+Supported are headlines, code blocks, quotes and unordered lists.
+.
+.SS "In-line markup"
+As well as bold text, underlined text and in-line code.
+.
+.SH COLOR SUPPORT
+Most terminals are able to display 256 colors these days. But some of them
+enable only 16 colors by default. To enjoy
+.BR mdp "'s"
+full capabilities, these terminals need to be signaled to enable 256 color
+mode. This is usually done by setting the TERM environment variable.
+.PP
+.BR "export TERM=xterm-256color"
+.
+.SH KEYBOARD CONTROLS
 .TP
-.RI Line-wide\ markup
-* headlines
-
-* code
-
-* quotes
-
-* unordered list
+.BR "h, j, k, l, Arrow keys, Space, Enter, Backspace, Page Up, Page Down"
+Display next/previous slide or continue after a stop point.
 .TP
-.RI In-line\ markup
-* bold text
-
-* underlined text
-
-* code
-
-.SH CONTROLS
-.HP
-\fBh\fR, \fBj\fR, \fBk\fR, \fBl\fR, \fBArrow Keys\fR, \fBSpace\fR, \fBEnter\fR, \fBBackspace\fR, \fBPage Up\fR, \fBPage Down\fR
-.IP
-Next/Previous slide
-.HP
-\fBg\fR, \fBHome\fR
-.IP
-Go to first slide
-.HP
-\fBG\fR, \fBEnd\fR
-.IP
-Go to last slide
-.HP
-\fB1-9\fR
-.IP
-Go to
-.B n
-slide
-.HP
-\fBr\fR
-.IP
-Reload input file
-.HP
-\fBq\fR
-.IP
+.BR "g, Home"
+Jump to first slide.
+.TP
+.BR "G, End"
+Jump to last slide.
+.TP
+.BR "1..N"
+Jump to
+.BR N "th"
+slide.
+.TP
+.BR "r"
+Reload the input
+.IR FILE .\|
+This key is disabled if input was read from standard input.
+.TP
+.BR "q"
 Exit
-
-.SH DEBUG
-To make a debug version of
-.B mdp
-use:
-.IP
-.B $ make DEBUG=1
-
+.BR mdp "."
+.
 .SH AUTHOR
-Written by: Michel Gohler and contributors in the github repository at
-<wwwgithub.com/visit1985/mdp>
-
-Extra credits in CREDITS file
+Written by Michael Goehler and others, see
+.IR https://github.com/visit1985/mdp/blob/master/AUTHORS "."
+.SH COPYRIGHT
+Copyright (C) 2015 Michael Goehler
+.PP
+This is free software; see the source for copying conditions. There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
