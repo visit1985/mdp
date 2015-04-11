@@ -17,13 +17,16 @@
     [
     {
         "name": "mdp",
+        "env": {
+            "DEBUG": "1"
+        },
         "cmd": ["make"],
         "working_dir": "${project_path:${folder}}",
 
         "variants":
         [
         {
-            "name": "clean",
+            "name": "Clean",
             "cmd": ["make", "clean"]
         }
         ]
