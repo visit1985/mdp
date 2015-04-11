@@ -713,7 +713,7 @@ void inline_display(WINDOW *window, const wchar_t *c, const int colors) {
 
                         if (*i == L'!') i++;
 
-                        if (wcschr(i, L']')[1] == L'(') {
+                        if (wcschr(i, L']')[1] == L'(' && wcschr(i, L')')) {
                             i++;
 
                             // turn higlighting and underlining on
