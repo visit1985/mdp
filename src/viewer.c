@@ -60,7 +60,7 @@ static short red_ramp_invert[24]   = { 15, 231, 231, 224, 224, 225,
                                       206, 207, 201, 200, 199, 199,
                                       198, 198, 197, 197, 196, 196};
 
-int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reload, int noreload) {
+int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reload, int noreload, int slidenum) {
 
     int c = 0;          // char
     int i = 0;          // iterate
@@ -79,7 +79,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
     int bar_top = (deck->headers > 0) ? 1 : 0;
     // header line 2 is displayed at the bottom
     // anyway we display the slide number at the bottom
-    int bar_bottom = 1;
+    int bar_bottom = (slidenum || deck->headers > 1)? 1 : 0;
 
     slide_t *slide = deck->slide;
     line_t *line;
@@ -283,9 +283,18 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
         }
 
         // add slide number to right footer
-        mvwprintw(stdscr,
-                  LINES - 1, COLS - int_length(deck->slides) - int_length(sc) - 6,
-                  "%d / %d", sc, deck->slides);
+        switch(slidenum) {
+            case 1: // show slide number only
+                mvwprintw(stdscr,
+                          LINES - 1, COLS - int_length(sc) - 6,
+                          "%d", sc);
+                break;
+            case 2: // show current slide & number of slides
+                mvwprintw(stdscr,
+                          LINES - 1, COLS - int_length(deck->slides) - int_length(sc) - 6,
+                          "%d / %d", sc, deck->slides);
+                break;
+        }
 
         // make header + fooder visible
         wrefresh(content);
