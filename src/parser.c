@@ -191,6 +191,30 @@ deck_t *markdown_load(FILE *input) {
     slide = deck->slide;
     while(slide) {
         line = slide->line;
+
+        // ignore mdpress format attributes
+        if(line &&
+           slide->lines > 1 &&
+           !CHECK_BIT(line->bits, IS_EMPTY) &&
+           line->text->value[line->offset] == L'=' &&
+           line->text->value[line->offset + 1] == L' ') {
+
+            // remove line from linked list
+            slide->line = line->next;
+            line->next->prev = NULL;
+
+            // maintain loop condition
+            tmp = line;
+            line = line->next;
+
+            // adjust line count
+            slide->lines -= 1;
+
+            // delete line
+            (tmp->text->delete)(tmp->text);
+            free(tmp);
+        }
+
         while(line) {
             // combine underlined H1/H2 in single line
             if((CHECK_BIT(line->bits, IS_H1) ||
