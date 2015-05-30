@@ -276,17 +276,26 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
         if(deck->headers > 1) {
             line = deck->header->next;
             offset = next_blank(line->text, 0) + 1;
-            // add text to left footer
-            mvwaddwstr(stdscr,
-                       LINES - 1, 3,
-                       &line->text->value[offset]);
+            switch(slidenum) {
+                case 0: // add text to center footer
+                    mvwaddwstr(stdscr,
+                               LINES - 1, (COLS - line->length + offset) / 2,
+                               &line->text->value[offset]);
+                    break;
+                case 1:
+                case 2: // add text to left footer
+                    mvwaddwstr(stdscr,
+                               LINES - 1, 3,
+                               &line->text->value[offset]);
+                    break;
+            }
         }
 
         // add slide number to right footer
         switch(slidenum) {
             case 1: // show slide number only
                 mvwprintw(stdscr,
-                          LINES - 1, COLS - int_length(sc) - 6,
+                          LINES - 1, COLS - int_length(sc) - 3,
                           "%d", sc);
                 break;
             case 2: // show current slide & number of slides
