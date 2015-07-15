@@ -90,8 +90,9 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    // set locale to read and display UTF-8 correctly in ncurses
-    setlocale(LC_CTYPE, "en_US.UTF8");
+    // set locale to that of the environment, so that ncurses properly renders
+    // UTF-8 characters if the system supports it
+    setlocale(LC_CTYPE, "");
 
     // open file or set input to STDIN
     char *file = NULL;
