@@ -106,21 +106,19 @@ You can also use [pandoc](http://pandoc.org/demo/example9/pandocs-markdown.html)
 Use at least three ~ chars to open and at least as many or 
 more ~ for closing.
 
-~~~~~
-~~~
-int main(int argc, char \*argv[]) {
-    printf("%s\\n", "Hello world!");
-}
-~~~
-~~~~~~~
+\~~~ {.numberLines}
+\int main(int argc, char \*argv[]) {
+\    printf("%s\\n", "Hello world!");
+\}
+\~~~~~~~~~~~~~~~~~~
 
 becomes
 
-~~~
+~~~ {.numberLines}
 int main(int argc, char \*argv[]) {
     printf("%s\\n", "Hello world!");
 }
-~~~
+~~~~~~~~~~~~~~~~~~
 
 Pandoc attributes (like ".numberlines" etc.) will be ignored
 
