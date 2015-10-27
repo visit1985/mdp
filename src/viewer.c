@@ -577,8 +577,10 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
     // IS_CODE
     if(CHECK_BIT(line->bits, IS_CODE)) {
 
-        // set static offset for code
-        offset = CODE_INDENT;
+	if (!CHECK_BIT(line->bits, IS_TILDE_CODE)) {
+		// set static offset for code
+		offset = CODE_INDENT;
+	}
 
         // reverse color for code blocks
         if(colors)

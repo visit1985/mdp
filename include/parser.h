@@ -57,5 +57,6 @@ int next_nonblank(cstring_t *text, int i);
 int prev_blank(cstring_t *text, int i);
 int next_blank(cstring_t *text, int i);
 int next_word(cstring_t *text, int i);
+int next_nontilde(cstring_t *text, int i);
 
 #endif // !defined( PARSER_H )

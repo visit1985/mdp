@@ -89,6 +89,9 @@ deck_t *markdown_load(FILE *input) {
                 slide = next_slide(slide);
                 sc++;
 
+            } else if(CHECK_BIT(bits, IS_TILDE_CODE) && CHECK_BIT(bits, IS_EMPTY)) {
+		// remove tilde code markers
+		(text->reset)(text);
             } else {
 
                 // if slide ! has line
@@ -319,6 +322,7 @@ int markdown_analyse(cstring_t *text, int prev) {
     // the program remembers their value on every function calls
     static int unordered_list_level = 0;
     static int unordered_list_level_offset[] = {-1, -1, -1, -1};
+    static int num_tilde_characters = 0;
 
     int i = 0;      // increment
     int bits = 0;   // markdown bits
@@ -339,6 +343,27 @@ int markdown_analyse(cstring_t *text, int prev) {
 
     // count leading spaces
     offset = next_nonblank(text, 0);
+
+    // IS_TILDE_CODE
+    if (wcsncmp(text->value, L"~~~", 3) == 0) {
+	    int tildes_in_line = next_nontilde(text, 0);
+	    if (tildes_in_line >= num_tilde_characters) {
+		    if (num_tilde_characters > 0) {
+			    num_tilde_characters = 0;
+		    } else {
+			    num_tilde_characters = tildes_in_line;
+		    }
+		    SET_BIT(bits, IS_EMPTY);
+		    SET_BIT(bits, IS_TILDE_CODE);
+		    return bits;
+	    }
+    }
+
+    if (num_tilde_characters > 0) {
+	    SET_BIT(bits, IS_CODE);
+	    SET_BIT(bits, IS_TILDE_CODE);
+	    return bits;
+    }
 
     // IS_STOP
     if((offset < CODE_INDENT || !CHECK_BIT(prev, IS_CODE)) &&
@@ -622,6 +647,7 @@ int next_nonblank(cstring_t *text, int i) {
     return i;
 }
 
+
 int prev_blank(cstring_t *text, int i) {
     while ((i > 0) && !iswspace((text->value)[i]))
         i--;
@@ -639,3 +665,11 @@ int next_blank(cstring_t *text, int i) {
 int next_word(cstring_t *text, int i) {
     return next_nonblank(text, next_blank(text, i));
 }
+
+int next_nontilde(cstring_t *text, int i) {
+    while ((i < text->size) && text->value[i] == L'~')
+        i++;
+
+    return i;
+}
+

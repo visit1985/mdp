@@ -102,6 +102,32 @@ becomes
 
 -> # Supported markdown formatting <-
 
+You can also use [pandoc](http://pandoc.org/demo/example9/pandocs-markdown.html)'s fenced code block extension.
+Use at least three ~ chars to open and at least as many or 
+more ~ for closing.
+
+~~~~~
+~~~
+int main(int argc, char \*argv[]) {
+    printf("%s\\n", "Hello world!");
+}
+~~~
+~~~~~~~
+
+becomes
+
+~~~
+int main(int argc, char \*argv[]) {
+    printf("%s\\n", "Hello world!");
+}
+~~~
+
+Pandoc attributes (like ".numberlines" etc.) will be ignored
+
+-------------------------------------------------
+
+-> # Supported markdown formatting <-
+
 Quotes are auto-detected by preceding *>*.
 
 Multiple *>* are interpreted as nested quotes.

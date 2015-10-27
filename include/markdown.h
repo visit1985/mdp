@@ -47,6 +47,7 @@ enum line_bitmask {
     IS_H2_ATX,
     IS_QUOTE,
     IS_CODE,
+    IS_TILDE_CODE,
     IS_HR,
     IS_UNORDERED_LIST_1,
     IS_UNORDERED_LIST_2,
