@@ -36,6 +36,7 @@ void usage() {
     fprintf(stderr, "%s", "  -i, --invert      swap black and white color\n");
     fprintf(stderr, "%s", "  -t, --notrans     disable transparency in transparent terminal\n");
     fprintf(stderr, "%s", "  -s, --noslidenum  do not show slide number at the bottom\n");
+    fprintf(stderr, "%s", "  -v, --version     display the version number and license\n");
     fprintf(stderr, "%s", "  -x, --noslidemax  show slide number, but not total number of slides\n");
     fprintf(stderr, "%s", "\nWith no FILE, or when FILE is -, read standard input.\n\n");
     exit(EXIT_FAILURE);
