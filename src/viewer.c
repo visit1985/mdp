@@ -371,11 +371,15 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
                     // show current slide again
                     // but stop one stop bit earlier
                     slide->stop--;
+                    fade = false;
                 } else {
                     if(slide->prev) {
                         // show previous slide
                         slide = slide->prev;
                         sc--;
+                        //stop on first bullet point always
+                        if(slide->stop > 0)
+                            slide->stop = 0;
                     } else {
                         // do nothing
                         fade = false;
@@ -395,6 +399,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
                     // show current slide again
                     // but stop one stop bit later (or at end of slide)
                     slide->stop++;
+                    fade = false;
                 } else {
                     if(slide->next) {
                         // show next slide
