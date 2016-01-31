@@ -21,9 +21,11 @@ Now download and install mdp:
     $ mdp sample.md
 
 - On Arch, you can use the existing [AUR package](https://aur.archlinux.org/packages/mdp-git/).
-- On Slackware, grab the SlackBuild here: (http://slackbuilds.org/apps/mdp/), or run `sbopkg -i mdp`.
+- On Debian, you can use the existing [DEB package](https://tracker.debian.org/pkg/mdp-src), or run `apt-get install mdp`.
 - On FreeBSD, you can use the port [misc/mdp](http://www.freshports.org/misc/mdp).
 - On OS-X, use the existing [Homebrew Formula](http://brewformulas.org/Mdp) by running `brew install mdp`.
+- On Slackware, grab the SlackBuild here: (http://slackbuilds.org/apps/mdp/), or run `sbopkg -i mdp`.
+- On Ubuntu, you can use the existing [DEB package](https://launchpad.net/ubuntu/+source/mdp-src), or run `apt-get install mdp`.
 
 Most terminals support 256 colors only if the TERM variable is
 set correctly. To enjoy mdp's color fading feature:
@@ -77,4 +79,3 @@ Review sample.md for more details.
 To make a debug version of `mdp`, just type:
 
     $ make DEBUG=1
-
