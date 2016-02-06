@@ -600,7 +600,7 @@ void markdown_debug(deck_t *deck, int debug) {
 void adjust_line_length(line_t *line) {
     int l = 0;
     const static wchar_t *special = L"\\*_`"; // list of interpreted chars
-    const wchar_t *c = &line->text->value[line->offset];
+    const wchar_t *c = &line->text->value[0];
     cstack_t *stack = cstack_init();
 
     // for each char in line
