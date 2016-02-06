@@ -82,11 +82,11 @@ C program starts with `main()`.
 
 -> # Supported markdown formatting <-
 
-Code blocks are automatically detected by 4
-spaces at the beginning of a line.
+Code blocks are automatically detected by 4 spaces
+at the beginning of a line.
 
-Tabs are automatically expanded to 4 spaces
-while parsing the input.
+Tabs are automatically expanded to 4 spaces while
+parsing the input.
 
 \    int main(int argc, char \*argv[]) {
 \        printf("%s\\n", "Hello world!");
@@ -102,9 +102,9 @@ becomes
 
 -> # Supported markdown formatting <-
 
-You can also use [pandoc](http://pandoc.org/demo/example9/pandocs-markdown.html)'s fenced code block extension.
-Use at least three ~ chars to open and at least as many or
-more ~ for closing.
+You can also use [pandoc](http://pandoc.org/demo/example9/pandocs-markdown.html)'s fenced code block
+extension. Use at least three ~ chars to open and
+at least as many or more ~ for closing.
 
 \~~~ {.numberLines}
 \int main(int argc, char \*argv[]) {
@@ -120,7 +120,8 @@ int main(int argc, char \*argv[]) {
 }
 ~~~~~~~~~~~~~~~~~~
 
-Pandoc attributes (like ".numberlines" etc.) will be ignored
+Pandoc attributes (like ".numberlines" etc.)
+will be ignored
 
 -------------------------------------------------
 
@@ -160,8 +161,8 @@ _some_ *highlighted* _*text*_
 -> # Supported markdown formatting <-
 
 Backslashes force special markdown characters
-like *\**, *\_*, *#* and *>* to be printed as normal
-characters.
+like *\**, *\_*, *#* and *>* to be printed as
+normal characters.
 
 \\\*special\\\*
 

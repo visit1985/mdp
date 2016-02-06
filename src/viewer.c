@@ -93,11 +93,10 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
 
         while(line && line->text) {
 
-            if (line->text->value)
+            if (line->text->value) {
                 lc += url_count_inline(line->text->value);
-
-            if (line->text->value)
                 line->length -= url_len_inline(line->text->value);
+            }
 
             if(line->length > COLS) {
                 i = line->length;

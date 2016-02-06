@@ -89,7 +89,8 @@ deck_t *markdown_load(FILE *input) {
                 slide = next_slide(slide);
                 sc++;
 
-            } else if(CHECK_BIT(bits, IS_TILDE_CODE) && CHECK_BIT(bits, IS_EMPTY)) {
+            } else if(CHECK_BIT(bits, IS_TILDE_CODE) &&
+                      CHECK_BIT(bits, IS_EMPTY)) {
                 // remove tilde code markers
                 (text->reset)(text);
 
