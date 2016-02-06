@@ -340,6 +340,11 @@ int markdown_analyse(cstring_t *text, int prev) {
     // return IS_EMPTY on null pointers
     if(!text || !text->value) {
         SET_BIT(bits, IS_EMPTY);
+
+        // continue fenced code blocks across empty lines
+        if(num_tilde_characters > 0)
+            SET_BIT(bits, IS_CODE);
+
         return bits;
     }
 

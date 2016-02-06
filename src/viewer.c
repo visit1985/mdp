@@ -510,15 +510,24 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
 
 void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colors) {
 
-    if(!line->text->value) {
-        return;
-    }
-
     int i; // increment
     int offset = 0; // text offset
 
     // move the cursor in position
     wmove(window, y, x);
+
+    if(!line->text->value) {
+
+        // fill rest off line with spaces if we are in a code block
+        if(CHECK_BIT(line->bits, IS_CODE) && colors) {
+            wattron(window, COLOR_PAIR(CP_BLACK));
+            for(i = getcurx(window) - x; i < max_cols; i++)
+                wprintw(window, "%s", " ");
+        }
+
+        // do nothing
+        return;
+    }
 
     // IS_UNORDERED_LIST_3
     if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_3)) {
