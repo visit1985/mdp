@@ -1,6 +1,6 @@
 /*
  * An implementation of expandable c strings in heap memory.
- * Copyright (C) 2015 Michael Goehler
+ * Copyright (C) 2016 Michael Goehler
  *
  * This file is part of mdp.
  *

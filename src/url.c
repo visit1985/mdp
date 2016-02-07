@@ -1,6 +1,6 @@
 /*
  * Functions necessary to handle pandoc URLs.
- * Copyright (C) 2015 Michael Goehler
+ * Copyright (C) 2016 Michael Goehler
  *
  * This file is part of mdp.
  *

@@ -1,6 +1,6 @@
 /*
  * mdp -- A command-line based markdown presentation tool.
- * Copyright (C) 2015 Michael Goehler
+ * Copyright (C) 2016 Michael Goehler
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ void usage() {
 
 void version() {
     printf("mdp %d.%d.%d\n", MDP_VER_MAJOR, MDP_VER_MINOR, MDP_VER_REVISION);
-    printf("Copyright (C) 2015 Michael Goehler\n");
+    printf("Copyright (C) 2016 Michael Goehler\n");
     printf("License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.\n");
     printf("This is free software: you are free to change and redistribute it.\n");
     printf("There is NO WARRANTY, to the extent permitted by law.\n");

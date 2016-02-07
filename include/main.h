@@ -3,7 +3,7 @@
 
 /*
  * mdp -- A command-line based markdown presentation tool.
- * Copyright (C) 2015 Michael Goehler
+ * Copyright (C) 2016 Michael Goehler
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,6 @@
 
 #define MDP_VER_MAJOR 1
 #define MDP_VER_MINOR 0
-#define MDP_VER_REVISION 4
+#define MDP_VER_REVISION 5
 
 #endif // !defined( MAIN_H )
