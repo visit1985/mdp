@@ -229,12 +229,14 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
         colors = 1;
     }
 
-    // set background color of main window
+    // set background color for main window
     if(colors)
-        wbkgd(stdscr, COLOR_PAIR(CP_YELLOW));
+        wbkgd(stdscr, COLOR_PAIR(CP_WHITE));
 
-    // setup main window
+    // setup content window
     WINDOW *content = newwin(LINES - bar_top - bar_bottom, COLS, 0 + bar_top, 0);
+
+    // set background color of content window
     if(colors)
         wbkgd(content, COLOR_PAIR(CP_WHITE));
 
@@ -260,6 +262,10 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
 
         // always resize window in case terminal geometry has changed
         wresize(content, LINES - bar_top - bar_bottom, COLS);
+
+        // set main window text color
+        if(colors)
+            wattron(stdscr, COLOR_PAIR(CP_YELLOW));
 
         // setup header
         if(bar_top) {
@@ -304,9 +310,8 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
                 break;
         }
 
-        // make header + fooder visible
-        wrefresh(content);
-        wrefresh(stdscr);
+        // copy changed lines in main window to virtual screen
+        wnoutrefresh(stdscr);
 
         line = slide->line;
         l = stop = 0;
@@ -339,8 +344,11 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
             }
         }
 
-        // make content visible
-        wrefresh(content);
+        // copy changed lines in content window to virtual screen
+        wnoutrefresh(content);
+
+        // compare virtual screen to physical screen and does the actual updates
+        doupdate();
 
         // fade in
         if(fade)
@@ -863,8 +871,11 @@ void fade_out(WINDOW *window, int trans, int colors, int invert) {
                 init_pair(CP_BLACK, 16, white_ramp[i]);
             }
 
-            // refresh window with new color
-            wrefresh(window);
+            // refresh virtual screen with new color
+            wnoutrefresh(window);
+
+            // compare virtual screen to physical screen and does the actual updates
+            doupdate();
 
             // delay for our eyes to recognize the change
             usleep(FADE_DELAY);
@@ -890,8 +901,11 @@ void fade_in(WINDOW *window, int trans, int colors, int invert) {
                 init_pair(CP_BLACK, 16, white_ramp[i]);
             }
 
-            // refresh window with new color
-            wrefresh(window);
+            // refresh virtual screen with new color
+            wnoutrefresh(window);
+
+            // compare virtual screen to physical screen and does the actual updates
+            doupdate();
 
             // delay for our eyes to recognize the change
             usleep(FADE_DELAY);
