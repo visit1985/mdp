@@ -520,7 +520,8 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
 
         // fill rest off line with spaces if we are in a code block
         if(CHECK_BIT(line->bits, IS_CODE) && colors) {
-            wattron(window, COLOR_PAIR(CP_BLACK));
+            if(colors)
+                wattron(window, COLOR_PAIR(CP_BLACK));
             for(i = getcurx(window) - x; i < max_cols; i++)
                 wprintw(window, "%s", " ");
         }
