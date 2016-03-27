@@ -524,44 +524,43 @@ static const char *list_head1 = " +- ";
 static const char *list_head2 = " +- ";
 static const char *list_head3 = " +- ";
 /*
-
-export MDP_LIST_OPEN3="    "
+export MDP_LIST_OPEN1="    "
 export MDP_LIST_OPEN2="    "
 export MDP_LIST_OPEN3="    "
 export MDP_LIST_HEAD1=" ■  "
 export MDP_LIST_HEAD2=" ▫  "
 export MDP_LIST_HEAD3=" ●  "
 
-export MDP_LIST_OPEN2=" │  "
+export MDP_LIST_OPEN1=" │  "
 export MDP_LIST_OPEN2=" │  "
 export MDP_LIST_OPEN3=" │  "
 export MDP_LIST_HEAD1=" ▇─ "
 export MDP_LIST_HEAD2=" ▓─ "
 export MDP_LIST_HEAD3=" ▒─ "
-*
 */
 void setup_list_strings(void)
 {
     const char *str;
 
-    if ((str = getenv("MDP_LIST_OPEN")) != NULL) {
+    /* utf8 can require 6 bytes */
+    if ((str = getenv("MDP_LIST_OPEN")) != NULL && strlen(str) <= 4*6) {
         list_open1 = list_open2 = list_open3 = str;
     } else {
-        if ((str = getenv("MDP_LIST_OPEN1")) != NULL)
+        if ((str = getenv("MDP_LIST_OPEN1")) != NULL && strlen(str) <= 4*6)
             list_open1 = str;
-        if ((str = getenv("MDP_LIST_OPEN2")) != NULL)
+        if ((str = getenv("MDP_LIST_OPEN2")) != NULL && strlen(str) <= 4*6)
             list_open2 = str;
-        if ((str = getenv("MDP_LIST_OPEN3")) != NULL)
+        if ((str = getenv("MDP_LIST_OPEN3")) != NULL && strlen(str) <= 4*6)
             list_open3 = str;
     }
-    if ((str = getenv("MDP_LIST_HEAD")) != NULL) {
+    if ((str = getenv("MDP_LIST_HEAD")) != NULL && strlen(str) <= 4*6) {
         list_head1 = list_head2 = list_head3 = str;
     } else {
-        if ((str = getenv("MDP_LIST_HEAD1")) != NULL)
+        if ((str = getenv("MDP_LIST_HEAD1")) != NULL && strlen(str) <= 4*6)
             list_head1 = str;
-        if ((str = getenv("MDP_LIST_HEAD2")) != NULL)
+        if ((str = getenv("MDP_LIST_HEAD2")) != NULL && strlen(str) <= 4*6)
             list_head2 = str;
-        if ((str = getenv("MDP_LIST_HEAD3")) != NULL)
+        if ((str = getenv("MDP_LIST_HEAD3")) != NULL && strlen(str) <= 4*6)
             list_head3 = str;
     }
 }
