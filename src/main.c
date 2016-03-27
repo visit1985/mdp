@@ -95,6 +95,9 @@ int main(int argc, char *argv[]) {
     // UTF-8 characters if the system supports it
     setlocale(LC_CTYPE, "");
 
+    // setup list string
+    setup_list_strings();
+
     // open file or set input to STDIN
     char *file = NULL;
     FILE *input;

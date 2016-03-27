@@ -26,6 +26,7 @@
 #include <wctype.h> // iswalnum
 #include <string.h> // strcpy
 #include <unistd.h> // usleep
+#include <stdlib.h> // getenv
 #include "viewer.h"
 
 // color ramp for fading from black to color
@@ -516,6 +517,55 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
     return reload;
 }
 
+static const char *list_open1 = " |  ";
+static const char *list_open2 = " |  ";
+static const char *list_open3 = " |  ";
+static const char *list_head1 = " +- ";
+static const char *list_head2 = " +- ";
+static const char *list_head3 = " +- ";
+/*
+
+export MDP_LIST_OPEN3="    "
+export MDP_LIST_OPEN2="    "
+export MDP_LIST_OPEN3="    "
+export MDP_LIST_HEAD1=" ■  "
+export MDP_LIST_HEAD2=" ▫  "
+export MDP_LIST_HEAD3=" ●  "
+
+export MDP_LIST_OPEN2=" │  "
+export MDP_LIST_OPEN2=" │  "
+export MDP_LIST_OPEN3=" │  "
+export MDP_LIST_HEAD1=" ▇─ "
+export MDP_LIST_HEAD2=" ▓─ "
+export MDP_LIST_HEAD3=" ▒─ "
+*
+*/
+void setup_list_strings(void)
+{
+    const char *str;
+
+    if ((str = getenv("MDP_LIST_OPEN")) != NULL) {
+        list_open1 = list_open2 = list_open3 = str;
+    } else {
+        if ((str = getenv("MDP_LIST_OPEN1")) != NULL)
+            list_open1 = str;
+        if ((str = getenv("MDP_LIST_OPEN2")) != NULL)
+            list_open2 = str;
+        if ((str = getenv("MDP_LIST_OPEN3")) != NULL)
+            list_open3 = str;
+    }
+    if ((str = getenv("MDP_LIST_HEAD")) != NULL) {
+        list_head1 = list_head2 = list_head3 = str;
+    } else {
+        if ((str = getenv("MDP_LIST_HEAD1")) != NULL)
+            list_head1 = str;
+        if ((str = getenv("MDP_LIST_HEAD2")) != NULL)
+            list_head2 = str;
+        if ((str = getenv("MDP_LIST_HEAD3")) != NULL)
+            list_head3 = str;
+    }
+}
+
 void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colors) {
 
     int i; // increment
@@ -541,14 +591,20 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
     // IS_UNORDERED_LIST_3
     if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_3)) {
         offset = next_nonblank(line->text, 0);
-        char prompt[13];
-        strcpy(&prompt[0], CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)? " |  " : "    ");
-        strcpy(&prompt[4], CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)? " |  " : "    ");
+        char prompt[13 * 6];
+        int pos = 0, len, cnt;
+        len = sizeof(prompt) - pos;
+        cnt = snprintf(&prompt[pos], len, "%s", CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)? list_open1 : "    ");
+        pos += (cnt > len - 1 ? len - 1 : cnt);
+        len = sizeof(prompt) - pos;
+        cnt = snprintf(&prompt[pos], len, "%s", CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)? list_open2 : "    ");
+        pos += (cnt > len - 1 ? len - 1 : cnt);
+        len = sizeof(prompt) - pos;
 
         if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_EXT)) {
-            strcpy(&prompt[8], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_3)? " |  " : "    ");
+            snprintf(&prompt[pos], len, "%s", line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_3)? list_open3 : "    ");
         } else {
-            strcpy(&prompt[8], " +- ");
+            snprintf(&prompt[pos], len, "%s", list_head3);
             offset += 2;
         }
 
@@ -561,13 +617,17 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
     // IS_UNORDERED_LIST_2
     } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_2)) {
         offset = next_nonblank(line->text, 0);
-        char prompt[9];
-        strcpy(&prompt[0], CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)? " |  " : "    ");
+        char prompt[9 * 6];
+        int pos = 0, len, cnt;
+        len = sizeof(prompt) - pos;
+        cnt = snprintf(&prompt[pos], len, "%s", CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)? list_open1 : "    ");
+        pos += (cnt > len - 1 ? len - 1 : cnt);
+        len = sizeof(prompt) - pos;
 
         if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_EXT)) {
-            strcpy(&prompt[4], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_2)? " |  " : "    ");
+            snprintf(&prompt[pos], len, "%s", line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_2)? list_open2 : "    ");
         } else {
-            strcpy(&prompt[4], " +- ");
+            snprintf(&prompt[pos], len, "%s", list_head2);
             offset += 2;
         }
 
@@ -580,12 +640,12 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
     // IS_UNORDERED_LIST_1
     } else if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_1)) {
         offset = next_nonblank(line->text, 0);
-        char prompt[5];
+        char prompt[5 * 6];
 
         if(CHECK_BIT(line->bits, IS_UNORDERED_LIST_EXT)) {
-            strcpy(&prompt[0], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_1)? " |  " : "    ");
+            strcpy(&prompt[0], line->next && CHECK_BIT(line->next->bits, IS_UNORDERED_LIST_1)? list_open1 : "    ");
         } else {
-            strcpy(&prompt[0], " +- ");
+            strcpy(&prompt[0], list_head1);
             offset += 2;
         }
 

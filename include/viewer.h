@@ -62,5 +62,6 @@ void fade_out(WINDOW *window, int trans, int colors, int invert);
 void fade_in(WINDOW *window, int trans, int colors, int invert);
 int int_length (int val);
 int get_slide_number(char init);
+void setup_list_strings(void);
 
 #endif // !defined( VIEWER_H )
