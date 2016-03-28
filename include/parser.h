@@ -52,6 +52,8 @@
 deck_t *markdown_load(FILE *input);
 int markdown_analyse(cstring_t *text, int prev);
 void markdown_debug(deck_t *deck, int debug);
+void expand_character_entities(line_t *line);
+void setup_character_entities(void);
 void adjust_line_length(line_t *line);
 int next_nonblank(cstring_t *text, int i);
 int prev_blank(cstring_t *text, int i);

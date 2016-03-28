@@ -98,6 +98,9 @@ int main(int argc, char *argv[]) {
     // setup list string
     setup_list_strings();
 
+    // setup character entities
+    setup_character_entities();
+
     // open file or set input to STDIN
     char *file = NULL;
     FILE *input;
