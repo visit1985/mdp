@@ -5,7 +5,7 @@
 .\"
 .
 .
-.TH MDP 1 "2016-02-07" "User Commands"
+.TH MDP 1 "2016-04-02" "User Commands"
 .SH NAME
 mdp \- A command-line based
 markdown presentation tool
@@ -32,6 +32,9 @@ or if the file name is
 .BR \- ","
 the presentation is read from standard input.
 .SS "Output Control"
+.TP
+.BR \-e ", " \-\^\-expand
+Enable character entity expansion (e.g. '&gt;' becomes '>').
 .TP
 .BR \-f ", " \-\^\-nofade
 Disable color fading in 256 color mode.

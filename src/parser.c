@@ -31,7 +31,76 @@
 
 #include "parser.h"
 
-deck_t *markdown_load(FILE *input) {
+// char entry translation table
+static struct named_character_entity {
+    wchar_t        ucs;
+    const wchar_t *name;
+} named_character_entities[] = {
+   { L'\x0022', L"quot" },
+   { L'\x0026', L"amp" },
+   { L'\x0027', L"apos" },
+   { L'\x003C', L"lt" },
+   { L'\x003E', L"gt" },
+   { L'\x00A2', L"cent" },
+   { L'\x00A3', L"pound" },
+   { L'\x00A5', L"yen" },
+   { L'\x00A7', L"sect" },
+   { L'\x00A9', L"copy" },
+   { L'\x00AA', L"laquo" },
+   { L'\x00AE', L"reg" },
+   { L'\x00B0', L"deg" },
+   { L'\x00B1', L"plusmn" },
+   { L'\x00B2', L"sup2" },
+   { L'\x00B3', L"sup3" },
+   { L'\x00B6', L"para" },
+   { L'\x00B9', L"sup1" },
+   { L'\x00BB', L"raquo" },
+   { L'\x00BC', L"frac14" },
+   { L'\x00BD', L"frac12" },
+   { L'\x00BE', L"frac34" },
+   { L'\x00D7', L"times" },
+   { L'\x00F7', L"divide" },
+   { L'\x2018', L"lsquo" },
+   { L'\x2019', L"rsquo" },
+   { L'\x201C', L"ldquo" },
+   { L'\x201D', L"rdquo" },
+   { L'\x2020', L"dagger" },
+   { L'\x2021', L"Dagger" },
+   { L'\x2022', L"bull" },
+   { L'\x2026', L"hellip" },
+   { L'\x2030', L"permil" },
+   { L'\x2032', L"prime" },
+   { L'\x2033', L"Prime" },
+   { L'\x2039', L"lsaquo" },
+   { L'\x203A', L"rsaquo" },
+   { L'\x20AC', L"euro" },
+   { L'\x2122', L"trade" },
+   { L'\x2190', L"larr" },
+   { L'\x2191', L"uarr" },
+   { L'\x2192', L"rarr" },
+   { L'\x2193', L"darr" },
+   { L'\x2194', L"harr" },
+   { L'\x21B5', L"crarr" },
+   { L'\x21D0', L"lArr" },
+   { L'\x21D1', L"uArr" },
+   { L'\x21D2', L"rArr" },
+   { L'\x21D3', L"dArr" },
+   { L'\x21D4', L"hArr" },
+   { L'\x221E', L"infin" },
+   { L'\x2261', L"equiv" },
+   { L'\x2308', L"lceil" },
+   { L'\x2309', L"rceil" },
+   { L'\x230A', L"lfloor" },
+   { L'\x230B', L"rfloor" },
+   { L'\x25CA', L"loz" },
+   { L'\x2660', L"spades" },
+   { L'\x2663', L"clubs" },
+   { L'\x2665', L"hearts" },
+   { L'\x2666', L"diams" },
+   { L'\0', NULL },
+};
+
+deck_t *markdown_load(FILE *input, int noexpand) {
 
     wchar_t c = L'\0';    // char
     int i = 0;    // increment
@@ -122,7 +191,9 @@ deck_t *markdown_load(FILE *input) {
                 line->offset = next_nonblank(text, 0);
 
                 // expand character entities if enabled
-                if(line->text->value)
+                if(line->text->value &&
+                   !noexpand &&
+                   !CHECK_BIT(line->bits, IS_CODE))
                     expand_character_entities(line);
 
                 // adjust line length dynamicaly - excluding markup
@@ -607,96 +678,10 @@ void markdown_debug(deck_t *deck, int debug) {
     }
 }
 
-static int enable_character_entities = 0;
-static struct named_character_entity {
-    wchar_t        ucs;
-    const wchar_t *name;
-} named_character_entities[] = {
-   { L'\x0022', L"quot" },
-   { L'\x0026', L"amp" },
-   { L'\x0027', L"apos" },
-   { L'\x003C', L"lt" },
-   { L'\x003E', L"gt" },
-   { L'\x00A2', L"cent" },
-   { L'\x00A3', L"pound" },
-   { L'\x00A5', L"yen" },
-   { L'\x00A7', L"sect" },
-   { L'\x00A9', L"copy" },
-   { L'\x00AA', L"laquo" },
-   { L'\x00AE', L"reg" },
-   { L'\x00B0', L"deg" },
-   { L'\x00B1', L"plusmn" },
-   { L'\x00B2', L"sup2" },
-   { L'\x00B3', L"sup3" },
-   { L'\x00B6', L"para" },
-   { L'\x00B9', L"sup1" },
-   { L'\x00BB', L"raquo" },
-   { L'\x00BC', L"frac14" },
-   { L'\x00BD', L"frac12" },
-   { L'\x00BE', L"frac34" },
-   { L'\x00D7', L"times" },
-   { L'\x00F7', L"divide" },
-   { L'\x2018', L"lsquo" },
-   { L'\x2019', L"rsquo" },
-   { L'\x201C', L"ldquo" },
-   { L'\x201D', L"rdquo" },
-   { L'\x2020', L"dagger" },
-   { L'\x2021', L"Dagger" },
-   { L'\x2022', L"bull" },
-   { L'\x2026', L"hellip" },
-   { L'\x2030', L"permil" },
-   { L'\x2032', L"prime" },
-   { L'\x2033', L"Prime" },
-   { L'\x2039', L"lsaquo" },
-   { L'\x203A', L"rsaquo" },
-   { L'\x20AC', L"euro" },
-   { L'\x2122', L"trade" },
-   { L'\x2190', L"larr" },
-   { L'\x2191', L"uarr" },
-   { L'\x2192', L"rarr" },
-   { L'\x2193', L"darr" },
-   { L'\x2194', L"harr" },
-   { L'\x21B5', L"crarr" },
-   { L'\x21D0', L"lArr" },
-   { L'\x21D1', L"uArr" },
-   { L'\x21D2', L"rArr" },
-   { L'\x21D3', L"dArr" },
-   { L'\x21D4', L"hArr" },
-   { L'\x221E', L"infin" },
-   { L'\x2261', L"equiv" },
-   { L'\x2308', L"lceil" },
-   { L'\x2309', L"rceil" },
-   { L'\x230A', L"lfloor" },
-   { L'\x230B', L"rfloor" },
-   { L'\x25CA', L"loz" },
-   { L'\x2660', L"spades" },
-   { L'\x2663', L"clubs" },
-   { L'\x2665', L"hearts" },
-   { L'\x2666', L"diams" },
-   { L'\0', NULL },
-};
-
-/*
-export MDP_ENABLE_CHARENT=1
-*/
-void setup_character_entities(void)
-{
-    char *str = getenv("MDP_ENABLE_CHARENT");
-    if (str == NULL)
-        enable_character_entities = 0;
-    else if (str[0] == '\0')
-        enable_character_entities = 1;
-    else
-        enable_character_entities = atoi(str);
-}
-
 void expand_character_entities(line_t *line)
 {
     wchar_t *ampersand;
     wchar_t *prev, *curr;
-
-    if (!enable_character_entities)
-        return;
 
     ampersand = NULL;
     curr = &line->text->value[0];

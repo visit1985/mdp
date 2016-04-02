@@ -31,6 +31,7 @@ void usage() {
     fprintf(stderr, "%s", "A command-line based markdown presentation tool.\n\n");
     fprintf(stderr, "%s", "  -d, --debug       enable debug messages on STDERR\n");
     fprintf(stderr, "%s", "                    add it multiple times to increases debug level\n");
+    fprintf(stderr, "%s", "  -e, --expand      enable character entity expansion\n");
     fprintf(stderr, "%s", "  -f, --nofade      disable color fading in 256 color mode\n");
     fprintf(stderr, "%s", "  -h, --help        display this help and exit\n");
     fprintf(stderr, "%s", "  -i, --invert      swap black and white color\n");
@@ -56,18 +57,20 @@ int main(int argc, char *argv[]) {
     int notrans = 0;   // disable transparency
     int nofade = 0;    // disable fading
     int invert = 0;    // invert color (black on white)
+    int noexpand = 1;  // disable character entity expansion
     int reload = 0;    // reload page N (0 means no reload)
     int noreload = 1;  // reload disabled until we know input is a file
     int slidenum = 2;  // 0:don't show; 1:show #; 2:show #/#
 
     // define command-line options
     struct option longopts[] = {
-        { "debug",   no_argument, 0, 'd' },
-        { "nofade",  no_argument, 0, 'f' },
-        { "help",    no_argument, 0, 'h' },
-        { "invert",  no_argument, 0, 'i' },
-        { "notrans", no_argument, 0, 't' },
-        { "version", no_argument, 0, 'v' },
+        { "debug",      no_argument, 0, 'd' },
+        { "expand",     no_argument, 0, 'e' },
+        { "nofade",     no_argument, 0, 'f' },
+        { "help",       no_argument, 0, 'h' },
+        { "invert",     no_argument, 0, 'i' },
+        { "notrans",    no_argument, 0, 't' },
+        { "version",    no_argument, 0, 'v' },
         { "noslidenum", no_argument, 0, 's' },
         { "noslidemax", no_argument, 0, 'x' },
         { 0, 0, 0, 0 }
@@ -75,14 +78,15 @@ int main(int argc, char *argv[]) {
 
     // parse command-line options
     int opt, debug = 0;
-    while ((opt = getopt_long(argc, argv, ":dfhitvsx", longopts, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, ":defhitvsx", longopts, NULL)) != -1) {
         switch(opt) {
-            case 'd': debug += 1; break;
-            case 'f': nofade = 1; break;
-            case 'h': usage(); break;
-            case 'i': invert = 1; break;
-            case 't': notrans = 1; break;
-            case 'v': version(); break;
+            case 'd': debug += 1;   break;
+            case 'e': noexpand = 0; break;
+            case 'f': nofade = 1;   break;
+            case 'h': usage();      break;
+            case 'i': invert = 1;   break;
+            case 't': notrans = 1;  break;
+            case 'v': version();    break;
             case 's': slidenum = 0; break;
             case 'x': slidenum = 1; break;
             case ':': fprintf(stderr, "%s: '%c' requires an argument\n", argv[0], optopt); usage(); break;
@@ -97,9 +101,6 @@ int main(int argc, char *argv[]) {
 
     // setup list string
     setup_list_strings();
-
-    // setup character entities
-    setup_character_entities();
 
     // open file or set input to STDIN
     char *file = NULL;
@@ -143,7 +144,7 @@ int main(int argc, char *argv[]) {
 
         // load deck object from input
         deck_t *deck;
-        deck = markdown_load(input);
+        deck = markdown_load(input, noexpand);
 
         // close file
         fclose(input);
