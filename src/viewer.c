@@ -346,8 +346,9 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
         }
 
         // print pandoc URL references
-        // only if we already printed all lines of the current slide
-        if(!line) {
+        // only if we already printed all lines of the current slide (or output is stopped)
+        if(!line ||
+           stop > slide->stop) {
             int i, ymax;
             getmaxyx( content, ymax, i );
             for (i = 0; i < url_get_amount(); i++) {
