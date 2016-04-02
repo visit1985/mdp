@@ -698,7 +698,8 @@ void expand_character_entities(line_t *line)
         if (*curr == L'#') {
             if (prev == ampersand)
                 continue;
-            goto clean;
+            ampersand = NULL;
+            continue;
         }
         if (iswalpha(*curr) || iswxdigit(*curr)) {
             continue;
@@ -706,22 +707,32 @@ void expand_character_entities(line_t *line)
         if (*curr == L';') {
             int cnt;
             wchar_t ucs = L'\0';
-            if (ampersand + 1 >= curr || ampersand + 16 < curr) // what is a good limit?
-                goto clean;
+            if (ampersand + 1 >= curr || ampersand + 16 < curr) { // what is a good limit?
+                ampersand = NULL;
+                continue;
+            }
             if (ampersand[1] == L'#') { // &#nnnn; or &#xhhhh;
-                if (ampersand + 2 >= curr)
-                    goto clean;
+                if (ampersand + 2 >= curr) {
+                    ampersand = NULL;
+                    continue;
+                }
                 if (ampersand[2] != L'x') { // &#nnnn;
                     cnt = wcsspn(&ampersand[2], L"0123456789");
-                    if (ampersand + 2 + cnt != curr)
-                        goto clean;
+                    if (ampersand + 2 + cnt != curr) {
+                        ampersand = NULL;
+                        continue;
+                    }
                     ucs = wcstoul(&ampersand[2], NULL, 10);
                 } else { // &#xhhhh;
-                    if (ampersand + 3 >= curr)
-                        goto clean;
+                    if (ampersand + 3 >= curr) {
+                        ampersand = NULL;
+                        continue;
+                    }
                     cnt = wcsspn(&ampersand[3], L"0123456789abcdefABCDEF");
-                    if (ampersand + 3 + cnt != curr)
-                        goto clean;
+                    if (ampersand + 3 + cnt != curr) {
+                        ampersand = NULL;
+                        continue;
+                    }
                     ucs = wcstoul(&ampersand[3], NULL, 16);
                 }
             } else { // &name;
@@ -731,16 +742,16 @@ void expand_character_entities(line_t *line)
                     ucs = named_character_entities[cnt].ucs;
                     break;
                 }
-                if (ucs == L'\0')
-                    goto clean;
+                if (ucs == L'\0') {
+                    ampersand = NULL;
+                    continue;
+                }
             }
             *ampersand = ucs;
             cstring_strip(line->text, ampersand + 1 - &line->text->value[0], curr - ampersand);
             curr = ampersand;
-            continue;
+            ampersand = NULL;
         }
-clean:
-        ampersand = NULL;
     }
 }
 
