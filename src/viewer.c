@@ -61,6 +61,18 @@ static short red_ramp_invert[24]   = { 15, 231, 231, 224, 224, 225,
                                       206, 207, 201, 200, 199, 199,
                                       198, 198, 197, 197, 196, 196};
 
+// unordered list characters
+//
+// override via env vars:
+// export MDP_LIST_OPEN1="    " MDP_LIST_OPEN2="    " MDP_LIST_OPEN3="    "
+// export MDP_LIST_HEAD1=" ■  " MDP_LIST_HEAD2=" ●  " MDP_LIST_HEAD3=" ▫  "
+static const char *list_open1 = " |  ";
+static const char *list_open2 = " |  ";
+static const char *list_open3 = " |  ";
+static const char *list_head1 = " +- ";
+static const char *list_head2 = " +- ";
+static const char *list_head3 = " +- ";
+
 int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reload, int noreload, int slidenum) {
 
     int c = 0;          // char
@@ -517,27 +529,6 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
     return reload;
 }
 
-static const char *list_open1 = " |  ";
-static const char *list_open2 = " |  ";
-static const char *list_open3 = " |  ";
-static const char *list_head1 = " +- ";
-static const char *list_head2 = " +- ";
-static const char *list_head3 = " +- ";
-/*
-export MDP_LIST_OPEN1="    "
-export MDP_LIST_OPEN2="    "
-export MDP_LIST_OPEN3="    "
-export MDP_LIST_HEAD1=" ■  "
-export MDP_LIST_HEAD2=" ▫  "
-export MDP_LIST_HEAD3=" ●  "
-
-export MDP_LIST_OPEN1=" │  "
-export MDP_LIST_OPEN2=" │  "
-export MDP_LIST_OPEN3=" │  "
-export MDP_LIST_HEAD1=" ▇─ "
-export MDP_LIST_HEAD2=" ▓─ "
-export MDP_LIST_HEAD3=" ▒─ "
-*/
 void setup_list_strings(void)
 {
     const char *str;

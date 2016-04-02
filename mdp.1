@@ -56,6 +56,26 @@ Display usage message and exit.
 .BR \-v ", " \-\^\-version
 Display version and license information.
 .
+.SH ENVIRONMENT VARIABLES
+.SS "Output Control"
+.TP
+.BR MDP_LIST_HEAD[1-3],\ MDP_LIST_OPEN[1-3]
+Controls the list characters of unordered lists.
+
+The default is equivalent to:
+.br
+MDP_LIST_OPEN1=' |  '
+.br
+MDP_LIST_OPEN2=' |  '
+.br
+MDP_LIST_OPEN3=' |  '
+.br
+MDP_LIST_HEAD1=' +- '
+.br
+MDP_LIST_HEAD2=' +- '
+.br
+MDP_LIST_HEAD3=' +- '
+.
 .SH MARKDOWN FORMATTING
 For a complete list of supported markups, refer the sample presentation
 (sample.md) provided alongside
