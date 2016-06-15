@@ -75,18 +75,19 @@ static const char *list_head3 = " +- ";
 
 int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reload, int noreload, int slidenum) {
 
-    int c = 0;          // char
-    int i = 0;          // iterate
-    int l = 0;          // line number
-    int lc = 0;         // line count
-    int sc = 1;         // slide count
-    int colors = 0;     // amount of colors supported
-    int fade = 0;       // disable color fading by default
-    int trans = -1;     // enable transparency if term supports it
-    int max_lines = 0;  // max lines per slide
-    int max_cols = 0;   // max columns per line
-    int offset;         // text offset
-    int stop = 0;       // passed stop bits per slide
+    int c = 0;                // char
+    int i = 0;                // iterate
+    int l = 0;                // line number
+    int lc = 0;               // line count
+    int sc = 1;               // slide count
+    int colors = 0;           // amount of colors supported
+    int fade = 0;             // disable color fading by default
+    int trans = -1;           // enable transparency if term supports it
+    int max_lines = 0;        // max lines per slide
+    int max_lines_slide = -1; // the slide that has the most lines
+    int max_cols = 0;         // max columns per line
+    int offset;               // text offset
+    int stop = 0;             // passed stop bits per slide
 
     // header line 1 is displayed at the top
     int bar_top = (deck->headers > 0) ? 1 : 0;
@@ -153,8 +154,12 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
         }
 
         max_lines = MAX(lc, max_lines);
+        if (lc == max_lines) {
+            max_lines_slide = sc;
+        }
 
         slide = slide->next;
+        ++sc;
     }
 
     // not enough lines
@@ -164,7 +169,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
         endwin();
 
         // print error
-        fwprintf(stderr, L"Error: Terminal height (%i lines) too small. Need at least %i lines.\n", LINES, max_lines + bar_top + bar_bottom);
+        fwprintf(stderr, L"Error: Terminal height (%i lines) too small. Need at least %i lines for slide #%i.\n", LINES, max_lines + bar_top + bar_bottom, max_lines_slide);
         fwprintf(stderr, L"You may need to add additional horizontal rules (---) to split your file in shorter slides.\n");
 
         // no reload
@@ -256,6 +261,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
     slide = deck->slide;
 
     // find slide to reload
+    sc = 0;
     while(reload > 1 && reload <= deck->slides) {
         slide = slide->next;
         sc++;
