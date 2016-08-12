@@ -261,7 +261,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
     slide = deck->slide;
 
     // find slide to reload
-    sc = 0;
+    sc = 1;
     while(reload > 1 && reload <= deck->slides) {
         slide = slide->next;
         sc++;
