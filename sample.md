@@ -133,13 +133,13 @@ Multiple *>* are interpreted as nested quotes.
 
 \> quote
 \>> nested quote 1
-\> > nested quote 2
+\>>> nested quote 2
 
 becomes
 
 > quote
 >> nested quote 1
-> > nested quote 2
+>>> nested quote 2
 
 -------------------------------------------------
 
