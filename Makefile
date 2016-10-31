@@ -20,7 +20,7 @@
 
 UNAME_S := $(shell uname -s 2>/dev/null || echo not)
 
-SOURCES = $(wildcard src/*.c)
+SOURCES = $(sort $(wildcard src/*.c))
 OBJECTS = $(SOURCES:.c=.o)
 TARGET  = mdp
 DESTDIR =
