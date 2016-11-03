@@ -25,6 +25,6 @@
 
 #define MDP_VER_MAJOR 1
 #define MDP_VER_MINOR 0
-#define MDP_VER_REVISION 8
+#define MDP_VER_REVISION 9
 
 #endif // !defined( MAIN_H )
