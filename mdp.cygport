@@ -1,0 +1,29 @@
+# package name
+NAME="mdp"
+VERSION=1.0.9
+RELEASE=1
+
+# .hint generation
+CATEGORY="Utils"
+SUMMARY="A command-line based markdown presentation tool"
+DESCRIPTION="A ncurses-based command-line presentation tool, which makes
+it easy to create slides using the popular markdown format."
+
+# source and patch files
+SRC_URI="https://github.com/visit1985/mdp/archive/${VERSION}.tar.gz"
+DOCS="sample.md"
+
+# custom src_compile, src_install and src_test
+
+src_compile() {
+	cd ${S}
+	cygmake
+}
+
+src_install() {
+	cd ${S}
+	cyginstall
+}
+
+src_test() { :; }
+
