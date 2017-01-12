@@ -13,6 +13,11 @@ it easy to create slides using the popular markdown format."
 SRC_URI="https://github.com/visit1985/mdp/archive/${VERSION}.tar.gz"
 DOCS="sample.md"
 
+# Build dependencies only
+DEPEND="gcc-core libncurses-devel make"
+# runtime deps to go in setup.hint
+#REQUIRES="libncursesw10"
+
 # custom src_compile, src_install and src_test
 
 src_compile() {
@@ -22,7 +27,7 @@ src_compile() {
 
 src_install() {
 	cd ${S}
-	cyginstall
+	PREFIX=/usr cyginstall
 }
 
 src_test() { :; }
