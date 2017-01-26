@@ -10,7 +10,6 @@
 mdp needs the ncursesw headers to compile.
 So make sure you have them installed:
 
-- on Cygwin you need `libncursesw10` and `libncurses-devel`
 - on Raspbian (Raspberry Pi) you need `libncurses5-dev` and `libncursesw5-dev`
 
 Now download and install mdp:
@@ -22,6 +21,7 @@ Now download and install mdp:
     $ mdp sample.md
 
 - On Arch, you can use the existing [AUR package](https://aur.archlinux.org/packages/mdp-git/).
+- on Cygwin you can use the existing [package](https://cygwin.com/cgi-bin2/package-grep.cgi?grep=mdp.exe) from the setup program.
 - On Debian, you can use the existing [DEB package](https://tracker.debian.org/pkg/mdp-src), or run `apt-get install mdp`.
 - On FreeBSD, you can use the port [misc/mdp](http://www.freshports.org/misc/mdp).
 - On OS-X, use the existing [Homebrew Formula](http://brewformulas.org/Mdp) by running `brew install mdp`.
