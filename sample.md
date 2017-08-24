@@ -115,13 +115,37 @@ at least as many or more ~ for closing.
 becomes
 
 ~~~ {.numberLines}
-int main(int argc, char \*argv[]) {
-    printf("%s\\n", "Hello world!");
+int main(int argc, char *argv[]) {
+    printf("%s\n", "Hello world!");
 }
 ~~~~~~~~~~~~~~~~~~
 
 Pandoc attributes (like ".numberlines" etc.)
 will be ignored
+
+-------------------------------------------------
+
+-> # Supported markdown formatting <-
+
+You can also use [github](https://guides.github.com/features/mastering-markdown/#GitHub-flavored-markdown) flavored markdown's
+code block. Use at least three backticks to open
+and at least as many or more backticks for closing.
+
+\```
+\int main(int argc, char \*argv[]) {
+\    printf("%s\\n", "Hello world!");
+\}
+\```
+
+becomes
+
+```
+int main(int argc, char *argv[]) {
+    printf("%s\n", "Hello world!");
+}
+```
+
+Language hint will be ignored
 
 -------------------------------------------------
 

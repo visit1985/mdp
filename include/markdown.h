@@ -48,6 +48,7 @@ enum line_bitmask {
     IS_QUOTE,
     IS_CODE,
     IS_TILDE_CODE,
+    IS_GFM_CODE,
     IS_HR,
     IS_UNORDERED_LIST_1,
     IS_UNORDERED_LIST_2,
