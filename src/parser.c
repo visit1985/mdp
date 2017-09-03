@@ -158,7 +158,8 @@ deck_t *markdown_load(FILE *input, int noexpand) {
                 slide = next_slide(slide);
                 sc++;
 
-            } else if(CHECK_BIT(bits, IS_TILDE_CODE) &&
+            } else if((CHECK_BIT(bits, IS_TILDE_CODE) ||
+		       CHECK_BIT(bits, IS_GFM_CODE)) &&
                       CHECK_BIT(bits, IS_EMPTY)) {
                 // remove tilde code markers
                 (text->reset)(text);
@@ -400,6 +401,7 @@ int markdown_analyse(cstring_t *text, int prev) {
     static int unordered_list_level = 0;
     static int unordered_list_level_offset[] = {-1, -1, -1, -1};
     static int num_tilde_characters = 0;
+    static int num_backticks = 0;
 
     int i = 0;      // increment
     int bits = 0;   // markdown bits
@@ -444,6 +446,27 @@ int markdown_analyse(cstring_t *text, int prev) {
     if (num_tilde_characters > 0) {
         SET_BIT(bits, IS_CODE);
         SET_BIT(bits, IS_TILDE_CODE);
+        return bits;
+    }
+
+    // IS_GFM_CODE
+    if (wcsncmp(text->value, L"```", 3) == 0) {
+        int backticks_in_line = next_nonbacktick(text, 0);
+        if (backticks_in_line >= num_backticks) {
+            if (num_backticks > 0) {
+                num_backticks = 0;
+            } else {
+                num_backticks = backticks_in_line;
+            }
+            SET_BIT(bits, IS_EMPTY);
+            SET_BIT(bits, IS_GFM_CODE);
+            return bits;
+        }
+    }
+
+    if (num_backticks > 0) {
+        SET_BIT(bits, IS_CODE);
+        SET_BIT(bits, IS_GFM_CODE);
         return bits;
     }
 
@@ -826,6 +849,13 @@ int next_word(cstring_t *text, int i) {
 
 int next_nontilde(cstring_t *text, int i) {
     while ((i < text->size) && text->value[i] == L'~')
+        i++;
+
+    return i;
+}
+
+int next_nonbacktick(cstring_t *text, int i) {
+    while ((i < text->size) && text->value[i] == L'`')
         i++;
 
     return i;
