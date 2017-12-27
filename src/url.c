@@ -165,7 +165,7 @@ int url_count_inline(const wchar_t *line) {
     for (; *i; i++) {
         if (*i == '\\') {
             i++;
-        } else if ( *i == '[' && *(i+1) != ']') {
+        } else if ( *i == '[' && *(i+1) && *(i+1) != ']') {
             while (*i && *i != ']') i++;
             i++;
             if (*i == '(' && wcschr(i, ')')) {
@@ -185,7 +185,7 @@ int url_len_inline(const wchar_t *value) {
     for (; *i; i++) {
         if (*i == '\\') {
             i++;
-        } else if ( *i == '[' && *(i+1) != ']') {
+        } else if ( *i == '[' && *(i+1) && *(i+1) != ']') {
             while (*i && *i != ']') i++;
             i++;
             if (*i == '(' && wcschr(i, ')')) {
