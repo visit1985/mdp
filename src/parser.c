@@ -481,6 +481,7 @@ int markdown_analyse(cstring_t *text, int prev) {
 
     // strip trailing spaces
     for(eol = text->size; eol > offset && iswspace(text->value[eol - 1]); eol--);
+    text->size = eol;
 
     // IS_UNORDERED_LIST_#
     if(text->size >= offset + 2 &&
