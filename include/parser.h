@@ -48,8 +48,6 @@ deck_t *markdown_load(FILE *input);
 int markdown_analyse(cstring_t *text, int prev);
 void markdown_debug(deck_t *deck, int debug);
 void adjust_line_length(line_t *line);
-bool is_utf8(char ch);
-int length_utf8(char ch);
 int next_nonblank(cstring_t *text, int i);
 int prev_blank(cstring_t *text, int i);
 int next_blank(cstring_t *text, int i);

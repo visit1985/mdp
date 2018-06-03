@@ -42,19 +42,19 @@
 #define REALLOC_ADD 10
 
 typedef struct _cstring_t {
-    char *text;
+    wchar_t *value;
     size_t size;
     size_t alloc;
-    void (*expand)(struct _cstring_t *self, char x);
-    void (*expand_arr)(struct _cstring_t *self, char *x);
+    void (*expand)(struct _cstring_t *self, wchar_t x);
+    void (*expand_arr)(struct _cstring_t *self, wchar_t *x);
     void (*strip)(struct _cstring_t *self, int pos, int len);
     void (*reset)(struct _cstring_t *self);
     void (*delete)(struct _cstring_t *self);
 } cstring_t;
 
 cstring_t *cstring_init();
-void cstring_expand(cstring_t *self, char x);
-void cstring_expand_arr(cstring_t *self, char *x);
+void cstring_expand(cstring_t *self, wchar_t x);
+void cstring_expand_arr(cstring_t *self, wchar_t *x);
 void cstring_strip(cstring_t *self, int pos, int len);
 void cstring_reset(cstring_t *self);
 void cstring_delete(cstring_t *self);
