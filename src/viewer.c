@@ -982,7 +982,7 @@ int int_length (int val) {
 
 int get_slide_number(char init) {
     int retval = init - '0';
-    char c;
+    int c;
     // block for tenths of a second when using getch, ERR if no input
     halfdelay(GOTO_SLIDE_DELAY);
     while((c = getch()) != ERR) {
