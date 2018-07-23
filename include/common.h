@@ -3,7 +3,7 @@
 
 /*
  * Common macros.
- * Copyright (C) 2016 Michael Goehler
+ * Copyright (C) 2018 Michael Goehler
  *
  * This file is part of mdp.
  *

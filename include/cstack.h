@@ -3,7 +3,7 @@
 
 /*
  * An implementation of a char stack in heap memory.
- * Copyright (C) 2016 Michael Goehler
+ * Copyright (C) 2018 Michael Goehler
  *
  * This file is part of mdp.
  *

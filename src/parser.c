@@ -2,7 +2,7 @@
  * Functions necessary to parse a file and transform its content into
  * a deck of slides containing lines. All based on markdown formating
  * rules.
- * Copyright (C) 2016 Michael Goehler
+ * Copyright (C) 2018 Michael Goehler
  *
  * This file is part of mdp.
  *

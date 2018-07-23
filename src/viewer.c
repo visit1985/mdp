@@ -2,7 +2,7 @@
  * Functions necessary to display a deck of slides in different color modes
  * using ncurses. Only white, red, and blue are supported, as they can be
  * faded in 256 color mode.
- * Copyright (C) 2016 Michael Goehler
+ * Copyright (C) 2018 Michael Goehler
  *
  * This file is part of mdp.
  *
