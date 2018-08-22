@@ -74,6 +74,7 @@ typedef struct _slide_t {
     struct _slide_t *next;
     int lines;
     int stop;
+    int lines_consumed;
 } slide_t;
 
 typedef struct _deck_t {

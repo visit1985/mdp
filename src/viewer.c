@@ -158,6 +158,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
             max_lines_slide = sc;
         }
 
+        slide->lines_consumed = lc;
         slide = slide->next;
         ++sc;
     }
@@ -337,7 +338,8 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
 
         // print lines
         while(line) {
-            add_line(content, l, (COLS - max_cols) / 2, line, max_cols, colors);
+            add_line(content, l + ((LINES - slide->lines_consumed - bar_top - bar_bottom) / 2),
+                     (COLS - max_cols) / 2, line, max_cols, colors);
 
             // raise stop counter if we pass a line having a stop bit
             if(CHECK_BIT(line->bits, IS_STOP))
