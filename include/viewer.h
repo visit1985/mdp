@@ -55,9 +55,9 @@
 #define FADE_DELAY 15000 // micro seconds
 #define GOTO_SLIDE_DELAY 5    // tenths of seconds
 
-int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reload, int noreload, int slidenum);
-void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colors);
-void inline_display(WINDOW *window, const wchar_t *c, const int colors);
+int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reload, int noreload, int slidenum, int nocodebg);
+void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colors, int nocodebg);
+void inline_display(WINDOW *window, const wchar_t *c, const int colors, int nocodebg);
 void fade_out(WINDOW *window, int trans, int colors, int invert);
 void fade_in(WINDOW *window, int trans, int colors, int invert);
 int int_length (int val);

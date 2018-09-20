@@ -39,6 +39,7 @@ void usage() {
     fprintf(stderr, "%s", "  -s, --noslidenum  do not show slide number at the bottom\n");
     fprintf(stderr, "%s", "  -v, --version     display the version number and license\n");
     fprintf(stderr, "%s", "  -x, --noslidemax  show slide number, but not total number of slides\n");
+    fprintf(stderr, "%s", "  -c, --nocodebg    don't change the background color of code blocks\n");
     fprintf(stderr, "%s", "\nWith no FILE, or when FILE is -, read standard input.\n\n");
     exit(EXIT_FAILURE);
 }
@@ -61,6 +62,7 @@ int main(int argc, char *argv[]) {
     int reload = 0;    // reload page N (0 means no reload)
     int noreload = 1;  // reload disabled until we know input is a file
     int slidenum = 2;  // 0:don't show; 1:show #; 2:show #/#
+    int nocodebg = 0;  // 0:show code bg as inverted; 1: don't invert code bg
 
     // define command-line options
     struct option longopts[] = {
@@ -73,12 +75,13 @@ int main(int argc, char *argv[]) {
         { "version",    no_argument, 0, 'v' },
         { "noslidenum", no_argument, 0, 's' },
         { "noslidemax", no_argument, 0, 'x' },
+        { "nocodebg",   no_argument, 0, 'c' },
         { 0, 0, 0, 0 }
     };
 
     // parse command-line options
     int opt, debug = 0;
-    while ((opt = getopt_long(argc, argv, ":defhitvsx", longopts, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, ":defhitvsxc", longopts, NULL)) != -1) {
         switch(opt) {
             case 'd': debug += 1;   break;
             case 'e': noexpand = 0; break;
@@ -89,6 +92,7 @@ int main(int argc, char *argv[]) {
             case 'v': version();    break;
             case 's': slidenum = 0; break;
             case 'x': slidenum = 1; break;
+            case 'c': nocodebg = 1; break;
             case ':': fprintf(stderr, "%s: '%c' requires an argument\n", argv[0], optopt); usage(); break;
             case '?':
             default : fprintf(stderr, "%s: option '%c' is invalid\n", argv[0], optopt); usage(); break;
@@ -163,7 +167,7 @@ int main(int argc, char *argv[]) {
             markdown_debug(deck, debug);
         }
 
-        reload = ncurses_display(deck, notrans, nofade, invert, reload, noreload, slidenum);
+        reload = ncurses_display(deck, notrans, nofade, invert, reload, noreload, slidenum, nocodebg);
 
         free_deck(deck);
 
