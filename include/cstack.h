@@ -23,8 +23,8 @@
  *
  * struct: cstack_t which defines char stack type in heap memory
  *
- * function: cstack_init to intialize struct of type cstack_t
- * function: cstack_t->push to add one char on top if the stack
+ * function: cstack_init to initialize struct of type cstack_t
+ * function: cstack_t->push to add one char on top of the stack
  * function: cstack_t->pop to remove the top char from the stack
  * function: cstack_t->top to test if the top char is a given char
  * function: cstack_t->empty to test if the stack is empty

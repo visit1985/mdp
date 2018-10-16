@@ -23,7 +23,7 @@
  *
  * struct: cstring_t which defines a expandable c string type in heap memory
  *
- * function: cstring_init to intialize struct of type cstring_t
+ * function: cstring_init to initialize struct of type cstring_t
  * function: cstring_t->expand to add one character to the struct
  * function: cstring_t->expand_arr to add a string to the struct
  * function: cstring_t->strip to remove a substring

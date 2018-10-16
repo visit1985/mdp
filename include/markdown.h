@@ -21,7 +21,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * enum: line_bitmask which enumerates markdown formating bits
+ * enum: line_bitmask which enumerates markdown formatting bits
  *
  * struct: deck_t the root object representing a deck of slides
  * struct: slide_t a linked list element of type slide contained in a deck

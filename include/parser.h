@@ -25,7 +25,7 @@
  *
  * function: markdown_load is the main function which reads a file handle,
  *           and initializes deck, slides and lines
- * function: markdown_analyse which is used to identify line wide formating
+ * function: markdown_analyse which is used to identify line wide formatting
  *           rules in given line
  * function: markdown_debug to print a report of the generated data structure
  * function: adjust_line_length to calculate line length excluding markup

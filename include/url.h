@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * function: url_init to intialize a new url object
+ * function: url_init to initialize a new url object
  */
 
 typedef struct _url_t {
