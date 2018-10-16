@@ -25,7 +25,7 @@
  *
  * function: ncurses_display initializes ncurses, defines colors, calculates
  *           window geometry and handles key strokes
- * function: add_line detects inline markdown formating and prints line char
+ * function: add_line detects inline markdown formatting and prints line char
  *           by char
  * function: fade_in, fade_out implementing color fading in 256 color mode
  * function: int_length to calculate decimal length of slide count
