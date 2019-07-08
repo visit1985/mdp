@@ -20,7 +20,7 @@ Now download and install mdp:
     $ make install
     $ mdp sample.md
 
-- On Arch, you can use the existing [AUR package](https://aur.archlinux.org/packages/mdp-git/).
+- On Arch Linux, you can use the existing [package](https://www.archlinux.org/packages/community/x86_64/mdp/).
 - on Cygwin you can use the existing [package](https://cygwin.com/cgi-bin2/package-grep.cgi?grep=mdp.exe) from the setup program.
 - On Debian, you can use the existing [DEB package](https://tracker.debian.org/pkg/mdp-src), or run `apt-get install mdp`.
 - On FreeBSD, you can use the port [misc/mdp](http://www.freshports.org/misc/mdp).
