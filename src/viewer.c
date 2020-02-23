@@ -73,7 +73,7 @@ static const char *list_head1 = " +- ";
 static const char *list_head2 = " +- ";
 static const char *list_head3 = " +- ";
 
-int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reload, int noreload, int slidenum, int nocodebg) {
+int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reload, int noreload, int slidenum, int nocodebg, int top_indent, int left_indent) {
 
     int c = 0;                // char
     int i = 0;                // iterate
@@ -338,8 +338,14 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
 
         // print lines
         while(line) {
-            add_line(content, l + ((LINES - slide->lines_consumed - bar_top - bar_bottom) / 2),
-                     (COLS - max_cols) / 2, line, max_cols, colors, nocodebg);
+	    if(l == 0) {		// display slide title horizontally centered
+		add_line(content, l + ((top_indent + bar_top - bar_bottom)),
+			 (COLS - max_cols) / 2, line, max_cols, colors, nocodebg);
+	    }
+	    else {
+		add_line(content, l + ((top_indent + bar_top - bar_bottom)),
+			 left_indent, line, max_cols, colors, nocodebg);
+	    }
 
             // raise stop counter if we pass a line having a stop bit
             if(CHECK_BIT(line->bits, IS_STOP))
