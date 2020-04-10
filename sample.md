@@ -102,7 +102,7 @@ becomes
 
 -> # Supported markdown formatting <-
 
-You can also use [pandoc](http://pandoc.org/demo/example9/pandocs-markdown.html)'s fenced code block
+You can also use [pandoc](https://pandoc.org/MANUAL.html#fenced-code-blocks)'s fenced code block
 extension. Use at least three ~ chars to open and
 at least as many or more ~ for closing.
 
