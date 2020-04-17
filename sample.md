@@ -9,8 +9,10 @@
 
 _Basic controls:_
 
-next slide      *Enter*, *Space*, *Page Down*, *j*, *l*,
+next line       *Enter*, *Space*, *Page Down*, *j*, *l*,
                 *Down Arrow*, *Right Arrow*
+
+next slide      *Enter*, *Page Down*, *l*, *Right Arrow*
 
 previous slide  *Backspace*, *Page Up*, *h*, *k*,
                 *Up Arrow*, *Left Arrow*

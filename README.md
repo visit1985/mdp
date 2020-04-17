@@ -63,9 +63,10 @@ Review sample.md for more details.
 
 ***Controls:***
 
-- h, j, k, l, Arrow keys,
-    Space, Enter, Backspace,
-    Page Up, Page Down - next/previous slide
+- h, k, l, Left/Right/Up Arrow keys,
+    Enter, Backspace, Page Up,
+    Page Down - next/previous line/slide
+- j, Down Arrow key, Space - next line
 - Home, g - go to first slide
 - End, G - go to last slide
 - 1-9 - go to slide n

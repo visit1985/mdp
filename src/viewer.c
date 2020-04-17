@@ -416,13 +416,22 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
                 }
                 break;
 
-            // show next slide or stop bit
+            // show next stop bit
             case KEY_DOWN:
+            case ' ':  // SPACE
+            case 'j':
+                if(stop && line) {
+                    // show current slide again
+                    // but stop one stop bit later (or at end of slide)
+                    slide->stop++;
+                    fade = false;
+                }
+                break;
+
+            // show next slide or stop bit
             case KEY_RIGHT:
             case KEY_NPAGE:
             case '\n': // ENTER
-            case ' ':  // SPACE
-            case 'j':
             case 'l':
                 if(stop && line) {
                     // show current slide again
