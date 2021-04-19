@@ -65,6 +65,7 @@ install:
 	install -m 644 mdp.1 $(DESTDIR)$(PREFIX)/share/man/man1/$(TARGET).1
 
 uninstall:
-	$(RM) $(DESTDIR)$(PREFIX)/$(TARGET)
+	$(RM) $(DESTDIR)$(PREFIX)/bin/$(TARGET)
+	$(RM) $(DESTDIR)$(PREFIX)/share/man/man1/$(TARGET).1
 
 .PHONY: all clean install src uninstall
