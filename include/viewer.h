@@ -52,9 +52,6 @@
 #define CP_YELLOW 4 // 208
 #define CP_BLACK  5 // CP_WHITE with foreground and background swapped
 
-#define FADE_DELAY 15000 // micro seconds
-#define GOTO_SLIDE_DELAY 5    // tenths of seconds
-
 int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reload, int noreload, int slidenum, int nocodebg);
 void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colors, int nocodebg);
 void inline_display(WINDOW *window, const wchar_t *c, const int colors, int nocodebg);
@@ -63,5 +60,6 @@ void fade_in(WINDOW *window, int trans, int colors, int invert);
 int int_length (int val);
 int get_slide_number(char init);
 void setup_list_strings(void);
+bool evaluate_binding(const int bindings[], char c);
 
 #endif // !defined( VIEWER_H )

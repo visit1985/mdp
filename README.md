@@ -61,7 +61,7 @@ Review sample.md for more details.
 
 ---
 
-***Controls:***
+***Default controls:***
 
 - h, j, k, l, Arrow keys,
     Space, Enter, Backspace,
@@ -72,6 +72,13 @@ Review sample.md for more details.
 - r - reload input file
 - q - exit
 
+
+---
+
+***Configuration***:
+
+A `config.h` configuration file is available in `include/`, change the settings you want and recompile.
+Colors, keybindings and list types are configurable as of now. Note that configuring colors only works in 8 color mode.
 
 ---
 
