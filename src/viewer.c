@@ -28,6 +28,7 @@
 #include <unistd.h> // usleep
 #include <stdlib.h> // getenv
 #include "viewer.h"
+#include "config.h"
 
 // color ramp for fading from black to color
 static short white_ramp[24] = { 16, 232, 233, 234, 235, 236,
@@ -60,18 +61,6 @@ static short red_ramp_invert[24]   = { 15, 231, 231, 224, 224, 225,
                                       225, 218, 218, 219, 212, 213,
                                       206, 207, 201, 200, 199, 199,
                                       198, 198, 197, 197, 196, 196};
-
-// unordered list characters
-//
-// override via env vars:
-// export MDP_LIST_OPEN1="    " MDP_LIST_OPEN2="    " MDP_LIST_OPEN3="    "
-// export MDP_LIST_HEAD1=" ■  " MDP_LIST_HEAD2=" ●  " MDP_LIST_HEAD3=" ▫  "
-static const char *list_open1 = " |  ";
-static const char *list_open2 = " |  ";
-static const char *list_open3 = " |  ";
-static const char *list_head1 = " +- ";
-static const char *list_head2 = " +- ";
-static const char *list_head3 = " +- ";
 
 int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reload, int noreload, int slidenum, int nocodebg) {
 
@@ -227,22 +216,22 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
 
             if(notrans) {
                 if(invert) {
-                    trans = 7; // white in 8 color mode
+                    trans = FG_COLOR; // white in 8 color mode
                 } else {
-                    trans = 0; // black in 8 color mode
+                    trans = BG_COLOR; // black in 8 color mode
                 }
             }
 
             if(invert) {
-                init_pair(CP_WHITE, 0, trans);
-                init_pair(CP_BLACK, 7, 0);
+                init_pair(CP_WHITE, BG_COLOR, trans);
+                init_pair(CP_BLACK, FG_COLOR, BG_COLOR);
             } else {
-                init_pair(CP_WHITE, 7, trans);
-                init_pair(CP_BLACK, 0, 7);
+                init_pair(CP_WHITE, FG_COLOR, trans);
+                init_pair(CP_BLACK, BG_COLOR, FG_COLOR);
             }
-            init_pair(CP_BLUE, 4, trans);
-            init_pair(CP_RED, 1, trans);
-            init_pair(CP_YELLOW, 3, trans);
+            init_pair(CP_BLUE, HEADER_COLOR, trans);
+            init_pair(CP_RED, BOLD_COLOR, trans);
+            init_pair(CP_YELLOW, TITLE_COLOR, trans);
         }
 
         colors = 1;
@@ -385,138 +374,96 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
 
         // evaluate user input
         i = 0;
-        switch(c) {
 
+        if (evaluate_binding(prev_slide_binding, c)) {
             // show previous slide or stop bit
-            case KEY_UP:
-            case KEY_LEFT:
-            case KEY_PPAGE:
-            case 8:   // BACKSPACE (ascii)
-            case 127: // BACKSPACE (xterm)
-            case 263: // BACKSPACE (getty)
-            case 'h':
-            case 'k':
-                if(stop > 1 || (stop == 1 && !line)) {
-                    // show current slide again
-                    // but stop one stop bit earlier
-                    slide->stop--;
-                    fade = false;
+            if(stop > 1 || (stop == 1 && !line)) {
+                // show current slide again
+                // but stop one stop bit earlier
+                slide->stop--;
+                fade = false;
+            } else {
+                if(slide->prev) {
+                    // show previous slide
+                    slide = slide->prev;
+                    sc--;
+                    //stop on first bullet point always
+                    if(slide->stop > 0)
+                        slide->stop = 0;
                 } else {
-                    if(slide->prev) {
-                        // show previous slide
-                        slide = slide->prev;
-                        sc--;
-                        //stop on first bullet point always
-                        if(slide->stop > 0)
-                            slide->stop = 0;
-                    } else {
-                        // do nothing
-                        fade = false;
-                    }
+                    // do nothing
+                    fade = false;
                 }
-                break;
-
+            }
+        } else if (evaluate_binding(next_slide_binding, c)) {
             // show next slide or stop bit
-            case KEY_DOWN:
-            case KEY_RIGHT:
-            case KEY_NPAGE:
-            case '\n': // ENTER
-            case ' ':  // SPACE
-            case 'j':
-            case 'l':
-                if(stop && line) {
-                    // show current slide again
-                    // but stop one stop bit later (or at end of slide)
-                    slide->stop++;
-                    fade = false;
+            if(stop && line) {
+                // show current slide again
+                // but stop one stop bit later (or at end of slide)
+                slide->stop++;
+                fade = false;
+            } else {
+                if(slide->next) {
+                    // show next slide
+                    slide = slide->next;
+                    sc++;
                 } else {
-                    if(slide->next) {
-                        // show next slide
-                        slide = slide->next;
-                        sc++;
-                    } else {
-                        // do nothing
-                        fade = false;
-                    }
+                    // do nothing
+                    fade = false;
                 }
-                break;
-
+            }
+        } else if (isdigit(c) && c != '0') {
             // show slide n
-            case '9':
-            case '8':
-            case '7':
-            case '6':
-            case '5':
-            case '4':
-            case '3':
-            case '2':
-            case '1':
-                i = get_slide_number(c);
-                if(i > 0 && i <= deck->slides) {
-                    while(sc != i) {
-                        // search forward
-                        if(sc < i) {
-                            if(slide->next) {
-                                slide = slide->next;
-                                sc++;
-                            }
-                        // search backward
-                        } else {
-                            if(slide->prev) {
-                                slide = slide->prev;
-                                sc--;
-                            }
-                        }
-                    }
-                } else {
-                    // disable fading if slide n doesn't exist
-                    fade = false;
-                }
-                break;
-
-            // show first slide
-            case 'g':
-            case KEY_HOME:
-                slide = deck->slide;
-                sc = 1;
-                break;
-
-            // show last slide
-            case 'G':
-            case KEY_END:
-                for(i = sc; i <= deck->slides; i++) {
-                    if(slide->next) {
+            i = get_slide_number(c);
+            if(i > 0 && i <= deck->slides) {
+                while(sc != i) {
+                    // search forward
+                    if(sc < i) {
+                        if(slide->next) {
                             slide = slide->next;
                             sc++;
+                        }
+                    // search backward
+                    } else {
+                        if(slide->prev) {
+                            slide = slide->prev;
+                            sc--;
+                        }
                     }
                 }
-                break;
-
-            // reload
-            case 'r':
-                if(noreload == 0) {
-                    // reload slide N
-                    reload = sc;
-                    slide = NULL;
-                } else {
-                    // disable fading if reload is not possible
-                    fade = false;
+            }        
+        } else if (evaluate_binding(first_slide_binding, c)) {
+            // show first slide
+            slide = deck->slide;
+            sc = 1;
+        } else if (evaluate_binding(last_slide_binding, c)) {
+            // show last slide
+            for(i = sc; i <= deck->slides; i++) {
+                if(slide->next) {
+                        slide = slide->next;
+                        sc++;
                 }
-                break;
-
-            // quit
-            case 'q':
-                // do not fade out on exit
-                fade = false;
-                // do not reload
-                reload = 0;
+            }
+        } else if (evaluate_binding(reload_binding, c)) {
+            // reload
+            if(noreload == 0) {
+                // reload slide N
+                reload = sc;
                 slide = NULL;
-                break;
-
-            default:
-                // disable fading on undefined key press
+            } else {
+                // disable fading if reload is not possible
                 fade = false;
-                break;
+            }
+        } else if (evaluate_binding(quit_binding, c)) {
+            // quit
+            // do not fade out on exit
+            fade = false;
+            // do not reload
+            reload = 0;
+            slide = NULL;
+        } else {
+            // disable fading on undefined key press
+            fade = false;
         }
 
         // fade out
@@ -998,3 +945,14 @@ int get_slide_number(char init) {
     cbreak();       // go back to cbreak
     return retval;
 }
+
+bool evaluate_binding(const int bindings[], char c) {
+    int binding;
+    int ind = 0; 
+    while((binding = bindings[ind]) != 0) {
+        if (c == binding) return true;
+        ind++;
+    }
+    return false;
+}
+
