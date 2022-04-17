@@ -25,6 +25,8 @@ OBJECTS = $(SOURCES:.c=.o)
 TARGET  = mdp
 DESTDIR =
 PREFIX  ?= /usr/local
+BINDIR  ?= ${PREFIX}/bin
+MANDIR  ?= ${PREFIX}/share/man
 
 CURSES  = ncursesw
 LDFLAGS ?= -s
@@ -59,13 +61,13 @@ clean:
 	$(RM) $(TARGET)
 
 install:
-	install -d $(DESTDIR)$(PREFIX)/bin
-	install -m 755 $(TARGET) $(DESTDIR)$(PREFIX)/bin/$(TARGET)
-	install -d $(DESTDIR)$(PREFIX)/share/man/man1
-	install -m 644 mdp.1 $(DESTDIR)$(PREFIX)/share/man/man1/$(TARGET).1
+	install -d $(DESTDIR)$(BINDIR)
+	install -m 755 $(TARGET) $(DESTDIR)$(BINDIR)/$(TARGET)
+	install -d $(DESTDIR)$(MANDIR)/man1
+	install -m 644 mdp.1 $(DESTDIR)$(MANDIR)/man1/$(TARGET).1
 
 uninstall:
-	$(RM) $(DESTDIR)$(PREFIX)/bin/$(TARGET)
-	$(RM) $(DESTDIR)$(PREFIX)/share/man/man1/$(TARGET).1
+	$(RM) $(DESTDIR)$(BINDIR)/$(TARGET)
+	$(RM) $(DESTDIR)$(MANDIR)/man1/$(TARGET).1
 
 .PHONY: all clean install src uninstall
