@@ -24,7 +24,7 @@ Now download and install mdp:
 - on Cygwin you can use the existing [package](https://cygwin.com/cgi-bin2/package-grep.cgi?grep=mdp.exe) from the setup program.
 - On Debian, you can use the existing [DEB package](https://tracker.debian.org/pkg/mdp-src), or run `apt-get install mdp`.
 - On FreeBSD, you can use the port [misc/mdp](http://www.freshports.org/misc/mdp).
-- On OS-X, use the existing [Homebrew Formula](http://brewformulas.org/Mdp) by running `brew install mdp`.
+- On MacOS, use either the [Homebrew Formula](http://brewformulas.org/Mdp) by running `brew install mdp` or install with [MacPorts](https://ports.macports.org/port/mdp/) with `sudo port install mdp`.
 - On Slackware, grab the SlackBuild here: (http://slackbuilds.org/apps/mdp/), or run `sbopkg -i mdp`.
 - On Ubuntu, you can use the existing [DEB package](https://launchpad.net/ubuntu/+source/mdp-src), or run `apt-get install mdp`.
 
