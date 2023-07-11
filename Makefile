@@ -30,6 +30,8 @@ MANDIR  ?= ${PREFIX}/share/man
 
 CURSES  = ncursesw
 LDFLAGS ?= -s
+CFLAGS   ?= -O3
+CFLAGS   += -Wall
 
 ifeq (Windows_NT,$(OS))
 	ifeq (,$(findstring CYGWIN,$(UNAME_S)))
@@ -43,7 +45,8 @@ ifeq ($(UNAME_S),Darwin)
 endif
 
 ifeq ($(DEBUG),1)
-	LDFLAGS :=
+	CFLAGS := -O0 -Wall -g
+	LDFLAGS := 
 endif
 
 LDLIBS   = -l$(CURSES)
@@ -51,7 +54,7 @@ LDLIBS   = -l$(CURSES)
 all: $(TARGET)
 
 $(TARGET): src
-	$(CC) $(OBJECTS) $(LDLIBS) $(LDFLAGS) -o $(TARGET)
+	$(CC) $(OBJECTS) $(LDLIBS) $(CFLAGS) $(LDFLAGS) -o $(TARGET)
 
 src:
 	$(MAKE) $(MFLAGS) -C src
