@@ -11,6 +11,7 @@ mdp needs the ncursesw headers to compile.
 So make sure you have them installed:
 
 - on Raspbian (Raspberry Pi) you need `libncurses5-dev` and `libncursesw5-dev`
+- on Fedora you need `ncurses-devel` and `ncurses-c++-libs`
 
 Now download and install mdp:
 
