@@ -40,6 +40,8 @@ void usage() {
     fprintf(stderr, "%s", "  -v, --version     display the version number and license\n");
     fprintf(stderr, "%s", "  -x, --noslidemax  show slide number, but not total number of slides\n");
     fprintf(stderr, "%s", "  -c, --nocodebg    don't change the background color of code blocks\n");
+    fprintf(stderr, "%s", "  -T, --top_indent  slide indent from the top of the terminal\n");
+    fprintf(stderr, "%s", "  -L, --left_indent slide indent from the left side of the terminal\n");
     fprintf(stderr, "%s", "\nWith no FILE, or when FILE is -, read standard input.\n\n");
     exit(EXIT_FAILURE);
 }
@@ -55,14 +57,16 @@ void version() {
 }
 
 int main(int argc, char *argv[]) {
-    int notrans = 0;   // disable transparency
-    int nofade = 0;    // disable fading
-    int invert = 0;    // invert color (black on white)
-    int noexpand = 1;  // disable character entity expansion
-    int reload = 0;    // reload page N (0 means no reload)
-    int noreload = 1;  // reload disabled until we know input is a file
-    int slidenum = 2;  // 0:don't show; 1:show #; 2:show #/#
-    int nocodebg = 0;  // 0:show code bg as inverted; 1: don't invert code bg
+    int notrans = 0;       // disable transparency
+    int nofade = 0;        // disable fading
+    int invert = 0;        // invert color (black on white)
+    int noexpand = 1;      // disable character entity expansion
+    int reload = 0;        // reload page N (0 means no reload)
+    int noreload = 1;      // reload disabled until we know input is a file
+    int slidenum = 2;      // 0:don't show; 1:show #; 2:show #/#
+    int nocodebg = 0;      // 0:show code bg as inverted; 1: don't invert code bg
+    int top_indent = 0;	   // slide indent from the top of the terminal
+    int left_indent = 0;   // slide indent from the left side of the terminal
 
     // define command-line options
     struct option longopts[] = {
@@ -76,12 +80,14 @@ int main(int argc, char *argv[]) {
         { "noslidenum", no_argument, 0, 's' },
         { "noslidemax", no_argument, 0, 'x' },
         { "nocodebg",   no_argument, 0, 'c' },
+        { "top_indent", required_argument, NULL, 'T' },
+        { "left_indent",required_argument, NULL, 'L' },
         { 0, 0, 0, 0 }
     };
 
     // parse command-line options
     int opt, debug = 0;
-    while ((opt = getopt_long(argc, argv, ":defhitvsxc", longopts, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, ":defhitvsxcT:L:", longopts, NULL)) != -1) {
         switch(opt) {
             case 'd': debug += 1;   break;
             case 'e': noexpand = 0; break;
@@ -93,6 +99,8 @@ int main(int argc, char *argv[]) {
             case 's': slidenum = 0; break;
             case 'x': slidenum = 1; break;
             case 'c': nocodebg = 1; break;
+            case 'T': top_indent = strtol(optarg, NULL, 10); break;
+            case 'L': left_indent = strtol(optarg, NULL, 10); break;
             case ':': fprintf(stderr, "%s: '%c' requires an argument\n", argv[0], optopt); usage(); break;
             case '?':
             default : fprintf(stderr, "%s: option '%c' is invalid\n", argv[0], optopt); usage(); break;
@@ -167,7 +175,7 @@ int main(int argc, char *argv[]) {
             markdown_debug(deck, debug);
         }
 
-        reload = ncurses_display(deck, notrans, nofade, invert, reload, noreload, slidenum, nocodebg);
+        reload = ncurses_display(deck, notrans, nofade, invert, reload, noreload, slidenum, nocodebg, top_indent, left_indent);
 
         free_deck(deck);
 
