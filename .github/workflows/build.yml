@@ -1,3 +1,4 @@
+---
 name: Build CI
 
 on: [push, pull_request]
@@ -7,21 +8,29 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        cc: [ gcc-10, gcc-11, clang-13, clang-14 ]
-    env: 
+        compiler: [gcc-12, gcc-13, clang-17, clang-18]
+    env:
       PREFIX: /usr/local/bin
       CC: ${{ matrix.cc }}
 
     steps:
-    - uses: actions/checkout@v3
-    - name: CC ver
-      run: ${CC} -v
-    - name: make
-      run: make
-    - name: make install
-      run: sudo make install
-    - name: ldd
-      run: ldd $PREFIX/mdp
-    - name: version
-      run: $PREFIX/mdp -v
-
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y \
+            build-essential \
+            clang-17 \
+            clang-18 \
+            gcc-12 \
+            gcc-13
+      - name: CC ver
+        run: ${CC} -v
+      - name: make
+        run: make
+      - name: make install
+        run: sudo make install
+      - name: ldd
+        run: ldd $PREFIX/mdp
+      - name: version
+        run: $PREFIX/mdp -v
