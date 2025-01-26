@@ -40,7 +40,7 @@ set correctly. To enjoy mdp's color fading feature:
 
 Horizontal rulers are used as slide separator.
 
-Supports basic markdown formating:
+Supports basic markdown formatting:
 
 - line wide markup
     - headlines
