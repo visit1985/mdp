@@ -23,8 +23,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "main.h"
+
+int is_number(const char *str) {
+    while (*str) {
+        if (!isdigit(*str)) return 0;
+        str++;
+    }
+    return 1;
+}
 
 void usage() {
     fprintf(stderr, "%s", "Usage: mdp [OPTION]... [FILE]\n");
@@ -40,6 +49,7 @@ void usage() {
     fprintf(stderr, "%s", "  -v, --version     display the version number and license\n");
     fprintf(stderr, "%s", "  -x, --noslidemax  show slide number, but not total number of slides\n");
     fprintf(stderr, "%s", "  -c, --nocodebg    don't change the background color of code blocks\n");
+    fprintf(stderr, "%s", "  -r, --reload=N    jump to slide N\n");
     fprintf(stderr, "%s", "\nWith no FILE, or when FILE is -, read standard input.\n\n");
     exit(EXIT_FAILURE);
 }
@@ -76,12 +86,13 @@ int main(int argc, char *argv[]) {
         { "noslidenum", no_argument, 0, 's' },
         { "noslidemax", no_argument, 0, 'x' },
         { "nocodebg",   no_argument, 0, 'c' },
+        { "reload",     required_argument, 0, 'r' },
         { 0, 0, 0, 0 }
     };
 
     // parse command-line options
     int opt, debug = 0;
-    while ((opt = getopt_long(argc, argv, ":defhitvsxc", longopts, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, ":defhitvsxcr:", longopts, NULL)) != -1) {
         switch(opt) {
             case 'd': debug += 1;   break;
             case 'e': noexpand = 0; break;
@@ -94,6 +105,15 @@ int main(int argc, char *argv[]) {
             case 'x': slidenum = 1; break;
             case 'c': nocodebg = 1; break;
             case ':': fprintf(stderr, "%s: '%c' requires an argument\n", argv[0], optopt); usage(); break;
+            case 'r': 
+                if(!is_number(optarg)) {
+                    fprintf(stderr, "%s: '%s' is not a valid number\n", argv[0], optarg);
+                    usage();
+                    break;
+                }
+                reload = atoi(optarg); 
+                noreload = 0;
+                break;
             case '?':
             default : fprintf(stderr, "%s: option '%c' is invalid\n", argv[0], optopt); usage(); break;
         }
