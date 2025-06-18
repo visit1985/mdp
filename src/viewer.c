@@ -917,7 +917,7 @@ int get_slide_number(char init) {
     return retval;
 }
 
-bool evaluate_binding(const int bindings[], char c) {
+bool evaluate_binding(const int bindings[], int c) {
     int binding;
     int ind = 0; 
     while((binding = bindings[ind]) != 0) {

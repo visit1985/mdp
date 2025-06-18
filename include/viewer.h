@@ -60,6 +60,6 @@ void fade_in(WINDOW *window, int trans, int colors, int invert);
 int int_length (int val);
 int get_slide_number(char init);
 void setup_list_strings(void);
-bool evaluate_binding(const int bindings[], char c);
+bool evaluate_binding(const int bindings[], int c);
 
 #endif // !defined( VIEWER_H )
