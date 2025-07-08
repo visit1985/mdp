@@ -119,13 +119,14 @@ deck_t *markdown_load(FILE *input, int noexpand) {
     // initialize bits as empty line
     SET_BIT(bits, IS_EMPTY);
 
-    while ((c = fgetwc(input)) != WEOF) {
+    for (;;) {
+        c = fgetwc(input);
         if (ferror(input)) {
             fprintf(stderr, "markdown_load() failed to read input: %s\n", strerror(errno));
             exit(EXIT_FAILURE);
         }
 
-        if(c == L'\n') {
+        if(c == L'\n' || c == WEOF) {
 
             // markdown analyse
             prev = bits;
@@ -229,6 +230,10 @@ deck_t *markdown_load(FILE *input, int noexpand) {
 
             // add char to line
             (text->expand)(text, c);
+        }
+
+        if (c == WEOF) {
+            break;
         }
     }
     (text->delete)(text);
