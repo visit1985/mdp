@@ -162,17 +162,23 @@ int url_count_inline(const wchar_t *line) {
     int count = 0;
     const wchar_t *i = line;
 
-    for (; *i; i++) {
+    while (*i) {
         if (*i == '\\') {
-            i++;
-        } else if ( *i == '[' && *(i+1) && *(i+1) != ']') {
-            while (*i && *i != ']') i++;
-            i++;
-            if (*i == '(' && wcschr(i, ')')) {
-                count ++;
-                i = wcschr(i, ')');
+            if (*(i + 1)) i++;
+        } else if (*i == '[') {
+            if (*(i+1) && *(i+1) != ']') {
+                i++;
+                while (*i && *i != ']') i++;
+                if (*i == ']') {
+                    i++;
+                    if (*i == '(' && wcschr(i, ')')) {
+                        count++;
+                        i = wcschr(i, ')');
+                    }
+                }
             }
         }
+        if (*i) i++;
     }
 
     return count;
@@ -182,19 +188,24 @@ int url_len_inline(const wchar_t *value) {
     int count = 0;
     const wchar_t *i = value;
 
-    for (; *i; i++) {
+    while (*i) {
         if (*i == '\\') {
-            i++;
-        } else if ( *i == '[' && *(i+1) && *(i+1) != ']') {
-            while (*i && *i != ']') i++;
-            i++;
-            if (*i == '(' && wcschr(i, ')')) {
-                while (*i && *i != ')') {
-                    count++;
+            if (*(i + 1)) i++;
+        } else if (*i == '[') {
+            if (*(i+1) && *(i+1) != ']') {
+                while (*i && *i != ']') i++;
+                if (*i == ']') {
                     i++;
+                    if (*i == '(' && wcschr(i, ')')) {
+                        while (*i && *i != ')') {
+                            count++;
+                            i++;
+                        }
+                    }
                 }
             }
         }
+        if (*i) i++;
     }
 
     return count;
