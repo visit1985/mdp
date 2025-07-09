@@ -50,7 +50,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
     int bar_top = (deck->headers > 0) ? 1 : 0;
     // header line 2 is displayed at the bottom
     // anyway we display the slide number at the bottom
-    int bar_bottom = (slidenum || deck->headers > 1)? 1 : 0;
+    int bar_bottom = (slidenum || deck->headers > 1) ? 1 : 0;
 
     slide_t *slide = deck->slide;
     line_t *line;
@@ -248,7 +248,7 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
         if(bar_top) {
             line = deck->header;
             offset = next_blank(line->text, 0) + 1;
-            // add text to header
+            // add 1st header to header
             mvwaddwstr(stdscr,
                        0, (COLS - line->length + offset) / 2,
                        &line->text->value[offset]);
@@ -259,13 +259,16 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
             line = deck->header->next;
             offset = next_blank(line->text, 0) + 1;
             switch(slidenum) {
-                case 0: // add text to center footer
-                    mvwaddwstr(stdscr,
-                               LINES - 1, (COLS - line->length + offset) / 2,
-                               &line->text->value[offset]);
-                    break;
+                case 0:
+                    if (deck->headers == 2) {
+                        // add 2nd header to center footer
+                        mvwaddwstr(stdscr,
+                                   LINES - 1, (COLS - line->length + offset) / 2,
+                                   &line->text->value[offset]);
+                        break;
+                    }
                 case 1:
-                case 2: // add text to left footer
+                case 2: // add 2nd header to left footer
                     mvwaddwstr(stdscr,
                                LINES - 1, 3,
                                &line->text->value[offset]);
@@ -273,14 +276,23 @@ int ncurses_display(deck_t *deck, int notrans, int nofade, int invert, int reloa
             }
         }
 
-        // add slide number to right footer
         switch(slidenum) {
-            case 1: // show slide number only
+            case 0:
+                if (deck->headers > 2) {
+                    // add 3rd header to right footer
+                    line = deck->header->next->next;
+                    offset = next_blank(line->text, 0) + 1;
+                    mvwaddwstr(stdscr,
+                               LINES - 1, COLS - line->length + offset - 3,
+                               &line->text->value[offset]);
+                }
+                break;
+            case 1: // add slide number to right footer
                 mvwprintw(stdscr,
                           LINES - 1, COLS - int_length(sc) - 3,
                           "%d", sc);
                 break;
-            case 2: // show current slide & number of slides
+            case 2: // add slide number and number of slides to right footer
                 mvwprintw(stdscr,
                           LINES - 1, COLS - int_length(deck->slides) - int_length(sc) - 6,
                           "%d / %d", sc, deck->slides);
