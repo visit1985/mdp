@@ -1,6 +1,6 @@
 # package name
 NAME="mdp"
-VERSION=1.0.9
+VERSION=1.0.18
 RELEASE=1
 
 # .hint generation
