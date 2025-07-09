@@ -210,3 +210,35 @@ int url_len_inline(const wchar_t *value) {
 
     return count;
 }
+
+wchar_t * url_find_closing_bracket(const wchar_t *start) {
+    if (!start || *start == L'\0') return NULL;
+    int depth = 1;
+    const wchar_t *p = start;
+    if (*p == L'[') p++;
+    while (*p) {
+        if (*p == L'[') {
+            depth++;
+        } else if (*p == L']') {
+            depth--;
+            if (depth == 0) return (wchar_t *)p;
+        }
+        p++;
+    }
+    return NULL;
+}
+
+wchar_t *url_find_closing_parentheses(const wchar_t *start) {
+    if (!start || *start == L'\0') return NULL;
+    const wchar_t *p = start;
+    while (*p) {
+        if (*p == L'\\' && *(p + 1)) {
+            p += 2;
+        } else if (*p == L')') {
+            return (wchar_t *)p;
+        } else {
+            p++;
+        }
+    }
+    return NULL;
+}

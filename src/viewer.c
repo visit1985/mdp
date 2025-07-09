@@ -668,8 +668,8 @@ void add_line(WINDOW *window, int y, int x, line_t *line, int max_cols, int colo
 void inline_display(WINDOW *window, const wchar_t *c, const int colors, int nocodebg) {
     const static wchar_t *special = L"\\*_`!["; // list of interpreted chars
     const wchar_t *i = c; // iterator
-    const wchar_t *start_link_name, *start_url;
-    int length_link_name, url_num;
+    const wchar_t *label_start, *label_end, *url_start, *url_end;
+    int label_length, url_length, url_num;
     cstack_t *stack = cstack_init();
 
 
@@ -728,47 +728,48 @@ void inline_display(WINDOW *window, const wchar_t *c, const int colors, int noco
                    *i == L'\\') {
 
                     // url in pandoc style
-                    if ((*i == L'[' && wcschr(i, L']')) ||
-                        (*i == L'!' && *(i + 1) == L'[' && wcschr(i, L']'))) {
+                    if ((*i == L'[') || (*i == L'!' && *(i + 1) && *(i + 1) == L'[')) {
+                        label_start = (*i == L'!') ? i + 2 : i + 1;
+                        label_end = url_find_closing_bracket(label_start);
+                        url_start = NULL;
+                        url_end = NULL;
 
-                        if (*i == L'!') i++;
+                        if (label_end && *(label_end + 1) && *(label_end + 1) == L'(' && *(label_end + 2)) {
+                            url_start = label_end + 2;
+                            url_end = url_find_closing_parentheses(url_start);
+                        }
 
-                        if (wcschr(i, L']')[1] == L'(' && wcschr(i, L')')) {
-                            i++;
-
+                        if (label_end && *(label_end + 1) == L'(' && url_end && *url_end == L')') {
                             // turn higlighting and underlining on
                             if (colors)
                                 wattron(window, COLOR_PAIR(CP_BLUE));
                             wattron(window, A_UNDERLINE);
 
-                            start_link_name = i;
-
                             // print the content of the label
                             // the label is printed as is
-                            do {
+                            i = label_start;
+                            while (i < label_end) {
+                                if (*i == L'\\' && *(i + 1)) {
+                                    i++;
+                                }
                                 waddnwstr(window, i, 1);
                                 i++;
-                            } while (*i != L']');
+                            }
 
-                            length_link_name = i - 1 - start_link_name;
-
-                            i++;
-                            i++;
-
-                            start_url = i;
-
-                            while (*i != L')') i++;
-
-                            url_num = url_add(start_link_name, length_link_name, start_url, i - start_url, 0, 0);
+                            label_length = label_end - label_start;
+                            url_length = url_end - url_start;
+                            url_num = url_add(label_start, label_length, url_start, url_length, 0, 0);
 
                             wprintw(window, " [%d]", url_num);
+
+                            i = url_end;
 
                             // turn highlighting and underlining off
                             wattroff(window, A_UNDERLINE);
                             wattron(window, COLOR_PAIR(CP_WHITE));
 
                         } else {
-                            wprintw(window, "[");
+                            waddnwstr(window, i, 1);
                         }
 
                     } else switch(*i) {
@@ -785,6 +786,11 @@ void inline_display(WINDOW *window, const wchar_t *c, const int colors, int noco
                         case L'`':
                             if(colors && !nocodebg)
                                 wattron(window, COLOR_PAIR(CP_BLACK));
+                            break;
+                        // broken pandoc url
+                        case L'!':
+                        case L'[':
+                            waddnwstr(window, i, 1);
                             break;
                         // do nothing for backslashes
                     }
