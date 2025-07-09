@@ -3,20 +3,19 @@ NAME="mdp"
 VERSION=1.0.18
 RELEASE=1
 
-# .hint generation
+# package metadata
 CATEGORY="Utils"
 SUMMARY="A command-line based markdown presentation tool"
 DESCRIPTION="A ncurses-based command-line presentation tool, which makes
 it easy to create slides using the popular markdown format."
+HOMEPAGE="https://github.com/visit1985/mdp"
+LICENSE="GPL-3.0-or-later"
 
 # source and patch files
 SRC_URI="https://github.com/visit1985/mdp/archive/${VERSION}.tar.gz"
-DOCS="sample.md"
 
-# Build dependencies only
-DEPEND="gcc-core libncurses-devel make"
-# runtime deps to go in setup.hint
-#REQUIRES="libncursesw10"
+REQUIRES="libncursesw10"
+BUILD_REQUIRES="gcc-core libncurses-devel make"
 
 # custom src_compile, src_install and src_test
 
